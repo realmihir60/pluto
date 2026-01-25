@@ -4,11 +4,7 @@ import OpenAI from 'openai';
 // Force Node.js runtime
 export const runtime = 'nodejs';
 
-// Initialize OpenAI client pointing to Groq
-const openai = new OpenAI({
-    apiKey: process.env.GROQ_API_KEY,
-    baseURL: "https://api.groq.com/openai/v1",
-});
+
 
 export async function POST(req: NextRequest) {
     try {
@@ -18,6 +14,12 @@ export async function POST(req: NextRequest) {
                 { status: 500 }
             );
         }
+
+        // Initialize OpenAI client pointing to Groq
+        const openai = new OpenAI({
+            apiKey: process.env.GROQ_API_KEY,
+            baseURL: "https://api.groq.com/openai/v1",
+        });
 
         const { image } = await req.json();
 
