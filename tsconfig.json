@@ -23,6 +23,9 @@
       }
     ],
     "paths": {
+      "@pluto/core": [
+        "./packages/pluto-core/src/index.ts"
+      ],
       "@/*": [
         "./*"
       ]
