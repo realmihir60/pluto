@@ -1,0 +1,11 @@
+{
+    "mcpServers": {
+        "pluto": {
+            "command": "/Users/mihirmaru/.nvm/versions/node/v20.19.4/bin/node",
+            "args": [
+                "/Users/mihirmaru/JOB/pluto-landing-page/servers/pluto-mcp/dist/index.js"
+            ],
+            "trust": true
+        }
+    }
+}
