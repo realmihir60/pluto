@@ -1,0 +1,22 @@
+{
+    "name": "@pluto/mcp",
+    "version": "0.1.0",
+    "main": "dist/index.js",
+    "bin": {
+        "pluto-mcp": "dist/index.js"
+    },
+    "scripts": {
+        "build": "node build.js && chmod +x dist/index.js",
+        "start": "node dist/index.js"
+    },
+    "dependencies": {
+        "@modelcontextprotocol/sdk": "latest",
+        "@pluto/core": "file:../../packages/pluto-core",
+        "zod": "^3.22.4"
+    },
+    "devDependencies": {
+        "@types/node": "^20.0.0",
+        "esbuild": "^0.27.2",
+        "typescript": "^5.0.0"
+    }
+}
