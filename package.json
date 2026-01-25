@@ -6,7 +6,8 @@
     "build": "next build",
     "dev": "next dev",
     "lint": "eslint .",
-    "start": "next start"
+    "start": "next start",
+    "postinstall": "cd packages/pluto-core && npm install && npm run build"
   },
   "dependencies": {
     "@emotion/is-prop-valid": "latest",
