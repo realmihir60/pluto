@@ -6,7 +6,6 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
-  transpilePackages: ['@pluto/core'],
 }
 
 export default nextConfig
