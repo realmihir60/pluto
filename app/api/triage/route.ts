@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { sanitizeAndAnalyze, RuleEngine } from '@pluto/core';
+import { sanitizeAndAnalyze, RuleEngine } from '@/lib/pluto-core';
 import OpenAI from 'openai';
 
 // Switch to Node.js runtime to support OpenAI SDK easily
