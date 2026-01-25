@@ -3,11 +3,11 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "build": "next build",
+    "build": "npm run build-core && next build",
+    "build-core": "cd packages/pluto-core && npm install && npm run build",
     "dev": "next dev",
     "lint": "eslint .",
-    "start": "next start",
-    "postinstall": "cd packages/pluto-core && npm install && npm run build"
+    "start": "next start"
   },
   "dependencies": {
     "@emotion/is-prop-valid": "latest",
