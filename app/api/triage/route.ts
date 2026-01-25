@@ -77,16 +77,33 @@ export async function POST(req: NextRequest) {
         if (useAI) {
             try {
                 // Determine prompt based on what we found locally
-                console.log("Consulting Groq LLM for:", safeInput);
-                "urgency_summary": "One specific sentence explaining why this level was chosen.",
-                    "key_findings": ["Finding 1 -> Implication", "Finding 2 -> Implication"],
-                        "differential_diagnosis": [
-                            { "condition": "Name", "likelihood": "High" | "Moderate" | "Low", "rationale": "Supporting features" }
-                        ],
-                            "suggested_focus": ["Area 1", "Area 2"],
+                const completion = await openai.chat.completions.create({
+                    model: "llama-3.3-70b-versatile",
+                    messages: [
+                        {
+                            role: "system",
+                            content: `You are Pluto, a **Clinical Decision Support Engine**.
+                            Generate a **professional-grade clinical report** for a doctor.
+
+                            **OBJECTIVES**:
+                            1. **Kill the narrative**: Use bullet points and rigid structures.
+                            2. **Differential Table**: Rank conditions by likelihood (High/Mod/Low) with specific rationale.
+                            3. **Key Findings**: Do not just repeat symptoms. specific specific meaning (e.g. "Exertional dyspnea -> Raises cardiac index").
+                            4. **One-Sentence Urgency**: Why is this urgent? (e.g. "Urgent due to symptom X + Y in context of Z").
+
+                            **OUTPUT JSON SCHEMA**:
+                            {
+                                "triage_level": "urgent" | "seek_care" | "home_care" | "info",
+                                "message": "Concise summary message.",
+                                "urgency_summary": "One specific sentence explaining why this level was chosen.",
+                                "key_findings": ["Finding 1 -> Implication", "Finding 2 -> Implication"],
+                                "differential_diagnosis": [
+                                    { "condition": "Name", "likelihood": "High" | "Moderate" | "Low", "rationale": "Supporting features" }
+                                ],
+                                "suggested_focus": ["Area 1", "Area 2"],
                                 "follow_up_questions": ["Q1", "Q2", "Q3"],
-                                    "matched_symptoms": ["List"]
-            }`
+                                "matched_symptoms": ["List"]
+                            }`
                         },
                         {
                             role: "user",
@@ -131,7 +148,7 @@ export async function POST(req: NextRequest) {
                 message: assessment.guidance,
                 matched_symptoms: assessment.risk_factors,
                 urgency_summary: "Rule-based determination based on keyword matches.",
-                key_findings: assessment.risk_factors.map(r => `${ r } -> Detected keyword`),
+                key_findings: assessment.risk_factors.map(r => `${r} -> Detected keyword`),
                 differential_diagnosis: [],
                 suggested_focus: ["General Evaluation"],
                 follow_up_questions: ["Do you have any other symptoms?"],
