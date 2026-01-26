@@ -220,6 +220,7 @@ export default function DemoPage() {
   const handleConsentSubmit = async () => {
     setIsSavingConsent(true);
     try {
+      console.log("Attempting consent sign-off at /api/consent...");
       const res = await fetch('/api/consent', {
         method: 'POST',
         headers: {
@@ -228,7 +229,8 @@ export default function DemoPage() {
       });
 
       if (!res.ok) {
-        throw new Error(`Consent API returned ${res.status}`);
+        const errorText = await res.text();
+        throw new Error(`Server returned ${res.status}: ${errorText}`);
       }
 
       const data = await res.json();
@@ -237,11 +239,12 @@ export default function DemoPage() {
         setShowConsentModal(false)
         await updateSession()
       } else {
-        alert("Wait: " + (data.detail || "Failed to save consent."));
+        alert("Clinical Logic Alert: " + (data.detail || "Failed to save consent. Please refresh."));
       }
-    } catch (err) {
-      console.error(err)
-      alert("Error: Could not reach the clinical gateway. Please try again.");
+    } catch (err: any) {
+      console.error("GATEWAY_ERROR:", err);
+      // Detailed error for mobile debugging
+      alert(`Gateway Error: ${err.message || 'Connection failed'}. \n\nCheck if the /api/consent route is active.`);
     } finally {
       setIsSavingConsent(false);
     }

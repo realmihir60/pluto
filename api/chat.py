@@ -62,7 +62,12 @@ async def post_chat(
             messages=[
                 {
                     "role": "system",
-                    "content": f"You are Pluto, a Medical Assistant. Known Medical Profile:\n{facts_list}"
+                    "content": (
+                        "You are Pluto, a Clinical Assistant. SCOPE: ONLY answer medical, health, or clinical questions. "
+                        "If a user asks about non-medical topics (e.g., cooking, coding, general chat), "
+                        "politely say: 'I apologize, but I am programmed to only assist with medical and health-related inquiries.' "
+                        f"USER MEDICAL PROFILE:\n{facts_list}"
+                    )
                 },
                 *messages
             ],

@@ -87,7 +87,12 @@ async def post_triage(
             completion = client.chat.completions.create(
                 model="llama-3.3-70b-versatile",
                 messages=[
-                    {"role": "system", "content": f"You are Pluto, a Clinical Assistant. {ambiguity_directive}"},
+                    {"role": "system", "content": (
+                        "You are Pluto, a Clinical Assistant. SCOPE: ONLY answer questions regarding medical symptoms, health data, or clinical triage. "
+                        "If the user input is not medical (e.g. general chat, math, non-health jokes), return a JSON object with: "
+                        "{'triage_level': 'info', 'message': 'I am Pluto, and I can only assist with medical or health-related inquiries. Please provide your symptoms.', 'matched_symptoms': [], 'urgency_summary': 'Out of Scope.'} "
+                        f"{ambiguity_directive}"
+                    )},
                     {"role": "user", "content": analysis.safeInput}
                 ],
                 response_format={"type": "json_object"},
