@@ -36,6 +36,10 @@ export async function POST(req: NextRequest) {
         });
         const { input } = await req.json();
 
+        if (!process.env.GROQ_API_KEY) {
+            return NextResponse.json({ error: 'Server configuration error: Missing Groq API Key' }, { status: 503 });
+        }
+
         if (!input || typeof input !== 'string') {
             return NextResponse.json({ error: 'Invalid input.' }, { status: 400 });
         }
@@ -166,7 +170,7 @@ export async function POST(req: NextRequest) {
     } catch (error) {
         console.error('Triage Error:', error);
         return NextResponse.json(
-            { error: 'Internal Server Error' },
+            { error: `Internal Server Error: ${error instanceof Error ? error.message : String(error)}` },
             { status: 500 }
         );
     }
