@@ -12,7 +12,7 @@ from python_core.auth import get_current_user_optional, get_db_session
 app = FastAPI()
 
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
-BUILD_ID = "v2.6.2-auth-purge"
+BUILD_ID = "v2.6.3-route-fix"
 
 async def extract_and_save_facts(user_id: str, text: str, db: Session):
     """Memory extraction for Chat history"""
@@ -36,12 +36,11 @@ async def extract_and_save_facts(user_id: str, text: str, db: Session):
     except Exception as e:
         print(f"Chat Memory Sync Error: {e}")
 
-@app.get("/api/chat")
+@app.get("/")
 def ping_chat():
     return {"status": "alive", "service": "chat-api", "build": BUILD_ID, "mode": "auth_purged"}
 
 @app.post("/")
-@app.post("/api/chat")
 async def post_chat(
     request: Request, 
     user: Optional[User] = Depends(get_current_user_optional),

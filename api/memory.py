@@ -13,14 +13,13 @@ from python_core.auth import get_current_user_optional, get_db_session # Changed
 app = FastAPI()
 
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
-BUILD_ID = "v2.6.2-auth-purge" # Updated BUILD_ID
+BUILD_ID = "v2.6.3-route-fix"
 
-@app.get("/api/memory")
+@app.get("/")
 def ping_memory():
-    return {"status": "alive", "service": "memory-api", "build": BUILD_ID, "mode": "auth_purged"} # Added mode
+    return {"status": "alive", "service": "memory-api", "build": BUILD_ID, "mode": "auth_purged"}
 
 @app.post("/")
-@app.post("/api/memory")
 async def extract_memory(
     request: Request,
     user: Optional[User] = Depends(get_current_user_optional), # Changed to Optional[User] and get_current_user_optional

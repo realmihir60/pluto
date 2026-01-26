@@ -16,7 +16,7 @@ from python_core.auth import get_current_user_optional, get_db_session # Changed
 app = FastAPI()
 
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
-BUILD_ID = "v2.6.1-anonymous-testing" # Changed BUILD_ID
+BUILD_ID = "v2.6.3-route-fix"
 
 async def extract_and_save_facts(user_id: str, text: str, db: Session):
     """Refactored memory extraction logic for Vercel"""
@@ -39,12 +39,11 @@ async def extract_and_save_facts(user_id: str, text: str, db: Session):
     except Exception as e:
         print(f"Memory Sync Error: {e}")
 
-@app.get("/api/triage")
+@app.get("/")
 def ping_triage():
-    return {"status": "alive", "service": "triage-api", "build": BUILD_ID, "mode": "anonymous_ok"} # Added mode
+    return {"status": "alive", "service": "triage-api", "build": BUILD_ID, "mode": "anonymous_ok"}
 
 @app.post("/")
-@app.post("/api/triage")
 async def post_triage(
     request: Request, 
     user: Optional[User] = Depends(get_current_user_optional), # Changed user dependency

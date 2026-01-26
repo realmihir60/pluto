@@ -12,9 +12,9 @@ import traceback
 
 from sqlmodel import select, func
 
-BUILD_ID = "v2.6.2-auth-purge"
+BUILD_ID = "v2.6.3-route-fix"
 
-@app.get("/api/consent")
+@app.get("/")
 def ping(db: Session = Depends(get_db_session)):
     try:
         count = db.exec(select(func.count()).select_from(User)).one()
@@ -32,7 +32,6 @@ def ping(db: Session = Depends(get_db_session)):
         }
 
 @app.post("/")
-@app.post("/api/consent")
 async def update_consent(
     user: Optional[User] = Depends(get_current_user_optional),
     db: Session = Depends(get_db_session)
