@@ -64,17 +64,18 @@ async def post_triage(
         
         # 2. Crisis Check
         if analysis.hasCrisisKeywords:
-            event = TriageEvent(
-                id=f"evt_{uuid.uuid4().hex[:8]}",
-                userId=user.id,
-                symptoms=analysis.safeInput,
-                actionRecommended="Crisis",
-                urgency="High",
-                engineVersion="2.5.0-crisis",
-                logicSnapshot={"reason": "Crisis Keyword Detected"}
-            )
-            db.add(event)
-            db.commit()
+            if user:
+                event = TriageEvent(
+                    id=f"evt_{uuid.uuid4().hex[:8]}",
+                    userId=user.id,
+                    symptoms=analysis.safeInput,
+                    actionRecommended="Crisis",
+                    urgency="High",
+                    engineVersion="2.6.4-crisis",
+                    logicSnapshot={"reason": "Crisis Keyword Detected"}
+                )
+                db.add(event)
+                db.commit()
             return {
                 "triage_level": "crisis",
                 "message": "CRITICAL: Potential medical emergency.",

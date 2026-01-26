@@ -87,7 +87,7 @@ async def post_chat(
         content = completion.choices[0].message.content
         
         # Background Memory Sync
-        if messages:
+        if messages and user:
             last_user_msg = messages[-1].get("content", "")
             await extract_and_save_facts(user.id, last_user_msg, db)
 
