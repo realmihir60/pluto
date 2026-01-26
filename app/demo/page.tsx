@@ -83,8 +83,9 @@ export default function DemoPage() {
   const [result, setResult] = useState<AnalysisResult | null>(null)
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false)
 
-  const isLoading = false
-  const isAuthenticated = true
+  const { data: session, status } = useSession()
+  const isAuthenticated = status === "authenticated"
+  const isLoading = status === "loading"
   const router = useRouter()
 
   // Vault State

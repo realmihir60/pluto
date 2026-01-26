@@ -25,6 +25,13 @@ export function FooterSection() {
           </p>
         </div>
 
+        {/* Legal Links */}
+        <div className="flex justify-center gap-6 mb-8 text-xs font-medium text-muted-foreground">
+          <a href="/privacy" className="hover:text-primary transition-colors">Privacy Policy</a>
+          <a href="/terms" className="hover:text-primary transition-colors">Terms of Service</a>
+          <a href="mailto:support@plutohealth.ai" className="hover:text-primary transition-colors">Support</a>
+        </div>
+
         {/* Copyright */}
         <div className="text-center pt-4 border-t border-border">
           <p className="text-xs text-muted-foreground">
