@@ -135,16 +135,34 @@ export async function extractAndSaveFacts(userId: string, text: string) {
     }
 }
 
+export async function updateUserConsent() {
+    const session = await auth();
+    if (!session?.user?.email) return { error: "Not authenticated" };
+
+    try {
+        await prisma.user.update({
+            where: { email: session.user.email },
+            data: { hasConsented: true }
+        });
+        return { success: true };
+    } catch (error) {
+        console.error("Consent Update Failed:", error);
+        return { error: "Failed to save consent" };
+    }
+}
+
 export async function saveTriageResult(data: {
     symptoms: string;
     aiResult: any;
+    engineVersion?: string;
+    logicSnapshot?: any;
 }) {
     const session = await auth();
     if (!session?.user?.email) {
         return { error: "Not authenticated" };
     }
 
-    const { symptoms, aiResult } = data;
+    const { symptoms, aiResult, engineVersion, logicSnapshot } = data;
 
     try {
         const user = await prisma.user.findUnique({
@@ -153,19 +171,22 @@ export async function saveTriageResult(data: {
 
         if (!user) throw new Error("User not found");
 
-        // 1. Save Event
+        // 1. Save Event with Full Compliance Snapshot
         await prisma.triageEvent.create({
             data: {
                 userId: user.id,
                 symptoms: symptoms,
                 aiResult: aiResult,
-                actionRecommended: aiResult.severity?.level || "Unknown",
-                urgency: aiResult.severity?.level?.includes("URGENT") ? "High" : "Low",
+                engineVersion: engineVersion || "2.1.0-js",
+                logicSnapshot: logicSnapshot || {},
+                actionRecommended: aiResult.severity?.level || aiResult.triage_level || "Unknown",
+                urgency: (aiResult.severity?.level?.includes("URGENT") ||
+                    aiResult.triage_level?.includes("urgent") ||
+                    aiResult.triage_level === "crisis") ? "High" : "Low",
             },
         });
 
-        // 2. Trigger Memory Extraction (Fire and forget, or await)
-        // We await it here to ensure it runs during the demo loop
+        // 2. Trigger Memory Extraction
         await extractAndSaveFacts(user.id, symptoms);
 
         return { success: true };

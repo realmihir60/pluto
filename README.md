@@ -3,41 +3,46 @@
 > **AI-Powered Clinical Triage Engine with Long-Term Memory** - Professional-grade symptom analysis and clinical decision support.
 
 [![Next.js](https://img.shields.io/badge/Next.js-15.0-black)](https://nextjs.org/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue)](https://www.typescriptlang.org/)
-[![Prisma](https://img.shields.io/badge/Prisma-5.0-blue)](https://www.prisma.io/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.128-green)](https://fastapi.tiangolo.com/)
+[![SQLModel](https://img.shields.io/badge/SQLModel-0.0.31-blue)](https://sqlmodel.tiangolo.com/)
 [![License](https://img.shields.io/badge/license-MIT-green)](./LICENSE)
 
 ## 🌟 Overview
 
-Pluto Health is an intelligent clinical triage system that analyzes patient symptoms and generates professional-grade medical assessments. Built with **Neuro-Symbolic AI** (combining Llama 3 with clinical rules), it provides structured clinical insights including differential diagnoses, key findings, and urgency-based triage recommendations.
+Pluto Health is an intelligent clinical triage system that analyzes patient symptoms and generates professional-grade medical assessments. Built with a **Hybrid Micro-service** architecture, it combines a React/Next.js frontend with a high-performance Python FastAPI clinical brain.
 
-**New in v2: Active Memory 🧠**
-Pluto now remembers your medical history. It automatically extracts chronic conditions and medications from your chats and injects them into future analyses for safer, context-aware triage.
-
-**Key Features:**
-- 🎯 **Professional Clinical Reports** - Structured output with differential diagnosis tables.
-- 🧠 **AI Memory & Vault** - Successfully extracts and remembers your medical profile (Allergies, Meds).
-- 🗣️ **Voice Triage** - Upload symptoms via voice recording with real-time transcription.
-- 📄 **Document Analysis** - Extract clinical information from images/labs.
-- � **Secure Auth & Database** - Powered by Auth.js and PostgreSQL (Prisma).
-- 🎨 **Glassmorphism UI** - Premium medical interface optimized for all devices.
+---
 
 ## 🚀 Tech Stack
 
 ### Core Technologies
-- **Framework**: Next.js 15 (App Router, Server Actions)
-- **Database**: PostgreSQL (via Prisma ORM)
-- **Authentication**: Auth.js (NextAuth v5)
+- **Frontend**: Next.js 15 (App Router, Server Actions)
+- **Clinical Engine**: Python FastAPI (Clinical Logic, PII Scrubbing, Audit Snapshots)
+- **Database**: PostgreSQL (Prisma for JS, SQLModel for Python)
+- **Authentication**: Auth.js (NextAuth v5) + Python Auth Bridge
 - **AI Models**:
   - Groq Llama 3.3 70B (Clinical Reasoning & Fact Extraction)
   - Groq Whisper V3 (Transcription)
-  - Llama 3.2 Vision (Document Analysis)
+
+---
+
+## 🏗️ Architecture
+
+Pluto uses a **Decoupled Security** model:
+1.  **Frontend (Next.js)**: Handles UI, Authentication, and acts as a secure proxy to the clinical engine.
+2.  **Clinical Brain (FastAPI)**: Isolated Python service that handles PII scrubbing, deterministic rule matching, and AI orchestration.
+3.  **Audit Trail**: Every incident snapshots the raw AI prompts and rule engine state.
+
+For a detailed technical breakdown, see [SYSTEM_OVERVIEW.md](./SYSTEM_OVERVIEW.md).
+
+---
 
 ## 📦 Installation
 
 ### Prerequisites
 - Node.js 20+
-- PostgreSQL Database (Local or Vercel Postgres)
+- Python 3.10+
+- PostgreSQL Database
 - Groq API Key
 
 ### Setup
@@ -48,55 +53,46 @@ Pluto now remembers your medical history. It automatically extracts chronic cond
    cd pluto
    ```
 
-2. **Install dependencies**
+2. **Frontend Setup (Node.js)**
    ```bash
    npm install
-   ```
-
-3. **Configure Environment**
-   Create a `.env` file:
-   ```env
-   # AI
-   GROQ_API_KEY=your_groq_key
-
-   # Database
-   DATABASE_URL="postgresql://user:password@localhost:5432/pluto"
-
-   # Auth
-   AUTH_SECRET="your_random_secret_key" # Generate with: npx auth secret
-   ```
-
-4. **Initialize Database**
-   ```bash
    npx prisma generate
    npx prisma db push
    ```
 
-5. **Run Development Server**
+3. **Backend Setup (Python)**
    ```bash
-   npm run dev
+   cd backend
+   python3 -m venv venv
+   source venv/bin/activate
+   pip install -r requirements.txt
    ```
 
-## �️ Architecture
+4. **Environment Variables**
+   Create a `.env` file in the root directory:
+   ```env
+   GROQ_API_KEY=your_groq_key
+   DATABASE_URL="postgresql://user:password@localhost:5432/postgres"
+   NEXT_PUBLIC_API_URL=http://localhost:8000
+   AUTH_SECRET="your_random_secret_key"
+   ```
 
-### 1. The Triage Pipeline
-- **Layer 1 (Edge):** Sanitizes inputs and blocks crisis keywords instantly.
-- **Layer 2 (Rules):** Checks against 500+ static clinical rules.
-- **Layer 3 (AI):** Llama 3.3 70B performs differential diagnosis.
+5. **Run the Application**
+   - **Start Python Backend**: `cd backend && source venv/bin/activate && uvicorn main:app --reload --port 8000`
+   - **Start Next.js Frontend**: `npm run dev`
 
-### 2. The Memory System
-- **Extraction:** After every chat, a background worker parses the conversation for "Medical Facts" (e.g., "User has Asthma").
-- **Storage:** Facts are stored in the `MedicalFact` table linked to the User.
-- **Injection:** When a new chat starts, these facts are fetched and inserted into the System Prompt.
+---
 
-## � Roadmap
+## 📅 Roadmap
 
 - [x] Core Triage Engine
-- [x] User Authentication
-- [x] Database Persistence
-- [x] Long-term AI Memory
+- [x] Python Backend Migration (FastAPI)
+- [x] Clinical Audit Trail & Logic Snapshots
+- [x] Adversarial PII Scrubbing
+- [x] User Authentication & Consent Gate
 - [ ] Telemedicine Integration
-- [ ] Mobile App (React Native)
+
+---
 
 ## ⚠️ Disclaimer
 

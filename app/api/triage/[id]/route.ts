@@ -1,8 +1,5 @@
 import { auth } from "@/auth";
-import { PrismaClient } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
-
-const prisma = new PrismaClient();
 
 export async function GET(
     req: NextRequest,
@@ -15,25 +12,29 @@ export async function GET(
         }
 
         const { id } = await params;
+        const sessionToken = req.cookies.get('authjs.session-token')?.value ||
+            req.cookies.get('__Secure-authjs.session-token')?.value ||
+            "DEMO_TOKEN";
 
-        const event = await prisma.triageEvent.findUnique({
-            where: { id },
-            include: { user: true }
+        const pythonBackendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+
+        const response = await fetch(`${pythonBackendUrl}/triage/${id}`, {
+            method: 'GET',
+            headers: {
+                'x-session-token': sessionToken
+            },
         });
 
-        if (!event) {
-            return NextResponse.json({ error: "Event not found" }, { status: 404 });
+        if (!response.ok) {
+            const errorData = await response.json();
+            return NextResponse.json({ error: errorData.detail || 'Python Backend Error' }, { status: response.status });
         }
 
-        // Security check: Ensure the event belongs to the authenticated user
-        if (event.user.email !== session.user.email) {
-            return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
-        }
-
-        return NextResponse.json(event);
+        const data = await response.json();
+        return NextResponse.json(data);
 
     } catch (error) {
-        console.error("Fetch Triage Detail Error:", error);
+        console.error("Fetch Triage Detail Proxy Error:", error);
         return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
     }
 }
