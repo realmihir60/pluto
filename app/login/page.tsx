@@ -15,26 +15,29 @@ export default function LoginPage() {
             </div>
 
             <div className="w-full max-w-sm relative">
-                <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-8 shadow-xl">
+                <div className="bg-white/60 dark:bg-black/40 backdrop-blur-xl border border-white/20 dark:border-white/10 rounded-3xl p-8 shadow-2xl transition-all">
                     <div className="mb-8 text-center space-y-2">
-                        <div className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-blue-500/10 text-blue-600 mb-2">
+                        <div className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary mb-2 shadow-inner">
                             <Sparkles className="h-6 w-6" />
                         </div>
-                        <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
+                        <h1 className="text-3xl font-bold tracking-tight text-foreground">
                             Welcome back
                         </h1>
-                        <p className="text-sm text-slate-500 dark:text-slate-400">
+                        <p className="text-sm text-muted-foreground">
                             Enter your credentials to access your vault.
                         </p>
                     </div>
 
                     <LoginForm />
 
-                    <div className="mt-6 text-center space-y-3">
-                        <div className="text-sm text-slate-600 dark:text-slate-400">
-                            Don't have an account? <Link href="/signup" className="text-blue-600 hover:underline">Sign up</Link>
+                    <div className="mt-8 text-center space-y-4">
+                        <div className="text-sm text-muted-foreground font-medium">
+                            Don't have an account? <Link href="/signup" className="text-primary hover:text-primary/80 transition-colors font-semibold">Sign up</Link>
                         </div>
-                        <Link href="/" className="text-xs text-slate-400 hover:text-blue-600 transition-colors flex items-center justify-center gap-1">
+                        <Link
+                            href="/"
+                            className="text-xs text-muted-foreground/60 hover:text-primary transition-all flex items-center justify-center gap-1.5 hover:-translate-x-1 duration-200"
+                        >
                             <ArrowLeft className="size-3" />
                             Back to Home
                         </Link>
