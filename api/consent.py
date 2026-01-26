@@ -10,9 +10,24 @@ app = FastAPI()
 
 import traceback
 
+from sqlmodel import select, func
+
 @app.get("/api/consent")
-def ping():
-    return {"status": "alive", "service": "consent-api", "db_connected": engine is not None}
+def ping(db: Session = Depends(get_db_session)):
+    try:
+        count = db.exec(select(func.count()).select_from(User)).one()
+        return {
+            "status": "alive", 
+            "service": "consent-api", 
+            "db_connected": engine is not None,
+            "user_count": count
+        }
+    except Exception as e:
+        return {
+            "status": "error",
+            "error": str(e),
+            "traceback": traceback.format_exc()
+        }
 
 @app.post("/")
 @app.post("/api/consent")
