@@ -1,6 +1,6 @@
 'use server';
 
-import { signIn, auth } from '@/auth';
+import { signIn, signOut, auth } from '@/auth';
 import { AuthError } from 'next-auth';
 
 export async function authenticate(
@@ -22,11 +22,13 @@ export async function authenticate(
     }
 }
 
-import { PrismaClient } from '@prisma/client';
+export async function handleSignOut() {
+    await signOut({ redirectTo: '/login' });
+}
+
+import prisma from '@/lib/prisma';
 import bcrypt from 'bcryptjs';
 import { redirect } from 'next/navigation';
-
-const prisma = new PrismaClient();
 
 export async function registerUser(prevState: string | undefined, formData: FormData) {
     const name = formData.get('name') as string;

@@ -1,4 +1,5 @@
 import { auth, signOut } from '@/auth';
+import { handleSignOut } from '@/app/lib/actions';
 import { PrismaClient } from '@prisma/client';
 import { History, Activity, LogOut, FileText, ArrowRight, Pill, User } from 'lucide-react';
 import Link from 'next/link';
@@ -73,12 +74,7 @@ export default async function DashboardPage() {
                                 </div>
                             </div>
                             <div className="mt-6">
-                                <form
-                                    action={async () => {
-                                        'use server';
-                                        await signOut();
-                                    }}
-                                >
+                                <form action={handleSignOut}>
                                     <button className="w-full flex items-center justify-center gap-2 text-sm text-muted-foreground hover:text-red-500 transition-colors py-2">
                                         <LogOut className="size-3.5" />
                                         Sign Out

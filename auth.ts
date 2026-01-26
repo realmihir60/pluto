@@ -2,11 +2,8 @@ import NextAuth from 'next-auth';
 import { authConfig } from './auth.config';
 import Credentials from 'next-auth/providers/credentials';
 import { z } from 'zod';
-import { PrismaClient } from '@prisma/client';
+import prisma from '@/lib/prisma';
 import bcrypt from 'bcryptjs';
-
-// Use a global prisma client instance to prevent multiple connections in dev
-const prisma = new PrismaClient();
 
 async function getUser(email: string) {
     try {
@@ -42,10 +39,10 @@ export const { auth, signIn, signOut, handlers } = NextAuth({
                     const passwordsMatch = await bcrypt.compare(password, user.password || '');
                     if (passwordsMatch) {
                         return {
-                            id: user.id,
-                            email: user.email,
-                            name: user.name,
-                            hasConsented: user.hasConsented
+                            id: (user as any).id,
+                            email: (user as any).email,
+                            name: (user as any).name,
+                            hasConsented: (user as any).hasConsented
                         };
                     }
                 }
