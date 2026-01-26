@@ -19,26 +19,24 @@ class ChatRequest(BaseModel):
     messages: List[ChatMessage]
 
 @router.post("/chat")
-async def post_chat(request: ChatRequest, x_user_email: Optional[str] = Header(None)):
+async def post_chat(
+    request: ChatRequest, 
+    user: User = Depends(get_consented_user)
+):
     """
     Python version of the Follow-up Chat API.
+    Secured by get_consented_user.
     """
     if not GROQ_API_KEY:
         raise HTTPException(status_code=503, detail="Chat functionality unavailable (Missing API Key).")
 
-    user_profile = "Unknown User (Guest)"
-    facts_list = "None"
-    user_id = None
-
-    if x_user_email:
-        with Session(engine) as session:
-            statement = select(User).where(User.email == x_user_email)
-            user = session.exec(statement).first()
-            if user:
-                user_id = user.id
-                user_profile = f"{user.name} ({user.email})"
-                facts = user.medical_facts
-                facts_list = "\n".join([f"- {f.type}: {f.value}" for f in facts])
+    user_profile = f"{user.name} ({user.email})"
+    user_id = user.id
+    
+    with Session(engine) as session:
+        # Fetch fresh medical facts for the user
+        facts = user.medical_facts
+        facts_list = "\n".join([f"- {f.type}: {f.value}" for f in facts])
 
     try:
         client = openai.OpenAI(

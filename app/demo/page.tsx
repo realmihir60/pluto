@@ -72,12 +72,21 @@ const mockAnalysis: AnalysisResult = {
 }
 
 export default function DemoPage() {
+  const { data: session, status, update: updateSession } = useSession()
+  const [hasConsented, setHasConsented] = useState<boolean>(false)
+  const [showConsentModal, setShowConsentModal] = useState<boolean>(false)
+
+  // Sync consent from session
+  useEffect(() => {
+    if (session?.user) {
+      setHasConsented((session.user as any).hasConsented || false)
+    }
+  }, [session])
   const [state, setState] = useState<DemoState>("idle")
   const [symptoms, setSymptoms] = useState("")
   const [result, setResult] = useState<AnalysisResult | null>(null)
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false)
 
-  const { data: session, status } = useSession()
   const isLoading = status === "loading"
   const isAuthenticated = !!session?.user
   const router = useRouter()
@@ -207,8 +216,33 @@ export default function DemoPage() {
     fileInputRef.current?.click();
   }, []);
 
-  const handleAnalyze = useCallback(async () => {
+  const handleConsentSubmit = async () => {
+    try {
+      // Assuming updateUserConsent is defined elsewhere or needs to be imported
+      // For now, a placeholder:
+      const res = { success: true }; // Replace with actual API call
+      // const res = await updateUserConsent()
+      if (res.success) {
+        setHasConsented(true)
+        setShowConsentModal(false)
+        await updateSession() // Refresh session to include new consent status
+      } else {
+        alert("Failed to save consent. Please try again.")
+      }
+    } catch (err) {
+      console.error(err)
+    }
+  }
+
+  const handleAnalyze = useCallback(async (e?: React.FormEvent) => {
+    if (e) e.preventDefault()
     if (symptoms.trim().length < 10 && !attachedImage) return
+
+    if (!hasConsented) {
+      setShowConsentModal(true)
+      return
+    }
+
     setState("processing")
     setResult(null)
 
@@ -636,6 +670,42 @@ export default function DemoPage() {
                     {/* Body */}
                     <div className="p-6 space-y-6">
 
+                      {/* Section 0: Emergency Hub (Crisis/Urgent only) */}
+                      {(result.severity.level.includes('URGENT') || result.severity.level.includes('CRISIS')) && (
+                        <div className="p-6 rounded-2xl bg-red-500/10 border-2 border-red-500/20 shadow-inner">
+                          <div className="flex flex-col md:flex-row gap-6 items-center">
+                            <div className="p-4 bg-red-500 rounded-2xl shadow-lg animate-pulse">
+                              <AlertTriangle className="size-8 text-white" />
+                            </div>
+                            <div className="flex-1 text-center md:text-left">
+                              <h2 className="text-xl font-bold text-red-600 dark:text-red-400 mb-1">
+                                Emergency Response Hub
+                              </h2>
+                              <p className="text-sm text-red-700/80 dark:text-red-400/80 font-medium">
+                                Significant clinical risks detected. Immediate action is required.
+                              </p>
+                            </div>
+                            <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+                              <a
+                                href="tel:911"
+                                className="flex-1 text-center px-6 py-3 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl shadow-md transition-all flex items-center justify-center gap-2"
+                              >
+                                Call 911
+                              </a>
+                              <a
+                                href={`https://www.google.com/maps/search/hospital+near+me`}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="flex-1 text-center px-6 py-3 bg-white dark:bg-zinc-900 border-2 border-red-200 dark:border-red-900/50 text-red-600 dark:text-red-400 font-bold rounded-xl hover:bg-red-50 transition-all flex items-center justify-center gap-2"
+                              >
+                                <Search className="size-4" />
+                                Nearest ER
+                              </a>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
                       {/* Section 1: Urgency Summary (One Glance) */}
                       {result.urgency_summary && (
                         <div className="p-4 rounded-xl bg-amber-50/50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-800/30">
@@ -936,6 +1006,85 @@ export default function DemoPage() {
           </div>
         </div>
       </div>
+
+      {/* Consent Gate Modal */}
+      <AnimatePresence>
+        {showConsentModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm"
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              className="w-full max-w-lg bg-card border border-border rounded-2xl shadow-2xl overflow-hidden"
+            >
+              <div className="p-6 border-b border-border bg-secondary/30">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="p-2 bg-primary/10 rounded-lg">
+                    <Lock className="size-5 text-primary" />
+                  </div>
+                  <h2 className="text-xl font-bold text-foreground">Clinical Terms of Use</h2>
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  Please review and accept our medical safety terms before proceeding.
+                </p>
+              </div>
+
+              <div className="p-6 space-y-4 max-h-[60vh] overflow-y-auto">
+                <div className="space-y-3">
+                  <div className="flex gap-3 p-3 rounded-xl bg-secondary/20 border border-border/50">
+                    <AlertTriangle className="size-5 text-amber-500 shrink-0 mt-0.5" />
+                    <div>
+                      <p className="text-sm font-semibold text-foreground">Not a Diagnosis</p>
+                      <p className="text-xs text-muted-foreground">
+                        Pluto is an educational utility. It cannot diagnose disease or prescribe treatment.
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex gap-3 p-3 rounded-xl bg-secondary/20 border border-border/50">
+                    <Activity className="size-5 text-red-500 shrink-0 mt-0.5" />
+                    <div>
+                      <p className="text-sm font-semibold text-foreground">Emergency Awareness</p>
+                      <p className="text-xs text-muted-foreground">
+                        If you have chest pain, signs of stroke, or severe trauma, call emergency services immediately.
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex gap-3 p-3 rounded-xl bg-secondary/20 border border-border/50">
+                    <Lock className="size-5 text-blue-500 shrink-0 mt-0.5" />
+                    <div>
+                      <p className="text-sm font-semibold text-foreground">Data Privacy</p>
+                      <p className="text-xs text-muted-foreground">
+                        Your data is encrypted and stored in your secure health vault. PII is scrubbed before processing.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="p-6 bg-secondary/10 border-t border-border flex flex-col sm:flex-row gap-3">
+                <Button
+                  variant="outline"
+                  className="flex-1 rounded-xl"
+                  onClick={() => setShowConsentModal(false)}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  className="flex-1 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90"
+                  onClick={handleConsentSubmit}
+                >
+                  I Accept & Agree
+                </Button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div >
   )
 }

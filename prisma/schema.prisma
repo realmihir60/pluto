@@ -15,6 +15,7 @@ model User {
   emailVerified DateTime?
   image         String?
   password      String?
+  hasConsented  Boolean         @default(false)
   createdAt     DateTime        @default(now())
   updatedAt     DateTime        @updatedAt
   accounts      Account[]
@@ -86,6 +87,8 @@ model TriageEvent {
   userId            String
   symptoms          String
   aiResult          Json
+  engineVersion     String   @default("2.1.0")
+  logicSnapshot     Json     @default("{}")
   actionRecommended String
   urgency           String
   createdAt         DateTime @default(now())

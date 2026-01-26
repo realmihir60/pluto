@@ -12,12 +12,13 @@ class SanitizationResult:
 def sanitize_and_analyze(input_text: str) -> SanitizationResult:
     """
     Layer 1: Edge Sanitization & Crisis Detection
-    - Strips PII (Phone, Email)
+    - Strips PII (Phone, Email, Names, Locations)
+    - Detects Identity Obfuscation (e.g. "My name rhymes with...")
     - Detects Crisis Keywords immediately
     """
     safe_input = input_text
 
-    # 1. Strip PII
+    # 1. Strip PII (Standard Patterns)
     # Email Regex
     safe_input = re.sub(
         r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b',
@@ -32,7 +33,21 @@ def sanitize_and_analyze(input_text: str) -> SanitizationResult:
         safe_input
     )
 
-    # 2. Crisis Detection
+    # 2. Adversarial Pattern Recognition (Anti-obfuscation)
+    # Match Common Lead-in phrases for PII
+    pii_leads = [
+        r"my\s+name\s+is\s+[\w\s]+",
+        r"call\s+me\s+[\w\s]+",
+        r"i\s+live\s+at\s+[\w\s,]+",
+        r"my\s+address\s+is\s+[\w\s,]+",
+        r"my\s+name\s+rhymes\s+with\s+[\w\s]+",
+        r"my\s+email\s+ends\s+in\s+[\w\s\.]+",
+    ]
+    
+    for pattern in pii_leads:
+        safe_input = re.sub(pattern, "[PII DETECTED & MASKED]", safe_input, flags=re.IGNORECASE)
+
+    # 3. Crisis Detection
     detected_crisis_keywords: List[str] = []
     lower_input = safe_input.lower()
 
