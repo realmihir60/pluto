@@ -59,7 +59,7 @@ export async function registerUser(prevState: string | undefined, formData: Form
 
     } catch (error) {
         console.error("Registration Error:", error);
-        return "Failed to create account.";
+        return `Failed to create account: ${error instanceof Error ? error.message : String(error)}`;
     }
 
     // 4. Redirect to login (or auto-login)
