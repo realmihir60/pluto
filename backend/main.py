@@ -20,16 +20,36 @@ def get_session():
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Optional: Create tables on start if they don't exist
-    # SQLModel.metadata.create_all(engine)
+    # Startup validation
+    print("[Production] Validating service dependencies...")
+    try:
+        with Session(engine) as session:
+            # Simple check to verify DB connectivity
+            session.exec(select(1)).first()
+            print("DB Status: OK")
+    except Exception as e:
+        print(f"DB Status: ERROR ({e})")
     yield
 
 app = FastAPI(lifespan=lifespan)
 
+# Security Headers Middleware
+@app.middleware("http")
+async def add_security_headers(request, call_next):
+    response = await call_next(request)
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-XSS-Protection"] = "1; mode=block"
+    response.headers["Content-Security-Policy"] = "default-src 'self'; frame-ancestors 'none'"
+    response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
+    return response
+
 # Allow CORS for Next.js frontend
+# In production, this should be restricted to the specific frontend URL
+ALLOWED_ORIGINS = os.getenv("ALLOWED_ORIGINS", "http://localhost:3000").split(",")
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=ALLOWED_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -37,7 +57,12 @@ app.add_middleware(
 
 @app.get("/health")
 def health_check():
-    return {"status": "ok", "service": "pluto-backend-python"}
+    # Production health check returns rich status
+    return {
+        "status": "healthy",
+        "service": "pluto-backend-python",
+        "environment": os.getenv("ENV", "production")
+    }
 
 # Import routes
 from .api import triage, chat

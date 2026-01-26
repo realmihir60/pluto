@@ -39,5 +39,22 @@ async def get_current_user(
 
     return user
 
+async def get_consented_user(
+    user: User = Depends(get_current_user)
+) -> User:
+    """
+    Strict dependency that ensures the user has signed the legal consent gate.
+    Bypass attempt on this dependency must return 403 Forbidden.
+    """
+    if not user.has_consented:
+        raise HTTPException(
+            status_code=403, 
+            detail={
+                "error": "consent_required",
+                "message": "You must agree to the clinical terms before proceeding."
+            }
+        )
+    return user
+
 # Add datetime import since it's used
 from datetime import datetime
