@@ -17,7 +17,7 @@ export default function SignupPage() {
             <div className="w-full max-w-sm relative group">
                 <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-purple-500/20 rounded-3xl blur-xl transition-all duration-500 group-hover:blur-2xl opacity-50" />
 
-                <div className="relative bg-white/60 dark:bg-black/40 backdrop-blur-2xl border border-white/20 dark:border-white/10 rounded-3xl p-8 shadow-2xl ring-1 ring-black/5">
+                <div className="relative bg-white/60 dark:bg-black/40 backdrop-blur-md border border-white/20 dark:border-white/10 rounded-3xl p-8 shadow-2xl ring-1 ring-black/5">
                     <div className="mb-8 text-center space-y-2">
                         <div className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary mb-2">
                             <UserPlus className="h-6 w-6" />
