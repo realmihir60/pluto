@@ -1,0 +1,11 @@
+fastapi
+uvicorn
+python-dotenv
+openai
+pydantic
+sqlalchemy
+psycopg2-binary
+sqlmodel
+bcrypt
+python-multipart
+# Add any other needed deps
