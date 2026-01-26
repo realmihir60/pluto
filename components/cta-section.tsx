@@ -7,11 +7,11 @@ import { ArrowRight, Zap } from "lucide-react"
 
 export function CTASection() {
     return (
-        <section className="py-40 bg-background relative overflow-hidden">
+        <section className="py-40 relative overflow-hidden">
             <div className="max-w-7xl mx-auto px-6 relative">
-                <div className="relative p-8 md:p-20 rounded-[3rem] overflow-hidden">
+                <div className="relative p-8 md:p-20 rounded-[3rem] overflow-hidden bg-slate-900 shadow-2xl">
                     {/* Background Layer */}
-                    <div className="absolute inset-0 primary-gradient -z-10" />
+                    <div className="absolute inset-0 primary-gradient" />
                     <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-white/10 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2" />
 
                     <motion.div

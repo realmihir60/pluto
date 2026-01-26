@@ -5,35 +5,42 @@
 
 :root {
   /* iOS-like Light Mode */
-  --background: oklch(0.98 0.01 240); /* Very subtle cool gray/white */
-  --foreground: oklch(0.15 0.02 240); /* Deep navy/black */
-  
-  --card: oklch(1 0 0); /* Pure white for glass bases */
+  --background: oklch(0.98 0.01 240);
+  /* Very subtle cool gray/white */
+  --foreground: oklch(0.15 0.02 240);
+  /* Deep navy/black */
+
+  --card: oklch(1 0 0);
+  /* Pure white for glass bases */
   --card-foreground: oklch(0.15 0.02 240);
-  
+
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.15 0.02 240);
-  
-  --primary: oklch(0.55 0.2 260); /* Vibrant iOS Blue */
+
+  --primary: oklch(0.55 0.2 260);
+  /* Vibrant iOS Blue */
   --primary-foreground: oklch(1 0 0);
-  
-  --secondary: oklch(0.96 0.01 240); /* Light gray for inputs/secondary buttons */
+
+  --secondary: oklch(0.96 0.01 240);
+  /* Light gray for inputs/secondary buttons */
   --secondary-foreground: oklch(0.40 0.04 240);
-  
+
   --muted: oklch(0.96 0.01 240);
   --muted-foreground: oklch(0.55 0.03 240);
-  
+
   --accent: oklch(0.94 0.02 240);
   --accent-foreground: oklch(0.20 0.05 240);
-  
+
   --destructive: oklch(0.65 0.20 25);
   --destructive-foreground: oklch(1 0 0);
-  
-  --border: oklch(0.92 0.01 240); /* Very subtle borders */
+
+  --border: oklch(0.92 0.01 240);
+  /* Very subtle borders */
   --input: oklch(0.96 0.01 240);
   --ring: oklch(0.55 0.2 260);
-  
-  --radius: 1rem; /* Larger border radius for iOS feel */
+
+  --radius: 1rem;
+  /* Larger border radius for iOS feel */
 }
 
 .dark {
@@ -116,7 +123,26 @@
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+@layer utilities {
+  .glass {
+    @apply bg-background/60 backdrop-blur-xl border border-white/10 dark:border-white/5;
+  }
+
+  .glass-morphism {
+    @apply bg-white/5 backdrop-blur-lg border border-white/10 shadow-[0_8px_32px_0_rgba(31, 38, 135, 0.37)];
+  }
+
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-linear-to-br from-foreground via-foreground/90 to-foreground/70;
+  }
+
+  .primary-gradient {
+    @apply bg-linear-to-br from-primary via-primary/90 to-primary/80;
   }
 }

@@ -669,38 +669,53 @@ export default function DemoPage() {
         </div>
 
         {/* Input Area */}
-        <div className="shrink-0 bg-white/50 dark:bg-black/50 backdrop-blur-xl border-t border-border/50 p-4 md:p-10">
+        <div className="shrink-0 bg-transparent p-4 md:p-10 relative z-20">
           <div className="max-w-3xl mx-auto relative group">
-            <textarea
-              ref={textareaRef}
-              value={state === "results" ? chatInput : symptoms}
-              onChange={(e) => state === "results" ? setChatInput(e.target.value) : setSymptoms(e.target.value)}
-              onFocus={handleFocus}
-              onKeyDown={(e) => {
-                if (state === "results") {
-                  if (e.key === "Enter" && !e.shiftKey) {
-                    e.preventDefault();
-                    handleSendMessage();
+            {/* Premium Input Container */}
+            <div className="relative glass-morphism border border-white/20 rounded-[2.5rem] shadow-3xl overflow-hidden transition-all duration-500 group-within:ring-4 group-within:ring-primary/10">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 blur-3xl -mr-16 -mt-16 transition-transform duration-500 group-within:scale-150" />
+
+              <textarea
+                ref={textareaRef}
+                value={state === "results" ? chatInput : symptoms}
+                onChange={(e) => state === "results" ? setChatInput(e.target.value) : setSymptoms(e.target.value)}
+                onFocus={handleFocus}
+                onKeyDown={(e) => {
+                  if (state === "results") {
+                    if (e.key === "Enter" && !e.shiftKey) {
+                      e.preventDefault();
+                      handleSendMessage();
+                    }
+                  } else {
+                    handleKeyDown(e);
                   }
-                } else {
-                  handleKeyDown(e);
-                }
-              }}
-              placeholder={state === "results" ? "Ask a clinical follow-up..." : "Describe your symptoms in detail..."}
-              className="w-full pl-6 pr-36 py-5 bg-background border-border/50 focus:border-primary/50 rounded-3xl resize-none focus:outline-none focus:ring-4 focus:ring-primary/5 shadow-2xl transition-all text-lg"
-              rows={1}
-            />
-            <div className="absolute right-4 bottom-4 flex items-center gap-2">
-              <button onClick={toggleRecording} className={`p-3 rounded-2xl transition-all ${isRecording ? 'bg-red-500 text-white' : 'hover:bg-secondary text-muted-foreground'}`}>
-                {isRecording ? <div className="size-4 bg-white rounded-sm animate-pulse" /> : <Mic className="size-5" />}
-              </button>
-              <button
-                onClick={state === "results" ? handleSendMessage : handleAnalyze}
-                disabled={state === "processing"}
-                className="size-12 rounded-2xl bg-primary text-primary-foreground flex items-center justify-center shadow-xl shadow-primary/20 hover:scale-105 transition-transform"
-              >
-                <ArrowRight className="size-6" />
-              </button>
+                }}
+                placeholder={state === "results" ? "Ask a clinical follow-up..." : "Describe your symptoms in detail..."}
+                className="w-full pl-8 pr-40 py-6 bg-transparent resize-none focus:outline-none text-lg text-foreground placeholder:text-muted-foreground/50 transition-all min-h-[80px]"
+                rows={1}
+              />
+
+              <div className="absolute right-4 bottom-4 flex items-center gap-3">
+                <button
+                  onClick={toggleRecording}
+                  className={`p-3.5 rounded-2xl transition-all duration-300 ${isRecording
+                      ? 'bg-red-500 text-white shadow-lg shadow-red-500/20'
+                      : 'bg-secondary/50 hover:bg-secondary text-muted-foreground border border-white/10'
+                    }`}
+                >
+                  {isRecording ? <div className="size-5 bg-white rounded-sm animate-pulse" /> : <Mic className="size-5" />}
+                </button>
+                <button
+                  onClick={state === "results" ? handleSendMessage : handleAnalyze}
+                  disabled={state === "processing" || (state !== "results" && !canSubmit)}
+                  className={`size-14 rounded-2xl flex items-center justify-center transition-all duration-300 shadow-2xl ${canSubmit || state === "results"
+                      ? 'primary-gradient text-white shadow-primary/20 hover:scale-105 active:scale-95'
+                      : 'bg-secondary/30 text-muted-foreground/30 border border-white/5 cursor-not-allowed'
+                    }`}
+                >
+                  <ArrowRight className="size-7" />
+                </button>
+              </div>
             </div>
           </div>
         </div>
