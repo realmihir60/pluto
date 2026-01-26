@@ -75,6 +75,7 @@ export default function DemoPage() {
   const { data: session, status, update: updateSession } = useSession()
   const [hasConsented, setHasConsented] = useState<boolean>(false)
   const [showConsentModal, setShowConsentModal] = useState<boolean>(false)
+  const [isSavingConsent, setIsSavingConsent] = useState<boolean>(false)
 
   // Sync consent from session
   useEffect(() => {
@@ -217,18 +218,32 @@ export default function DemoPage() {
   }, []);
 
   const handleConsentSubmit = async () => {
+    setIsSavingConsent(true);
     try {
-      const res = await fetch('/api/consent', { method: 'POST' });
+      const res = await fetch('/api/consent', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      });
+
+      if (!res.ok) {
+        throw new Error(`Consent API returned ${res.status}`);
+      }
+
       const data = await res.json();
       if (data.success) {
         setHasConsented(true)
         setShowConsentModal(false)
         await updateSession()
       } else {
-        alert("Failed to save consent. Please try again.")
+        alert("Wait: " + (data.detail || "Failed to save consent."));
       }
     } catch (err) {
       console.error(err)
+      alert("Error: Could not reach the clinical gateway. Please try again.");
+    } finally {
+      setIsSavingConsent(false);
     }
   }
 
@@ -1071,8 +1086,14 @@ export default function DemoPage() {
                 <Button
                   className="flex-1 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90"
                   onClick={handleConsentSubmit}
+                  disabled={isSavingConsent}
                 >
-                  I Accept & Agree
+                  {isSavingConsent ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Saving...
+                    </>
+                  ) : "I Accept & Agree"}
                 </Button>
               </div>
             </motion.div>
