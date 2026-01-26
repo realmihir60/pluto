@@ -5,6 +5,11 @@ from typing import Optional
 from .models import User, Session as UserSession, engine
 
 def get_db_session():
+    if engine is None:
+        raise HTTPException(
+            status_code=500, 
+            detail="DATABASE_URL environment variable is missing on Vercel."
+        )
     with SQLSession(engine) as session:
         yield session
 

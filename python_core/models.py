@@ -6,8 +6,10 @@ from sqlmodel import SQLModel, Field, Relationship, JSON, Column, create_engine
 def get_engine():
     db_url = os.getenv("DATABASE_URL")
     if not db_url:
-        # Fallback to dev or raise structured error
         return None
+    # SQLAlchemy requires postgresql:// instead of postgres://
+    if db_url.startswith("postgres://"):
+        db_url = db_url.replace("postgres://", "postgresql://", 1)
     return create_engine(db_url)
 
 engine = get_engine()
