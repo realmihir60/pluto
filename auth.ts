@@ -18,8 +18,12 @@ async function getUser(email: string) {
     }
 }
 
-export const { auth, signIn, signOut } = NextAuth({
+import { PrismaAdapter } from '@auth/prisma-adapter';
+
+export const { auth, signIn, signOut, handlers } = NextAuth({
     ...authConfig,
+    adapter: PrismaAdapter(prisma),
+    session: { strategy: 'database' },
     providers: [
         Credentials({
             async authorize(credentials) {
