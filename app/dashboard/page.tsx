@@ -55,7 +55,7 @@ export default async function DashboardPage() {
                 <div className="md:col-span-4 space-y-6">
                     {/* Health Profile Card */}
                     <div className="group relative overflow-hidden rounded-3xl bg-white/60 dark:bg-black/40 border border-white/20 shadow-sm backdrop-blur-xl transition-all hover:shadow-md">
-                        <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                        <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
                         <div className="p-6">
                             <div className="flex items-center gap-3 mb-4">
                                 <div className="p-2.5 rounded-xl bg-blue-100/50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400">
@@ -75,7 +75,10 @@ export default async function DashboardPage() {
                             </div>
                             <div className="mt-6">
                                 <form action={handleSignOut}>
-                                    <button className="w-full flex items-center justify-center gap-2 text-sm text-muted-foreground hover:text-red-500 transition-colors py-2">
+                                    <button
+                                        type="submit"
+                                        className="w-full flex items-center justify-center gap-2 text-sm text-muted-foreground hover:text-red-500 transition-colors py-2 cursor-pointer"
+                                    >
                                         <LogOut className="size-3.5" />
                                         Sign Out
                                     </button>

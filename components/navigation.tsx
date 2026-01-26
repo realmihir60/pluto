@@ -6,6 +6,7 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { motion } from "framer-motion"
 import { Session } from "next-auth"
+import { signOut } from "next-auth/react"
 
 const navLinks = [
   { href: "/", label: "Home" },
@@ -65,12 +66,20 @@ export function Navigation({ session }: { session: Session | null }) {
 
             <div className="flex items-center gap-2 border-l border-border pl-4">
               {session?.user ? (
-                <Link
-                  href="/dashboard"
-                  className="inline-flex h-9 items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow transition-colors hover:bg-primary/90"
-                >
-                  Dashboard
-                </Link>
+                <div className="flex items-center gap-3">
+                  <Link
+                    href="/dashboard"
+                    className="inline-flex h-9 items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow transition-colors hover:bg-primary/90"
+                  >
+                    Dashboard
+                  </Link>
+                  <button
+                    onClick={() => signOut({ callbackUrl: '/' })}
+                    className="text-sm font-medium text-muted-foreground hover:text-foreground cursor-pointer"
+                  >
+                    Sign Out
+                  </button>
+                </div>
               ) : (
                 <>
                   <Link href="/login" className="text-sm font-medium text-muted-foreground hover:text-foreground">Log in</Link>
@@ -111,13 +120,24 @@ export function Navigation({ session }: { session: Session | null }) {
             </ul>
             <div className="border-t border-border pt-4 flex flex-col gap-3">
               {session?.user ? (
-                <Link
-                  href="/dashboard"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className="w-full inline-flex h-10 items-center justify-center rounded-md bg-primary text-primary-foreground font-medium"
-                >
-                  Go to Dashboard
-                </Link>
+                <>
+                  <Link
+                    href="/dashboard"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="w-full inline-flex h-10 items-center justify-center rounded-md bg-primary text-primary-foreground font-medium"
+                  >
+                    Go to Dashboard
+                  </Link>
+                  <button
+                    onClick={() => {
+                      setIsMobileMenuOpen(false);
+                      signOut({ callbackUrl: '/' });
+                    }}
+                    className="w-full inline-flex h-10 items-center justify-center rounded-md bg-secondary text-secondary-foreground font-medium cursor-pointer"
+                  >
+                    Sign Out
+                  </button>
+                </>
               ) : (
                 <>
                   <Link href="/login" className="w-full inline-flex h-10 items-center justify-center rounded-md bg-secondary text-secondary-foreground font-medium">Log in</Link>
