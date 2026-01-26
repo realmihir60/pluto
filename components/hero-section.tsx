@@ -119,7 +119,7 @@ export function HeroSection() {
           <div className="absolute inset-0 bg-gradient-to-t from-primary/10 via-transparent to-transparent blur-3xl -z-10" />
 
           <div
-            className="bg-card/90 backdrop-blur-xl border border-border/50 rounded-2xl p-1 shadow-2xl ring-1 ring-white/10 overflow-hidden transform-gpu rotate-x-[5deg] origin-bottom transition-transform hover:rotate-x-0 duration-700 ease-out"
+            className="bg-card/90 backdrop-blur-md border border-border/50 rounded-2xl p-1 shadow-2xl ring-1 ring-white/10 overflow-hidden transform-gpu rotate-x-[5deg] origin-bottom transition-transform hover:rotate-x-0 duration-700 ease-out"
           >
             {/* Window Controls */}
             <div className="bg-muted/50 px-4 py-3 border-b border-border/50 flex items-center gap-4">

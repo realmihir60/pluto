@@ -123,7 +123,7 @@ export default async function DashboardPage() {
 
                 {/* Right Column: History */}
                 <div className="md:col-span-8">
-                    <div className="rounded-3xl bg-white/60 dark:bg-black/40 border border-white/20 shadow-sm backdrop-blur-xl min-h-[500px] flex flex-col">
+                    <div className="rounded-3xl bg-white/60 dark:bg-black/40 border border-white/20 shadow-sm backdrop-blur-md min-h-[500px] flex flex-col">
                         <div className="p-6 border-b border-border/40 flex items-center justify-between">
                             <div className="flex items-center gap-3">
                                 <div className="p-2.5 rounded-xl bg-amber-100/50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400">

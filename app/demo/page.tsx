@@ -407,7 +407,7 @@ export default function DemoPage() {
     }
   }, [status, router]);
 
-  if (status === "loading") {
+  if (status === "loading" || !isAuthenticated) {
     return (
       <div className="h-screen flex items-center justify-center bg-background">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
@@ -415,12 +415,10 @@ export default function DemoPage() {
     )
   }
 
-  if (!isAuthenticated) return null; // Prevent flash before redirect
-
   return (
     <div className="flex flex-col h-screen overflow-hidden pt-20 pb-4 px-4 md:px-8">
       {/* Main Glass Container */}
-      <div className="flex-1 max-w-5xl mx-auto w-full bg-white/60 dark:bg-black/40 backdrop-blur-xl border border-white/40 dark:border-white/10 shadow-2xl shadow-blue-900/5 rounded-3xl overflow-hidden flex flex-col relative ring-1 ring-black/5">
+      <div className="flex-1 max-w-5xl mx-auto w-full bg-white/80 dark:bg-black/60 backdrop-blur-md border border-white/40 dark:border-white/10 shadow-2xl shadow-blue-900/5 rounded-3xl overflow-hidden flex flex-col relative ring-1 ring-black/5">
 
         {/* Results Area - Scrollable */}
         <div className="flex-1 overflow-y-auto px-4 py-8 md:px-12 scroll-smooth">
@@ -847,7 +845,7 @@ export default function DemoPage() {
                 }}
                 placeholder={state === "results" ? "Ask a follow-up question..." : "Describe your symptoms..."}
                 rows={1}
-                className="w-full px-5 py-4 bg-secondary/80 hover:bg-secondary focus:bg-background transition-colors text-foreground placeholder:text-muted-foreground/70 border border-transparent focus:border-primary/20 rounded-2xl resize-none focus:outline-none focus:ring-4 focus:ring-primary/10 text-base leading-relaxed shadow-inner"
+                className="w-full pl-5 pr-32 py-4 bg-secondary/80 hover:bg-secondary focus:bg-background transition-colors text-foreground placeholder:text-muted-foreground/70 border border-transparent focus:border-primary/20 rounded-2xl resize-none focus:outline-none focus:ring-4 focus:ring-primary/10 text-base leading-relaxed shadow-inner"
                 style={{ maxHeight: "120px" }}
                 aria-label={state === "results" ? "Chat input" : "Describe your symptoms"}
                 disabled={state === "processing" || isChatLoading}
