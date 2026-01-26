@@ -136,9 +136,10 @@ export default async function DashboardPage() {
                         <div className="p-4 space-y-3">
                             {userData?.triageEvents && userData.triageEvents.length > 0 ? (
                                 userData.triageEvents.map((event: any) => (
-                                    <div
+                                    <Link
                                         key={event.id}
-                                        className="group flex flex-col sm:flex-row gap-4 p-4 rounded-2xl hover:bg-secondary/40 border border-transparent hover:border-border/50 transition-all cursor-default"
+                                        href={`/dashboard/triage/${event.id}`}
+                                        className="group flex flex-col sm:flex-row gap-4 p-4 rounded-2xl hover:bg-secondary/40 border border-transparent hover:border-border/50 transition-all cursor-pointer"
                                     >
                                         <div className="flex-1 space-y-1">
                                             <div className="flex items-center gap-2 mb-1">
@@ -151,7 +152,7 @@ export default async function DashboardPage() {
                                             </div>
                                             <p className="text-sm text-foreground/90 font-medium line-clamp-1">"{event.symptoms}"</p>
                                             <p className="text-xs text-muted-foreground line-clamp-2">
-                                                {(event.aiResult as any)?.summary || "No summary available."}
+                                                {(event.aiResult as any)?.summary || (event.aiResult as any)?.message || "No summary available."}
                                             </p>
                                         </div>
                                         <div className="flex flex-col sm:flex-row sm:items-center gap-3 mt-3 sm:mt-0 sm:border-l sm:border-border/40 sm:pl-4 min-w-[120px]">
@@ -165,7 +166,7 @@ export default async function DashboardPage() {
                                                 </span>
                                             </div>
                                         </div>
-                                    </div>
+                                    </Link>
                                 ))
                             ) : (
                                 <div className="flex flex-col items-center justify-center py-20 text-center">

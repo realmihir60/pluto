@@ -2,6 +2,7 @@ import { auth } from "@/auth";
 import { PrismaClient } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
 import OpenAI from "openai";
+import { extractAndSaveFacts } from "@/app/lib/actions";
 
 const prisma = new PrismaClient();
 
@@ -32,12 +33,14 @@ export async function POST(req: NextRequest) {
         let userProfile = "Unknown User (Guest)";
         let factsList = "None";
 
+        let userId: string | null = null;
         if (session?.user?.email) {
             const user = await prisma.user.findUnique({
                 where: { email: session.user.email },
                 include: { medicalFacts: true }
             });
             if (user) {
+                userId = user.id;
                 userProfile = `${user.name} (${user.email})`;
                 factsList = user.medicalFacts.map((f: any) => `- ${f.type}: ${f.value}`).join("\n");
             }
@@ -72,6 +75,15 @@ export async function POST(req: NextRequest) {
         });
 
         const content = completion.choices[0].message.content;
+
+        // Perform Memory Extraction (Fire and Forget - though we might want to await in some environments)
+        if (userId && content) {
+            const lastUserMessage = messages[messages.length - 1]?.content || "";
+            const conversationContext = `User: ${lastUserMessage}\nAssistant: ${content}`;
+            // Calling without await to not block response, 
+            // but in specific serverless environments you might need to await.
+            extractAndSaveFacts(userId, conversationContext);
+        }
 
         return NextResponse.json({ role: "assistant", content });
 
