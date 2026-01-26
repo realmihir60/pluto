@@ -2,8 +2,8 @@ import React from "react"
 import type { Metadata } from "next"
 import { Geist, Geist_Mono } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
-import { Navigation } from "@/components/navigation"
-import { FooterSection } from "@/components/footer-section"
+import { Navigation } from "@/components/layout/navigation"
+import { FooterSection } from "@/components/sections/footer-section"
 import "./globals.css"
 
 const _geist = Geist({ subsets: ["latin"] })
@@ -35,7 +35,7 @@ export const metadata: Metadata = {
 
 import { auth } from "@/auth"
 import { SessionProvider } from "next-auth/react"
-import { FooterWrapper } from "@/components/footer-wrapper"
+import { FooterWrapper } from "@/components/layout/footer-wrapper"
 
 export default async function RootLayout({
   children,

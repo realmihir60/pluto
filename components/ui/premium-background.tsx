@@ -18,6 +18,7 @@ export function PremiumBackground() {
                     repeat: Infinity,
                     ease: "easeInOut"
                 }}
+                style={{ transform: 'translateZ(0)' }}
                 className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/20 rounded-full blur-[80px] will-change-transform"
             />
             <motion.div
@@ -33,6 +34,7 @@ export function PremiumBackground() {
                     ease: "easeInOut",
                     delay: 1
                 }}
+                style={{ transform: 'translateZ(0)' }}
                 className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-blue-500/10 rounded-full blur-[100px] will-change-transform"
             />
 

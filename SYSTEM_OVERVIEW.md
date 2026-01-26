@@ -75,16 +75,19 @@ To provide a de-identified, safety-first clinical decision support utility that 
 | **PII Obfuscation** | Multi-pass "My name rhymes with..." adversarial scrubbing. |
 | **AI Optimism Bias** | Ambiguity Evaluator forces escalation for vague inputs. |
 | **Rule Engine Outdated** | Every event stores a `logicSnapshot` for forensic auditing. |
+| **Premature Closure** | Hard-coded "Must-Ask" protocols prevent jumping to worst-case diagnosis. |
+| **User Drop-off** | `AnalyticsService` logs "Time-to-Trust" and abandonment points. |
 | **Proxy Timeout** | Next.js returns a 504 and recommends immediate ER if state was 'Processing'. |
 
 ---
 
 ## 8. Debugging Playbook
 ### Audit Drill (Legal/Compliance)
-If a triage result is questioned:
-1. Identify `TriageEvent.id` from DB or logs.
-2. Run `python scripts/audit_export.py <id>`.
-3. Review the generated `audit_packet.json` to see the exact state of the Rule Engine at that second.
+1. **Clinical Logic**: Check `python_core/clinical_protocols.json` for the exact ruleset applied.
+2. **Event History**: Run `python scripts/audit_export.py <id>` to see the Logic Snapshot.
+
+### Telemetry Checks
+- Check server logs for `[Analytics]` tags to trace user journey from `VIEW_LANDING` to `SUBMIT_TRIAGE`.
 
 ### Connectivity Check
 1. Verify `DATABASE_URL` connectivity.

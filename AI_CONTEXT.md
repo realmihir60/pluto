@@ -88,10 +88,29 @@ NextAuth (JS) and Python (Serverless) share the same database.
 
 ---
 
-## 9. MOBILE-FIRST PRINCIPLES
-- **Dynamic Spacing**: Use `p-4 md:p-10` patterns. Mobile screens need breathing room but cannot afford the massive whitespace of desktop.
-- **Tap Targets**: Ensure footer links and inline actions have a minimum hit area of 44x44px. 
-- **Overlay Solidification**: Mobile navigation menus MUST have a near-solid background (`bg-background/95`) to prevent text overlap with underlying hero content.
+## 9. Telemetry & Analytics (New)
+- **Privacy-First**: No external trackers (Google/Facebook headers removed).
+- **Founder Metrics**:
+  - `VIEW_LANDING`: Top of funnel.
+  - `START_INPUT`: "Time-to-Trust" metric.
+  - `SUBMIT_TRIAGE`: Successful conversion.
+- **Implementation**: Lightweight `lib/analytics.ts` logging to server `stdout` for zero-latency monitoring.
+
+---
+
+## 10. Clinical Guardrails (The "Anti-Hallucination" Layer)
+- **Protocol Database**: Strict JSON rules in `python_core/clinical_protocols.json`.
+- **Logic Gates**:
+  - **Must-Ask Questions**: The LLM is blocked from diagnosing common symptoms (Headache, Chest Pain) until specific criteria (e.g., "Thunderclap Onset") are ruled out.
+  - **Negative Predictive Value (NPV)**: Explicit "Green Flags" that force de-escalation to Home Care.
+- **Premature Closure Prevention**: The system proactively hunts for benign mimics (e.g., Migraine vs. SAH) to prevent alarm fatigue.
+
+---
+
+## 11. Performance Optimization
+- **Mobile-First GPU**: Glassmorphism effects (`backdrop-blur`) are capped at `12px` (md) to ensure 60FPS on mobile GPUs.
+- **Hardware Acceleration**: Background animations force `translateZ(0)` to promote layers.
+- **Bundle Hygiene**: Heavy libraries (Charts, Maps) are lazy-loaded or excluded from initial chunks.
 
 ---
 *End of Context Specification. Maintain the safety-first and performance-first override at all times.*

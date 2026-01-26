@@ -7,5 +7,6 @@ export const config = {
     // PUBLIC MODE: Removing protection for testing clinical flows
     matcher: [
         '/dashboard/:path*',
+        '/demo',
     ],
 };

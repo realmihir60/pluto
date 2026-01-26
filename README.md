@@ -84,7 +84,10 @@ Pluto uses a **Vercel Unified** model:
 - [x] Adversarial PII Scrubbing
 - [x] User Authentication & Consent Gate
 - [x] Premium UI Refinement & Full-Screen Experience
+- [x] Premium UI Refinement & Full-Screen Experience
 - [x] Performance Tuning & Mobile Optimization
+- [x] Clinical Guardrails & Protocols (Anti-Hallucination)
+- [x] "Founder Mode" Telemetry (Time-to-Trust Tracking)
 - [ ] Telemedicine Integration
 
 ---

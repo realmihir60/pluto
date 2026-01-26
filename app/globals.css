@@ -131,11 +131,11 @@
 
 @layer utilities {
   .glass {
-    @apply bg-background/60 backdrop-blur-xl border border-white/10 dark:border-white/5;
+    @apply bg-background/60 backdrop-blur-md border border-white/10 dark:border-white/5;
   }
 
   .glass-morphism {
-    @apply bg-white/5 backdrop-blur-lg border border-white/10 shadow-[0_8px_32px_0_rgba(31, 38, 135, 0.37)];
+    @apply bg-white/5 backdrop-blur-md border border-white/10 shadow-[0_8px_32px_0_rgba(31, 38, 135, 0.37)];
   }
 
   .text-gradient {

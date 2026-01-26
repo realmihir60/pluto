@@ -1,0 +1,139 @@
+{
+    "triage_protocols": [
+        {
+            "symptom": "Headache",
+            "must_ask_questions": [
+                "Did the pain reach its maximum intensity instantly (like a thunderclap)?",
+                "Do you have a fever, stiff neck, or confusion?",
+                "Is this the 'worst headache of your life' or significantly different from usual?"
+            ],
+            "red_flags": [
+                "Thunderclap onset (seconds to peak)",
+                "Fever with neck stiffness",
+                "New onset > 50 years old",
+                "Neurological deficit (slurred speech, weakness)",
+                "History of cancer/HIV"
+            ],
+            "green_flags_do_not_escalate": [
+                "Gradual onset",
+                "Identical to previous diagnosed migraine/tension",
+                "No fever/neck stiffness",
+                "Normal neurological exam (self-reported)"
+            ],
+            "premature_closure_trap": {
+                "benign_mimic": "Migraine",
+                "serious_condition": "Subarachnoid Hemorrhage (SAH)",
+                "differentiator_data_point": "Time to Peak Intensity",
+                "rule": "IF onset is 'Thunderclap' (seconds to peak) THEN escalate immediately, even if history of migraine exists."
+            }
+        },
+        {
+            "symptom": "Chest Pain",
+            "must_ask_questions": [
+                "Does the pain get worse when you walk, climb stairs, or exert yourself?",
+                "Are you sweaty, pale, or feeling like you might pass out?",
+                "Is the pain reproducible by pressing on a specific spot?",
+                "Does the pain feel like a tearing sensation radiating to your back?"
+            ],
+            "red_flags": [
+                "Exertional worsening",
+                "Diaphoresis (cold sweat) or pallor",
+                "Radiation to back (tearing)",
+                "History of heart attack/PE"
+            ],
+            "green_flags_do_not_escalate": [
+                "Reproducible by palpation",
+                "Positional (musculoskeletal)",
+                "Young (<30) with no risk factors",
+                "No autonomic symptoms (sweat/nausea)"
+            ],
+            "premature_closure_trap": {
+                "benign_mimic": "Gastroesophageal Reflux Disease (GERD)",
+                "serious_condition": "Myocardial Infarction (Inferior)",
+                "differentiator_data_point": "Exertional Component",
+                "rule": "IF pain worsens with exertion THEN assume Angina, NOT GERD. (Response to antacids is NOT a reliable differentiator)."
+            }
+        },
+        {
+            "symptom": "Abdominal Pain",
+            "must_ask_questions": [
+                "Where did the pain start, and where is it now?",
+                "Does it hurt more when you move, cough, or go over a bump?",
+                "What came first: the pain or the vomiting?",
+                "Have you seen blood in your stool or vomit?"
+            ],
+            "red_flags": [
+                "Pain migration (Periumbilical -> RLQ)",
+                "Peritoneal signs (pain with movement/cough)",
+                "Pain started BEFORE vomiting",
+                "GI Bleeding (bloody stool/vomit)"
+            ],
+            "green_flags_do_not_escalate": [
+                "Vomiting started BEFORE pain",
+                "Diarrhea dominant",
+                "No pain with movement",
+                "Able to hydrate"
+            ],
+            "premature_closure_trap": {
+                "benign_mimic": "Gastroenteritis (Stomach Flu)",
+                "serious_condition": "Appendicitis",
+                "differentiator_data_point": "Sequence of Symptoms (Murphy's Sequence)",
+                "rule": "IF Pain starts BEFORE Vomiting THEN suspect Appendicitis. IF Vomiting starts BEFORE Pain THEN suspect Gastroenteritis."
+            }
+        },
+        {
+            "symptom": "Cough",
+            "must_ask_questions": [
+                "Are you short of breath at rest or when speaking?",
+                "Are you coughing up blood?",
+                "Have you fainted or felt extremely lightheaded?",
+                "Is your breathing fast (count breaths for 30s)?"
+            ],
+            "red_flags": [
+                "Dyspnea at rest",
+                "Hemoptysis (coughing blood)",
+                "Syncope/Lightheadedness",
+                "Respiratory Rate > 20 or HR > 100"
+            ],
+            "green_flags_do_not_escalate": [
+                "No dyspnea at rest",
+                "Able to speak in full sentences",
+                "Vital signs stable (self-reported)",
+                "Duration < 3 weeks"
+            ],
+            "premature_closure_trap": {
+                "benign_mimic": "Acute Bronchitis",
+                "serious_condition": "Pneumonia / Pulmonary Embolism",
+                "differentiator_data_point": "Vital Signs (Tachypnea/Tachycardia)",
+                "rule": "IF Resting Heart Rate > 100 OR Respiratory Rate > 20 THEN assume Pneumonia/PE, NOT Bronchitis."
+            }
+        },
+        {
+            "symptom": "Fatigue",
+            "must_ask_questions": [
+                "Do you get short of breath when you do things that used to be easy?",
+                "Have you lost weight without trying, or noticed lumps?",
+                "Do you have black/tarry stools or heavy menstrual bleeding?",
+                "Is the fatigue causing you to fall asleep at dangerous times?"
+            ],
+            "red_flags": [
+                "Exertional dyspnea",
+                "Unintentional weight loss / Lymphadenopathy",
+                "Signs of GI bleed / Severe anemia",
+                "Dangerous hypersomnia"
+            ],
+            "green_flags_do_not_escalate": [
+                "Chronic/stable for months",
+                "Clear psychosocial stressor",
+                "No B-symptoms (weight loss, fevers)",
+                "Functional ADLs preserved"
+            ],
+            "premature_closure_trap": {
+                "benign_mimic": "Depression",
+                "serious_condition": "Organic Disease (Anemia/Cancer/Hypothyroid)",
+                "differentiator_data_point": "Anhedonia vs. Physical Limitation",
+                "rule": "IF patient has desire to act but lacks physical energy THEN suspect Organic. IF patient lacks desire/pleasure (Anhedonia) THEN suspect Depression. IF Pallor present THEN suspect Anemia."
+            }
+        }
+    ]
+}

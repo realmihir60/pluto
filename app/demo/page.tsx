@@ -1,35 +1,26 @@
 "use client"
 
-import React from "react"
-import { useState, useCallback, useEffect, useRef } from "react"
+import React, { useState, useCallback, useEffect, useRef } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import {
-  AlertTriangle,
-  Pencil,
-  Plus,
-  Shield,
-  ChevronDown,
-  Search,
-  Cpu,
   Activity,
   Sparkles,
+  Shield,
   Lock,
-  FileText,
   ArrowRight,
-  ArrowLeft,
   Mic,
-  Loader2,
   History,
   Clock,
-  FileDown
+  FileDown,
+  Pencil
 } from "lucide-react"
 import { saveCheckup, getHistory, CheckupRecord } from "@/lib/vault"
 import { generateMedicalReport } from "@/lib/report-generator"
-// import { useAuth } from "@/context/auth-context"
 import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
-import { PremiumBackground } from "@/components/premium-background"
+import { PremiumBackground } from "@/components/ui/premium-background"
+import { trackEvent } from "@/lib/analytics"
 
 type DemoState = "idle" | "input" | "processing" | "results" | "editing"
 
@@ -39,10 +30,8 @@ interface AnalysisResult {
   severity: { level: string; advice: string[] }
   seekCare: string[]
   confidence: { level: string; note: string }
-  // New Structured Data
   risk_factors?: string[]
   differential_rationale?: string[]
-  // v2.1 Professional Data
   urgency_summary?: string
   key_findings?: string[]
   differential_diagnosis?: { condition: string; likelihood: string; rationale: string }[]
@@ -50,32 +39,7 @@ interface AnalysisResult {
   follow_up_questions?: string[]
 }
 
-
-const mockAnalysis: AnalysisResult = {
-  patterns: [
-    { name: "Tension-type headache", prevalence: "78% prevalence in similar cases" },
-    { name: "Screen-related eye strain", prevalence: "22%" },
-  ],
-  severity: {
-    level: "Mild to Moderate",
-    advice: [
-      "Usually resolves with rest and hydration",
-      "Consider consulting a clinician if persists > 3 days",
-    ],
-  },
-  seekCare: [
-    "Sudden severe headache",
-    "Vision changes",
-    "Neck stiffness or fever",
-  ],
-  confidence: {
-    level: "Medium",
-    note: "Based on limited input (add more details for higher accuracy)",
-  },
-}
-
 export default function DemoPage() {
-  // PERMISSIVE TESTING MODE: SCRAPPING AUTH TO UNBLOCK DEV
   const [hasConsented, setHasConsented] = useState(true)
   const [showConsentModal, setShowConsentModal] = useState<boolean>(false)
   const [isSavingConsent, setIsSavingConsent] = useState<boolean>(false)
@@ -87,23 +51,30 @@ export default function DemoPage() {
 
   const { data: session, status } = useSession()
   const isAuthenticated = status === "authenticated"
-  const isLoading = status === "loading"
   const router = useRouter()
 
-  // Vault State
   const [history, setHistory] = useState<CheckupRecord[]>([])
   const [showHistory, setShowHistory] = useState(false)
 
   const textareaRef = useRef<HTMLTextAreaElement>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  const [attachedImage, setAttachedImage] = useState<string | null>(null)
 
-  // const { isAuthenticated, isLoading } = useAuth() // Removed legacy
-  // const router = useRouter()
+  // Voice Triage State
+  const [isRecording, setIsRecording] = useState(false)
+  const [isTranscribing, setIsTranscribing] = useState(false)
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null)
+  const audioChunksRef = useRef<Blob[]>([])
 
-  // useEffect(() => {
-  //   if (!isLoading && !isAuthenticated) {
-  //     router.push("/login")
-  //   }
-  // }, [isLoading, isAuthenticated, router])
+  // Chat State
+  const [chatMessages, setChatMessages] = useState<{ role: string, content: string }[]>([])
+  const [chatInput, setChatInput] = useState("")
+  const [isChatLoading, setIsChatLoading] = useState(false)
+
+  // -- Telemetry: View Landing --
+  useEffect(() => {
+    trackEvent('VIEW_LANDING');
+  }, []);
 
   useEffect(() => {
     const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)")
@@ -119,18 +90,21 @@ export default function DemoPage() {
     getHistory().then(setHistory).catch(console.error);
   }, []);
 
+  // Handle loading and unauthenticated states
+  useEffect(() => {
+    if (status === "unauthenticated") {
+      router.push("/login");
+    }
+  }, [status, router]);
 
-
-
-
-  const fileInputRef = useRef<HTMLInputElement>(null)
-  const [attachedImage, setAttachedImage] = useState<string | null>(null)
-
-  // Voice Triage State
-  const [isRecording, setIsRecording] = useState(false)
-  const [isTranscribing, setIsTranscribing] = useState(false)
-  const mediaRecorderRef = useRef<MediaRecorder | null>(null)
-  const audioChunksRef = useRef<Blob[]>([])
+  // -- Telemetry: Start Input --
+  const handleSymptomsChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const val = e.target.value;
+    if (symptoms === "" && val.length > 0) {
+      trackEvent('START_INPUT');
+    }
+    setSymptoms(val);
+  }
 
   const handleStartRecording = async () => {
     try {
@@ -160,13 +134,15 @@ export default function DemoPage() {
 
           const data = await response.json();
           if (data.text) {
-            setSymptoms((prev) => prev ? prev + " " + data.text : data.text);
+            setSymptoms((prev) => {
+              if (prev === "") trackEvent('START_INPUT');
+              return prev ? prev + " " + data.text : data.text;
+            });
           }
         } catch (error) {
           console.error("Transcription failed", error);
         } finally {
           setIsTranscribing(false);
-          // Stop all tracks to release microphone
           stream.getTracks().forEach(track => track.stop());
         }
       };
@@ -200,58 +176,23 @@ export default function DemoPage() {
     }
   }, [state])
 
-  const handleFileSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setAttachedImage(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-    }
-  }, []);
-
-  const handleFileUpload = useCallback(() => {
-    fileInputRef.current?.click();
-  }, []);
-
   const handleConsentSubmit = async () => {
     setIsSavingConsent(true);
     try {
-      console.log("Attempting consent sign-off at /api/consent...");
       const res = await fetch('/api/consent', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         credentials: 'include'
       });
 
-      if (!res.ok) {
-        const errorText = await res.text();
-        let displayError = errorText;
-        try {
-          const jsonErr = JSON.parse(errorText);
-          displayError = JSON.stringify(jsonErr.detail || jsonErr, null, 2);
-        } catch (e) {
-          // Keep as raw text if not JSON
-        }
-        throw new Error(displayError);
-      }
-
+      if (!res.ok) throw new Error('Consent failed');
       const data = await res.json();
       if (data.success) {
         setHasConsented(true)
         setShowConsentModal(false)
-      } else {
-        const detail = JSON.stringify(data.detail || data, null, 2);
-        alert(`Clinical Logic Alert: \n${detail}`);
       }
     } catch (err: any) {
-      console.error("GATEWAY_ERROR:", err);
-      // Detailed error for mobile debugging
-      const cleanMsg = err.message || 'Connection failed';
-      alert(`Gateway Error: \n\n${cleanMsg}`);
+      alert(`Gateway Error: \n\n${err.message || 'Connection failed'}`);
     } finally {
       setIsSavingConsent(false);
     }
@@ -266,13 +207,14 @@ export default function DemoPage() {
       return
     }
 
+    // -- Telemetry: Submit Triage --
+    trackEvent('SUBMIT_TRIAGE', { length: symptoms.length, withImage: !!attachedImage });
+
     setState("processing")
     setResult(null)
 
     try {
       let data;
-
-      // If image is attached, prioritize document analysis
       if (attachedImage) {
         const res = await fetch('/api/analyze-document', {
           method: 'POST',
@@ -280,36 +222,27 @@ export default function DemoPage() {
           body: JSON.stringify({ image: attachedImage }),
           credentials: 'include'
         });
-
         if (!res.ok) throw new Error('Document analysis failed');
         const docData = await res.json();
-
-        // Map document analysis to result shape
         data = {
           matched_symptoms: docData.key_findings || [],
-          triage_level: 'info', // Default safer level for documents
+          triage_level: 'info',
           message: docData.summary || "Document analyzed successfully.",
         };
       } else {
-        // Standard text analysis
         const res = await fetch('/api/triage', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ input: symptoms }),
-          credentials: 'include'  // Critical: sends cookies to Python API
+          credentials: 'include'
         });
-
         if (!res.ok) throw new Error('Analysis failed');
         data = await res.json();
       }
 
-
-      // ... (inside component)
-      // Adapt API response
-      // Adapt API response to UI format
       const adaptedResult: AnalysisResult = {
-        summary: (data.detailed_analysis || data.message), // Use detailed analysis if available
-        patterns: data.matched_symptoms.map((s: string) => ({
+        summary: (data.detailed_analysis || data.message),
+        patterns: (data.matched_symptoms || []).map((s: string) => ({
           name: s.replace('_', ' ').replace(/\b\w/g, c => c.toUpperCase()),
           prevalence: "Detected"
         })),
@@ -324,7 +257,6 @@ export default function DemoPage() {
             ? "Based on Pluto engine analysis. Verify with a professional."
             : "Based on verified medical knowledge base rules"
         },
-        // v2.1 Fields
         urgency_summary: data.urgency_summary,
         key_findings: data.key_findings || [],
         differential_diagnosis: data.differential_diagnosis || [],
@@ -333,10 +265,10 @@ export default function DemoPage() {
       };
 
       setResult(adaptedResult);
-      // Initialize Chat History with context
+
       const initialAssistantMessage = (adaptedResult.summary || "Here is my clinical assessment.");
       const followUps = adaptedResult.follow_up_questions?.length
-        ? "\n\n**To help me narrow this down, could you tell me more about:**\n" + adaptedResult.follow_up_questions.map(q => `• ${q}`).join("\n")
+        ? "\n\n**To help me narrow this down, could you tell me more about:**\n" + adaptedResult.follow_up_questions.map((q: string) => `• ${q}`).join("\n")
         : "";
 
       setChatMessages([
@@ -345,39 +277,15 @@ export default function DemoPage() {
       ]);
       setState("results");
 
-      // Save to Vault (Local)
       saveCheckup(symptoms, adaptedResult, adaptedResult.confidence.level === "AI Analysis" ? adaptedResult.summary : undefined)
         .then(() => getHistory().then(setHistory))
         .catch(err => console.error("Failed to save to vault", err));
-
-      // Note: Server-side persistence is now handled directly by the /api/triage Python endpoint
-      // This ensures the Logic Snapshot and PII scrubbing are atomic.
 
     } catch (error) {
       console.error(error);
       setState("idle");
     }
-  }, [symptoms, attachedImage, isAuthenticated]);
-
-  // Chat State
-  const [chatMessages, setChatMessages] = useState<{ role: string, content: string }[]>([])
-  const [chatInput, setChatInput] = useState("")
-  const [isChatLoading, setIsChatLoading] = useState(false)
-
-  // Auto-resize textarea
-  useEffect(() => {
-    const textarea = textareaRef.current
-    if (textarea) {
-      textarea.style.height = "auto"
-      const lineHeight = 24
-      const maxLines = 5
-      const maxHeight = lineHeight * maxLines
-      const newHeight = Math.min(textarea.scrollHeight, maxHeight)
-
-      textarea.style.height = `${newHeight}px`
-      textarea.style.overflowY = textarea.scrollHeight > maxHeight ? "auto" : "hidden"
-    }
-  }, [symptoms, chatInput])
+  }, [symptoms, attachedImage, isAuthenticated, hasConsented]);
 
   const handleSendMessage = async () => {
     if (!chatInput.trim()) return;
@@ -400,7 +308,25 @@ export default function DemoPage() {
       if (!res.ok) throw new Error('Chat failed');
       const data = await res.json();
 
-      setChatMessages([...newHistory, data]);
+      const assistantMessage = { role: 'assistant', content: data.response_text || "..." };
+      setChatMessages([...newHistory, assistantMessage]);
+
+      if (data.updated_analysis && result) {
+        setResult((prev) => {
+          if (!prev) return null;
+          return {
+            ...prev,
+            severity: {
+              level: data.updated_analysis.triage_level ? data.updated_analysis.triage_level.toUpperCase() : prev.severity.level,
+              advice: prev.severity.advice
+            },
+            urgency_summary: data.updated_analysis.urgency_summary || prev.urgency_summary,
+            differential_diagnosis: data.updated_analysis.differential_diagnosis || prev.differential_diagnosis,
+            suggested_focus: data.updated_analysis.suggested_focus || prev.suggested_focus,
+            key_findings: data.updated_analysis.key_findings || prev.key_findings,
+          }
+        });
+      }
     } catch (err) {
       console.error(err);
     } finally {
@@ -411,13 +337,10 @@ export default function DemoPage() {
   const handleLoadRecord = (record: CheckupRecord) => {
     setSymptoms(record.symptoms);
     setResult(record.triageResult as AnalysisResult);
-
-    // Reconstruct basic chat history
     setChatMessages([
       { role: 'user', content: record.symptoms },
       { role: 'assistant', content: record.triageResult.summary || "Here is the historical assessment." }
     ]);
-
     setShowHistory(false);
     setState("results");
   };
@@ -452,22 +375,6 @@ export default function DemoPage() {
       transition: { duration: 0.25, ease: [0.22, 1, 0.36, 1] as const },
     }
 
-  const stagger = (delay: number) =>
-    prefersReducedMotion
-      ? {}
-      : {
-        initial: { opacity: 0, y: 16 },
-        animate: { opacity: 1, y: 0 },
-        transition: { duration: 0.25, delay, ease: [0.22, 1, 0.36, 1] as const },
-      }
-
-  // Handle loading and unauthenticated states
-  useEffect(() => {
-    if (status === "unauthenticated") {
-      router.push("/login");
-    }
-  }, [status, router]);
-
   if (status === "loading" || !isAuthenticated) {
     return (
       <div className="h-screen flex items-center justify-center bg-background">
@@ -480,18 +387,15 @@ export default function DemoPage() {
     <div className="relative h-screen flex flex-col pt-16 overflow-hidden">
       <PremiumBackground />
 
-      {/* Main Full-Screen Layout */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.5 }}
         className="flex-1 w-full flex flex-col relative"
       >
-        {/* Results Area - Scrollable */}
         <div className="flex-1 overflow-y-auto px-4 pt-4 md:pt-10 pb-40 md:px-12 scroll-smooth">
           <div className="max-w-4xl mx-auto h-full">
             <AnimatePresence mode="wait">
-              {/* Idle State */}
               {state === "idle" && !showHistory && (
                 <motion.div
                   key="idle"
@@ -541,7 +445,6 @@ export default function DemoPage() {
                 </motion.div>
               )}
 
-              {/* Processing State */}
               {state === "processing" && (
                 <motion.div
                   key="processing"
@@ -567,7 +470,6 @@ export default function DemoPage() {
                 </motion.div>
               )}
 
-              {/* History View */}
               {showHistory && (
                 <motion.div key="history" {...fadeUp} className="space-y-6 pb-8">
                   <div className="flex items-center justify-between mb-6">
@@ -603,7 +505,6 @@ export default function DemoPage() {
                 </motion.div>
               )}
 
-              {/* Results State */}
               {state === "results" && result && (
                 <motion.div key="results" className="space-y-6 pb-8">
                   <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="bg-card border border-border rounded-xl shadow-sm overflow-hidden">
@@ -626,7 +527,6 @@ export default function DemoPage() {
                     </div>
 
                     <div className="p-8 space-y-8">
-                      {/* Urgency Summary */}
                       {result.urgency_summary && (
                         <div className="p-5 rounded-2xl bg-amber-500/5 border border-amber-500/10">
                           <h3 className="text-xs font-black text-amber-500 uppercase tracking-widest mb-2">Findings Context</h3>
@@ -634,7 +534,6 @@ export default function DemoPage() {
                         </div>
                       )}
 
-                      {/* Differential */}
                       {result.differential_diagnosis && result.differential_diagnosis.length > 0 && (
                         <div className="space-y-4">
                           <h3 className="text-xs font-black text-muted-foreground uppercase tracking-widest">Differential Analysis</h3>
@@ -668,17 +567,15 @@ export default function DemoPage() {
           </div>
         </div>
 
-        {/* Input Area */}
         <div className="shrink-0 bg-transparent p-4 md:p-10 relative z-20">
           <div className="max-w-3xl mx-auto relative group">
-            {/* Premium Input Container */}
             <div className="relative glass-morphism border border-white/20 rounded-[2.5rem] shadow-3xl overflow-hidden transition-all duration-500 group-within:ring-4 group-within:ring-primary/10">
               <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 blur-3xl -mr-16 -mt-16 transition-transform duration-500 group-within:scale-150" />
 
               <textarea
                 ref={textareaRef}
                 value={state === "results" ? chatInput : symptoms}
-                onChange={(e) => state === "results" ? setChatInput(e.target.value) : setSymptoms(e.target.value)}
+                onChange={state === "results" ? (e) => setChatInput(e.target.value) : handleSymptomsChange}
                 onFocus={handleFocus}
                 onKeyDown={(e) => {
                   if (state === "results") {
@@ -699,8 +596,8 @@ export default function DemoPage() {
                 <button
                   onClick={toggleRecording}
                   className={`p-3.5 rounded-2xl transition-all duration-300 ${isRecording
-                      ? 'bg-red-500 text-white shadow-lg shadow-red-500/20'
-                      : 'bg-secondary/50 hover:bg-secondary text-muted-foreground border border-white/10'
+                    ? 'bg-red-500 text-white shadow-lg shadow-red-500/20'
+                    : 'bg-secondary/50 hover:bg-secondary text-muted-foreground border border-white/10'
                     }`}
                 >
                   {isRecording ? <div className="size-5 bg-white rounded-sm animate-pulse" /> : <Mic className="size-5" />}
@@ -709,8 +606,8 @@ export default function DemoPage() {
                   onClick={state === "results" ? handleSendMessage : handleAnalyze}
                   disabled={state === "processing" || (state !== "results" && !canSubmit)}
                   className={`size-14 rounded-2xl flex items-center justify-center transition-all duration-300 shadow-2xl ${canSubmit || state === "results"
-                      ? 'primary-gradient text-white shadow-primary/20 hover:scale-105 active:scale-95'
-                      : 'bg-secondary/30 text-muted-foreground/30 border border-white/5 cursor-not-allowed'
+                    ? 'primary-gradient text-white shadow-primary/20 hover:scale-105 active:scale-95'
+                    : 'bg-secondary/30 text-muted-foreground/30 border border-white/5 cursor-not-allowed'
                     }`}
                 >
                   <ArrowRight className="size-7" />
@@ -721,7 +618,6 @@ export default function DemoPage() {
         </div>
       </motion.div>
 
-      {/* Consent Modal */}
       <AnimatePresence>
         {showConsentModal && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md">

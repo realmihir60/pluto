@@ -1,10 +1,10 @@
-import { HeroSection } from "@/components/hero-section"
-import { FeaturesSection } from "@/components/features-section"
-import { FAQSection } from "@/components/faq-section"
-import { HowItWorksSection } from "@/components/how-it-works-section"
-import { TrustSection } from "@/components/trust-section"
-import { CTASection } from "@/components/cta-section"
-import { ProductShowcase } from "@/components/product-showcase"
+import { HeroSection } from "@/components/sections/hero-section"
+import { FeaturesSection } from "@/components/sections/features-section"
+import { FAQSection } from "@/components/sections/faq-section"
+import { HowItWorksSection } from "@/components/sections/how-it-works-section"
+import { TrustSection } from "@/components/sections/trust-section"
+import { CTASection } from "@/components/sections/cta-section"
+import { ProductShowcase } from "@/components/sections/product-showcase"
 
 export default function HomePage() {
   return (
