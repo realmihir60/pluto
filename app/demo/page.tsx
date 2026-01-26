@@ -16,6 +16,7 @@ import {
   Lock,
   FileText,
   ArrowRight,
+  ArrowLeft,
   Mic,
   Loader2,
   History,
@@ -327,9 +328,14 @@ export default function DemoPage() {
 
       setResult(adaptedResult);
       // Initialize Chat History with context
+      const initialAssistantMessage = (adaptedResult.summary || "Here is my clinical assessment.");
+      const followUps = adaptedResult.follow_up_questions?.length
+        ? "\n\n**To help me narrow this down, could you tell me more about:**\n" + adaptedResult.follow_up_questions.map(q => `• ${q}`).join("\n")
+        : "";
+
       setChatMessages([
         { role: 'user', content: symptoms },
-        { role: 'assistant', content: adaptedResult.summary || "Here is my clinical assessment." }
+        { role: 'assistant', content: initialAssistantMessage + followUps }
       ]);
       setState("results");
 
@@ -820,19 +826,36 @@ export default function DemoPage() {
 
                       {/* Section 5: Follow-up Questions */}
                       {result.follow_up_questions && result.follow_up_questions.length > 0 && (
-                        <div className="space-y-3 pt-2 border-t border-border/50">
-                          <h3 className="text-sm font-medium text-foreground uppercase tracking-wider flex items-center gap-2 pt-2">
-                            Recommended Clarifications
-                          </h3>
-                          <p className="text-xs text-muted-foreground">Ask these to narrow the differential:</p>
-                          <div className="grid gap-2">
+                        <div className="space-y-4 pt-4 border-t border-border/50">
+                          <div className="space-y-1">
+                            <h3 className="text-sm font-semibold text-primary uppercase tracking-widest flex items-center gap-2">
+                              <Activity className="size-3" />
+                              Pluto's Follow-up Questions
+                            </h3>
+                            <p className="text-xs text-muted-foreground">Select a topic to provide more details and improve accuracy:</p>
+                          </div>
+
+                          <div className="grid gap-3">
                             {result.follow_up_questions.map((q, i) => (
                               <button
                                 key={i}
-                                onClick={() => setChatInput(q)}
-                                className="text-left p-3 text-sm bg-background border border-border rounded-lg hover:border-primary/40 hover:bg-primary/5 transition-all text-foreground/80 font-medium"
+                                onClick={() => {
+                                  setChatInput(`Regarding "${q}": `);
+                                  textareaRef.current?.focus();
+                                }}
+                                className="text-left group relative p-4 bg-blue-50/50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-900/30 rounded-xl hover:border-primary/40 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all shadow-sm"
                               >
-                                "{q}"
+                                <div className="flex items-start gap-3">
+                                  <div className="size-5 rounded-full bg-blue-500/10 text-blue-600 flex items-center justify-center shrink-0 mt-0.5 group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                                    <ArrowLeft className="size-3 rotate-180" />
+                                  </div>
+                                  <span className="text-sm text-foreground/90 font-medium leading-relaxed">
+                                    {q}
+                                  </span>
+                                </div>
+                                <div className="absolute right-3 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                  <span className="text-[10px] font-bold text-blue-600 uppercase tracking-tighter">Answer Topic</span>
+                                </div>
                               </button>
                             ))}
                           </div>
