@@ -69,7 +69,7 @@ export function HeroSection() {
         >
           Check your symptoms, <br className="hidden md:block" />
           <span className="text-transparent bg-clip-text bg-gradient-to-br from-primary via-blue-600 to-blue-500">
-            keep your privacy.
+            remember your health.
           </span>
         </motion.h1>
 
@@ -79,7 +79,7 @@ export function HeroSection() {
           className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-10 leading-relaxed text-balance"
         >
           Advanced medical triage powered by trusted clinical guidelines and Llama 3.
-          <span className="block mt-2 text-foreground/80 font-medium">No account required. No data stored.</span>
+          <span className="block mt-2 text-foreground/80 font-medium">Secure Memory. Verified Data. Absolute Privacy.</span>
         </motion.p>
 
         {/* CTA Buttons */}
