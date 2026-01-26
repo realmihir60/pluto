@@ -597,14 +597,14 @@ export default function DemoPage() {
                     className="bg-card border border-border rounded-xl shadow-sm overflow-hidden"
                   >
                     {/* Header */}
-                    <div className="bg-secondary/30 border-b border-border px-6 py-4 flex items-center justify-between">
+                    <div className="bg-secondary/30 border-b border-border px-4 py-4 md:px-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
                       <div className="flex items-center gap-2.5">
                         <div className="bg-primary/10 p-2 rounded-lg">
                           <Cpu className="size-5 text-primary" />
                         </div>
-                        <div>
-                          <h2 className="text-foreground font-semibold text-base">Clinical Assessment</h2>
-                          <p className="text-xs text-muted-foreground flex items-center gap-1.5">
+                        <div className="min-w-0">
+                          <h2 className="text-foreground font-semibold text-base truncate">Clinical Assessment</h2>
+                          <p className="text-xs text-muted-foreground flex items-center gap-1.5 flex-wrap">
                             <span>{new Date().toLocaleDateString()}</span>
                             <span>•</span>
                             <span className={`${result.confidence.level === 'AI Analysis' ? 'text-amber-600' : 'text-green-600'} font-medium`}>
@@ -613,17 +613,17 @@ export default function DemoPage() {
                           </p>
                         </div>
                       </div>
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center justify-between md:justify-end gap-3 w-full md:w-auto">
                         <button
                           onClick={() => generateMedicalReport(symptoms, result, crypto.randomUUID(), Date.now())}
-                          className="text-xs font-medium bg-secondary hover:bg-secondary/80 text-foreground px-3 py-1.5 rounded-lg transition-colors flex items-center gap-2"
+                          className="text-xs font-medium bg-secondary hover:bg-secondary/80 text-foreground px-3 py-1.5 rounded-lg transition-colors flex items-center gap-2 whitespace-nowrap"
                           title="Download PDF Report"
                         >
                           <FileDown className="size-3.5" />
-                          Export
+                          <span className="inline">Export</span>
                         </button>
                         <div className="text-right">
-                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border
+                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border whitespace-nowrap
                           ${result.severity.level.includes('URGENT') || result.severity.level.includes('CARE')
                               ? 'bg-red-50 text-red-700 border-red-200'
                               : 'bg-blue-50 text-blue-700 border-blue-200'}`}>
@@ -643,7 +643,7 @@ export default function DemoPage() {
                             <AlertTriangle className="size-3" />
                             Why This Urgency Level
                           </h3>
-                          <p className="text-sm text-foreground font-medium">{result.urgency_summary}</p>
+                          <p className="text-sm text-foreground font-medium break-words">{result.urgency_summary}</p>
                         </div>
                       )}
 
@@ -656,9 +656,9 @@ export default function DemoPage() {
                           </h3>
                           <ul className="space-y-1.5 pl-1">
                             {result.key_findings.map((finding, i) => (
-                              <li key={i} className="text-sm text-foreground/90 flex gap-2">
-                                <span className="text-primary">→</span>
-                                {finding}
+                              <li key={i} className="text-sm text-foreground/90 flex gap-2 break-words">
+                                <span className="text-primary shrink-0">→</span>
+                                <span>{finding}</span>
                               </li>
                             ))}
                           </ul>
@@ -671,26 +671,43 @@ export default function DemoPage() {
                           <h3 className="text-sm font-medium text-foreground uppercase tracking-wider flex items-center gap-2">
                             Differential Diagnosis
                           </h3>
-                          <div className="overflow-x-auto rounded-lg border border-border">
+                          {/* Mobile Card View (< md) */}
+                          <div className="md:hidden space-y-3">
+                            {result.differential_diagnosis.map((d, i) => (
+                              <div key={i} className="bg-secondary/30 rounded-lg border border-border p-4">
+                                <div className="flex justify-between items-start mb-2">
+                                  <span className="font-semibold text-foreground">{d.condition}</span>
+                                  <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${d.likelihood === 'High' ? 'bg-red-100 text-red-700' :
+                                    d.likelihood === 'Moderate' ? 'bg-amber-100 text-amber-700' :
+                                      'bg-green-100 text-green-700'
+                                    }`}>{d.likelihood}</span>
+                                </div>
+                                <p className="text-sm text-muted-foreground leading-relaxed">{d.rationale}</p>
+                              </div>
+                            ))}
+                          </div>
+
+                          {/* Desktop Table View (>= md) */}
+                          <div className="hidden md:block overflow-x-auto rounded-lg border border-border">
                             <table className="w-full text-sm">
                               <thead className="bg-secondary/50 text-left">
                                 <tr>
                                   <th className="p-3 font-semibold">Condition</th>
                                   <th className="p-3 font-semibold">Likelihood</th>
-                                  <th className="p-3 font-semibold">Supporting Features</th>
+                                  <th className="p-3 font-semibold w-1/2">Supporting Features</th>
                                 </tr>
                               </thead>
                               <tbody className="divide-y divide-border">
                                 {result.differential_diagnosis.map((d, i) => (
                                   <tr key={i} className="hover:bg-secondary/30">
-                                    <td className="p-3 font-medium">{d.condition}</td>
-                                    <td className="p-3">
+                                    <td className="p-3 font-medium align-top">{d.condition}</td>
+                                    <td className="p-3 align-top">
                                       <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${d.likelihood === 'High' ? 'bg-red-100 text-red-700' :
                                         d.likelihood === 'Moderate' ? 'bg-amber-100 text-amber-700' :
                                           'bg-green-100 text-green-700'
                                         }`}>{d.likelihood}</span>
                                     </td>
-                                    <td className="p-3 text-muted-foreground">{d.rationale}</td>
+                                    <td className="p-3 text-muted-foreground align-top">{d.rationale}</td>
                                   </tr>
                                 ))}
                               </tbody>
