@@ -18,8 +18,8 @@ const faqs = [
         answer: "Our rule-based engine correlates symptoms against established protocols from the CDC, WHO, and peer-reviewed clinical decision support guidelines, ensuring our baseline triage is deterministic and clinically grounded."
     },
     {
-        question: "Why do you use AI (Llama 3)?",
-        answer: "Classic rule-based systems can be rigid. We use Llama 3 (70B) as a 'semantic translation layer' to understand how *you* describe symptoms in natural language, and to synthesize complex, multi-symptom patterns that simple rules might miss."
+        question: "Why do you use Clinical Intelligence?",
+        answer: "Classic rule-based systems can be rigid. We use our proprietary Intelligence layer as a 'semantic translation' bridge to understand how *you* describe symptoms in natural language, and to synthesize complex, multi-symptom patterns that simple rules might miss."
     },
     {
         question: "Is it free?",

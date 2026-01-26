@@ -13,17 +13,17 @@ const features = [
     {
         icon: Zap,
         title: "Local Speed",
-        description: "Common symptoms are checked against 500+ clinical rules directly on the server. No waiting for AI generation unless necessary.",
+        description: "Common symptoms are checked against 500+ clinical rules directly on the server. No waiting for complex generation unless necessary.",
     },
     {
         icon: Cpu,
-        title: "Neuro-Symbolic AI",
-        description: "For complex or rare cases, we call upon Llama 3 70B (via Groq) to synthesize clinical patterns and offer context-aware insights.",
+        title: "Advanced Synthesis",
+        description: "For complex or rare cases, we call upon our higher-parameter reasoning engine to synthesize clinical patterns and offer context-aware insights.",
     },
     {
         icon: Lock,
         title: "Secure Memory",
-        description: "Your health history is encrypted in your personal vault. We use AI to remember your conditions, so you don't have to repeat yourself.",
+        description: "Your health history is encrypted in your personal vault. Our engine securely retains your conditions, so you don't have to repeat yourself.",
     },
     {
         icon: Activity,

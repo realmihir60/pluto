@@ -78,7 +78,7 @@ export function HeroSection() {
           {...(prefersReducedMotion ? {} : { ...fadeIn, transition: { ...fadeIn.transition, delay: 0.2 } })}
           className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-10 leading-relaxed text-balance"
         >
-          Advanced medical triage powered by trusted clinical guidelines and Llama 3.
+          Advanced medical triage powered by trusted clinical guidelines and high-fidelity symptom intelligence.
           <span className="block mt-2 text-foreground/80 font-medium">Secure Memory. Verified Data. Absolute Privacy.</span>
         </motion.p>
 

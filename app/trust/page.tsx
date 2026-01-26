@@ -7,9 +7,9 @@ import { Check, X, Shield, Lock, AlertTriangle, Cpu, Zap } from "lucide-react"
 const doesItems = [
   "Layer 1: Instantly detects crisis keywords using local edge rules (Safe)",
   "Layer 2: Matches symptoms against verified clinical protocols (Deterministic)",
-  "Layer 3: Uses Llama 3 AI only for complex reasoning (Contextual)",
+  "Layer 3: Uses Advanced Synthesis only for complex reasoning (Contextual)",
   "Processes data entirely in-memory without persistent storage",
-  "Clearly communicates uncertainty sources (Rules vs AI)",
+  "Clearly communicates uncertainty sources (Core logic vs Intelligence)",
   "Recommends when to seek professional medical care",
 ]
 
@@ -17,7 +17,7 @@ const doesNotItems = [
   "Does NOT diagnose diseases or replace a doctor",
   "Does NOT store your conversation history after the session ends",
   "Does NOT sell or share health data with third parties",
-  "Does NOT allow AI to hallucinate on critical safety checks",
+  "Does NOT allow the engine to hallucinate on critical safety checks",
   "Does NOT manage chronic conditions or prescriptions",
   "Does NOT handle emergency response (Call 911)",
 ]
@@ -117,7 +117,7 @@ export default function TrustPage() {
           >
             <h2 className="text-2xl md:text-3xl font-semibold text-foreground mb-4">Hybrid Neuro-Symbolic Safety</h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">
-              We don't rely solely on AI. We use a "Sandwich" architecture to wrap generative AI with deterministic safety rules.
+              We don't rely solely on probabilistic models. We use a "Sandwich" architecture to wrap advanced intelligence with deterministic safety rules.
             </p>
           </motion.div>
 
@@ -141,9 +141,9 @@ export default function TrustPage() {
             {/* Card 3 */}
             <motion.div {...animationProps} transition={{ delay: 0.2 }} className="p-6 bg-secondary/30 rounded-xl border border-border/50">
               <Cpu className="size-8 text-purple-500 mb-4" />
-              <h3 className="font-semibold text-lg mb-2">3. Controlled AI</h3>
+              <h3 className="font-semibold text-lg mb-2">3. Advanced Synthesis</h3>
               <p className="text-sm text-muted-foreground leading-relaxed">
-                Only for nuanced cases do we call Llama 3 (70B). The AI is strictly prompted to act as a "Medical Scribe," summarizing data into structured JSON without inventing diagnoses.
+                Only for nuanced cases do we activate the synthesis engine. The intelligence layer is strictly constrained to act as a "Medical Scribe," summarizing data into structured JSON without inventing diagnoses.
               </p>
             </motion.div>
           </div>

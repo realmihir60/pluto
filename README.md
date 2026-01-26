@@ -1,6 +1,6 @@
 # Pluto Health 🏥
 
-> **AI-Powered Clinical Triage Engine with Long-Term Memory** - Professional-grade symptom analysis and clinical decision support.
+> **Intelligence-Led Clinical Triage Engine with Secure Memory** - Professional-grade symptom analysis and clinical decision support.
 
 [![Next.js](https://img.shields.io/badge/Next.js-15.0-black)](https://nextjs.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.128-green)](https://fastapi.tiangolo.com/)
@@ -9,7 +9,7 @@
 
 ## 🌟 Overview
 
-Pluto Health is an intelligent clinical triage system that analyzes patient symptoms and generates professional-grade medical assessments. Built with a **Hybrid Micro-service** architecture, it combines a React/Next.js frontend with a high-performance Python FastAPI clinical brain.
+Pluto Health is an advanced clinical triage system that leverages **proprietary symptom intelligence** to generate professional-grade medical assessments. Built with a **Hybrid Micro-service** architecture, it combines a high-fidelity React interface with a hardened Python clinical brain.
 
 ---
 
@@ -17,12 +17,12 @@ Pluto Health is an intelligent clinical triage system that analyzes patient symp
 
 ### Core Technologies
 - **Frontend**: Next.js 15 (App Router, Server Actions)
-- **Clinical Engine**: Python FastAPI (Clinical Logic, PII Scrubbing, Audit Snapshots)
-- **Database**: PostgreSQL (Prisma for JS, SQLModel for Python)
-- **Authentication**: Auth.js (NextAuth v5) + Python Auth Bridge
-- **AI Models**:
-  - Groq Llama 3.3 70B (Clinical Reasoning & Fact Extraction)
-  - Groq Whisper V3 (Transcription)
+- **Clinical Engine**: Python FastAPI (Deterministic Logic, PII Scrubbing, Audit Snapshots)
+- **Database**: PostgreSQL (Prisma & SQLModel Integration)
+- **Authentication**: Auth.js (NextAuth v5) + Unified Python Bridge
+- **Intelligence Layer**:
+  - Pluto Clinical reasoning (High-parameter reasoning)
+  - Pluto Voice analysis (Deterministic transcription)
 
 ---
 

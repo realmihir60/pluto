@@ -31,11 +31,11 @@ const steps = [
   },
   {
     icon: Cpu,
-    title: "3. Large Language Model Reasoning",
+    title: "3. Advanced Clinical Synthesis",
     description:
-      "For complex or ambiguous cases, Pluto consults Llama 3 (70B) via Groq's LPU™ Inference Engine. This provides deep clinical synthesis and context-aware advice.",
+      "For complex or ambiguous cases, Pluto activates its advanced synthesis layer for multi-factor clinical reasoning. This provides deep diagnostic correlations and context-aware advice.",
     details: [
-      "Model: Llama 3 70B (Versatile)",
+      "Engine: Pluto Clinical Synthesis (High-Parameter)",
       "Role: Clinical synthesis & empathetic reasoning",
       "Context Window: Analyzes full conversation history",
       "Output: Structured JSON (Severity, Patterns, Advice)",
@@ -45,7 +45,7 @@ const steps = [
     icon: Lock,
     title: "4. Secure Memory Injection",
     description:
-      "Instead of discarding data, we now securely retrieve your past medical facts (e.g. allergies, conditions) and inject them into the AI's context window for personalized safety.",
+      "Instead of discarding data, we now securely retrieve your past medical facts (e.g. allergies, conditions) and inject them into the intelligence layer's context window for personalized safety.",
     details: [
       "Encrypted Postgres Storage (Prisma)",
       "Proactive Context Awareness",
@@ -153,7 +153,7 @@ export default function HowItWorksPage() {
           </h1>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
             Pluto uses a <span className="text-foreground font-medium">Hybrid Neuro-Symbolic Architecture</span>.
-            We combine rock-solid clinical rules with state-of-the-art AI reasoning.
+            We combine rock-solid clinical rules with state-of-the-art clinical intelligence.
           </p>
         </motion.div>
 
@@ -180,8 +180,8 @@ export default function HowItWorksPage() {
           <div className="bg-secondary/50 border border-border rounded-xl p-6 md:p-8">
             <h2 className="text-lg font-semibold text-foreground mb-3">Why this architecture?</h2>
             <p className="text-muted-foreground leading-relaxed max-w-2xl mx-auto">
-              Pure AI can hallucinate. Pure rules are too rigid. By combining
-              <strong> Deterministic Safety</strong> with <strong>Probabilistic Reasoning</strong>,
+              Pure intelligence can hallucinate. Pure rules are too rigid. By combining
+              <strong> Deterministic Safety</strong> with <strong>Advanced Clinical Logic</strong>,
               we achieve the best of both worlds: Safety and Intelligence.
             </p>
           </div>
