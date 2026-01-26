@@ -151,7 +151,7 @@ export async function updateUserConsent() {
     if (!session?.user?.email) return { error: "Not authenticated" };
 
     try {
-        await prisma.user.update({
+        await (prisma.user as any).update({
             where: { email: session.user.email },
             data: { hasConsented: true }
         });
@@ -183,7 +183,7 @@ export async function saveTriageResult(data: {
         if (!user) throw new Error("User not found");
 
         // 1. Save Event with Full Compliance Snapshot
-        await prisma.triageEvent.create({
+        await (prisma.triageEvent as any).create({
             data: {
                 userId: user.id,
                 symptoms: symptoms,
