@@ -12,7 +12,7 @@ import traceback
 
 from sqlmodel import select, func
 
-BUILD_ID = "v2.5.2-ULTIMATE-RECOVERY"
+BUILD_ID = "v2.6.0-hardened-jwt-bridge"
 
 @app.get("/api/consent")
 def ping(db: Session = Depends(get_db_session)):

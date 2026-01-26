@@ -4,6 +4,13 @@ import { authConfig } from './auth.config';
 export default NextAuth(authConfig).auth;
 
 export const config = {
-    // https://nextjs.org/docs/app/building-your-application/routing/middleware#matcher
-    matcher: ['/((?!api|_next/static|_next/image|.*\\.png$).*)'],
+    // Matcher protects dashboard and demo, and our custom Python APIs
+    matcher: [
+        '/dashboard/:path*',
+        '/demo/:path*',
+        '/api/triage',
+        '/api/chat',
+        '/api/memory',
+        '/api/consent'
+    ],
 };
