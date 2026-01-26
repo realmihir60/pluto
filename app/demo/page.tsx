@@ -80,6 +80,7 @@ export default function DemoPage() {
   const { data: session, status } = useSession()
   const isLoading = status === "loading"
   const isAuthenticated = !!session?.user
+  const router = useRouter()
 
   // Vault State
   const [history, setHistory] = useState<CheckupRecord[]>([])
@@ -399,14 +400,22 @@ export default function DemoPage() {
         transition: { duration: 0.25, delay, ease: [0.22, 1, 0.36, 1] as const },
       }
 
-  // Show loading state while checking auth
-  if (isLoading || !isAuthenticated) {
+  // Handle loading and unauthenticated states
+  useEffect(() => {
+    if (status === "unauthenticated") {
+      router.push("/login");
+    }
+  }, [status, router]);
+
+  if (status === "loading") {
     return (
       <div className="h-screen flex items-center justify-center bg-background">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
       </div>
     )
   }
+
+  if (!isAuthenticated) return null; // Prevent flash before redirect
 
   return (
     <div className="flex flex-col h-screen overflow-hidden pt-20 pb-4 px-4 md:px-8">
