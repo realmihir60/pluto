@@ -218,14 +218,12 @@ export default function DemoPage() {
 
   const handleConsentSubmit = async () => {
     try {
-      // Assuming updateUserConsent is defined elsewhere or needs to be imported
-      // For now, a placeholder:
-      const res = { success: true }; // Replace with actual API call
-      // const res = await updateUserConsent()
-      if (res.success) {
+      const res = await fetch('/api/consent', { method: 'POST' });
+      const data = await res.json();
+      if (data.success) {
         setHasConsented(true)
         setShowConsentModal(false)
-        await updateSession() // Refresh session to include new consent status
+        await updateSession()
       } else {
         alert("Failed to save consent. Please try again.")
       }
@@ -320,12 +318,8 @@ export default function DemoPage() {
         .then(() => getHistory().then(setHistory))
         .catch(err => console.error("Failed to save to vault", err));
 
-      // Save to Server (Prisma)
-      if (isAuthenticated) {
-        import("@/app/lib/actions").then(({ saveTriageResult }) => {
-          saveTriageResult({ symptoms, aiResult: adaptedResult });
-        });
-      }
+      // Note: Server-side persistence is now handled directly by the /api/triage Python endpoint
+      // This ensures the Logic Snapshot and PII scrubbing are atomic.
 
     } catch (error) {
       console.error(error);

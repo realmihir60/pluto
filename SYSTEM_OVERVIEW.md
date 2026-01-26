@@ -1,8 +1,8 @@
 # Pluto Health: System Overview & Technical Specification
 
 **Role**: Senior Staff Engineer Documentation  
-**Status**: Production-Hardened (Phase 3)  
-**Architecture**: Hybrid Next.js (Frontend/Proxy) + FastAPI (Clinical Brain)
+**Status**: Production-Ready (Vercel Unified)  
+**Architecture**: Vercel Serverless (Next.js Frontend + Python Brain API)
 
 ---
 
@@ -19,29 +19,28 @@ To provide a de-identified, safety-first clinical decision support utility that 
 
 ## 2. End-to-End Execution Flow (Triage)
 1.  **Ingress**: Next.js Client sends POST to `/api/triage`.
-2.  **Auth/Consent Proxy**: Next.js Route Handler validates session and proxies request to Python `POST /triage` with `x-session-token`.
-3.  **Python Auth Bridge**: FastAPI Middleware validates session against DB and checks `hasConsented` flag.
-4.  **Sanitization/PII Scrubbing**: `core/sanitizer.py` runs regex and adversarial leads-in scrubbing.
-5.  **Deterministic Scan**: `core/rule_engine.py` checks for "Crisis" keywords or high-confidence medical patterns (e.g., Meningitis). 
-6.  **AI Augmentation**: If non-crisis, the prompt is enriched with a "Safety Notice" (if ambiguous) and sent to Groq.
-7.  **Logic Snapshot**: The complete state (Rule Engine results + Prompt context) is captured.
-8.  **Persistence**: `TriageEvent` is saved to Supabase with `logicSnapshot` and `engineVersion`.
-9.  **Egress**: Sanitized clinical report returned to frontend.
+2.  **Vercel Routing**: Vercel maps request to `api/triage.py` (Python Serverless Function).
+3.  **Unified Auth**: Python `get_current_user` dependency extracts `authjs.session-token` from cookies and validates against Supabase.
+4.  **Sanitization/PII Scrubbing**: `python_core/sanitizer.py` runs regex and adversarial leads-in scrubbing.
+5.  **Deterministic Scan**: `python_core/rule_engine.py` checks for "Crisis" keywords or patterns. 
+6.  **AI Augmentation**: Prompt is enriched and sent to Groq (Llama 3.3).
+7.  **Logic Snapshot**: The complete state is captured.
+8.  **Persistence**: `TriageEvent` is saved to Supabase directly from Python.
+9.  **Egress**: Flattened clinical assessment returned to frontend.
 
 ---
 
-## 3. File & Module Responsibilities
-### Core Logic (Python)
-- `backend/main.py`: App initialization and CORS/Middleware.
-- `backend/models.py`: SQLModel definitions (Source of Truth for DB schema).
-- `backend/core/rule_engine.py`: Boolean logic for symptom IDs.
-- `backend/core/sanitizer.py`: Multi-pass PII and Crisis scrubber.
-- `backend/core/auth.py`: Session validation and Consent enforcement.
+### Vercel API Layer (`/api`)
+- `api/triage.py`: Main triage orchestration and snapshotting.
+- `api/chat.py`: Clinical education chat with background memory extraction.
+- `api/consent.py`: Legal disclaimer persistence.
+- `api/memory.py`: Explicit medical fact extraction handler.
 
-### API Layer
-- `backend/api/triage.py`: Main triage orchestration and snapshotting.
-- `backend/api/chat.py`: Clinical education chat with context injection.
-- `backend/api/memory.py`: Background facts extraction (Chronic conditions/Allergies).
+### Core Logic (`/python_core`)
+- `python_core/models.py`: SQLModel specs (Shared between all API functions).
+- `python_core/rule_engine.py`: Deterministic boolean safety logic.
+- `python_core/sanitizer.py`: Multi-pass PII scrubber.
+- `python_core/auth.py`: Session extraction and consent enforcement.
 
 ---
 

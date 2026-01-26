@@ -1,6 +1,17 @@
 from typing import Optional, List, Any
 from datetime import datetime
-from sqlmodel import SQLModel, Field, Relationship, JSON, Column
+import os
+from sqlmodel import SQLModel, Field, Relationship, JSON, Column, create_engine
+
+DATABASE_URL = os.getenv("DATABASE_URL")
+engine = create_engine(DATABASE_URL)
+
+class Session(SQLModel, table=True):
+    __tablename__ = "Session"
+    id: str = Field(default=None, primary_key=True)
+    sessionToken: str = Field(unique=True, index=True)
+    userId: str = Field(foreign_key="User.id")
+    expires: datetime
 
 class User(SQLModel, table=True):
     __tablename__ = "User"

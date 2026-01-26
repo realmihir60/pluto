@@ -28,12 +28,10 @@ Pluto Health is an intelligent clinical triage system that analyzes patient symp
 
 ## 🏗️ Architecture
 
-Pluto uses a **Decoupled Security** model:
-1.  **Frontend (Next.js)**: Handles UI, Authentication, and acts as a secure proxy to the clinical engine.
-2.  **Clinical Brain (FastAPI)**: Isolated Python service that handles PII scrubbing, deterministic rule matching, and AI orchestration.
-3.  **Audit Trail**: Every incident snapshots the raw AI prompts and rule engine state.
-
-For a detailed technical breakdown, see [SYSTEM_OVERVIEW.md](./SYSTEM_OVERVIEW.md).
+Pluto uses a **Vercel Unified** model:
+1.  **Frontend (React/Next.js)**: The premium clinical interface.
+2.  **Clinical Brain (Python Serverless)**: Hardened clinical logic running as Vercel Python Functions in `/api/*.py`.
+3.  **Unified Auth**: Shared PostgreSQL session between JS and Python.
 
 ---
 
@@ -53,33 +51,27 @@ For a detailed technical breakdown, see [SYSTEM_OVERVIEW.md](./SYSTEM_OVERVIEW.m
    cd pluto
    ```
 
-2. **Frontend Setup (Node.js)**
+2. **Unified Setup**
    ```bash
    npm install
    npx prisma generate
    npx prisma db push
+   # Python deps handled automatically by Vercel on push
    ```
 
-3. **Backend Setup (Python)**
-   ```bash
-   cd backend
-   python3 -m venv venv
-   source venv/bin/activate
-   pip install -r requirements.txt
-   ```
-
-4. **Environment Variables**
-   Create a `.env` file in the root directory:
+3. **Environment Variables**
+   Create a `.env` file:
    ```env
    GROQ_API_KEY=your_groq_key
-   DATABASE_URL="postgresql://user:password@localhost:5432/postgres"
-   NEXT_PUBLIC_API_URL=http://localhost:8000
-   AUTH_SECRET="your_random_secret_key"
+   DATABASE_URL="postgresql://..."
+   AUTH_SECRET="..."
    ```
 
-5. **Run the Application**
-   - **Start Python Backend**: `cd backend && source venv/bin/activate && uvicorn main:app --reload --port 8000`
-   - **Start Next.js Frontend**: `npm run dev`
+4. **Run Development Server**
+   ```bash
+   # Both JS and Python APIs run on one command:
+   npm run dev
+   ```
 
 ---
 

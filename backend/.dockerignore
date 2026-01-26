@@ -1,8 +1,0 @@
-__pycache__/
-venv/
-.env
-*.pyc
-.git/
-.gitignore
-audit_packet_*.json
-scripts/test_*.py
