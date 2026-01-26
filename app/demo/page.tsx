@@ -220,7 +220,8 @@ export default function DemoPage() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-        }
+        },
+        credentials: 'include'
       });
 
       if (!res.ok) {
@@ -274,6 +275,7 @@ export default function DemoPage() {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ image: attachedImage }),
+          credentials: 'include'
         });
 
         if (!res.ok) throw new Error('Document analysis failed');
@@ -291,6 +293,7 @@ export default function DemoPage() {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ input: symptoms }),
+          credentials: 'include'  // Critical: sends cookies to Python API
         });
 
         if (!res.ok) throw new Error('Analysis failed');
@@ -388,6 +391,7 @@ export default function DemoPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ messages: newHistory }),
+        credentials: 'include'
       });
 
       if (!res.ok) throw new Error('Chat failed');
