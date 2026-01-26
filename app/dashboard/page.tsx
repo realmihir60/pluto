@@ -42,7 +42,7 @@ export default async function DashboardPage() {
                 </div>
                 <Link
                     href="/demo"
-                    className="inline-flex items-center justify-center rounded-full bg-primary px-6 py-2.5 text-sm font-medium text-primary-foreground shadow transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                    className="inline-flex w-full md:w-auto items-center justify-center rounded-full bg-primary px-6 py-2.5 text-sm font-medium text-primary-foreground shadow transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
                 >
                     Start New Checkup
                     <ArrowRight className="ml-2 size-4" />
@@ -154,7 +154,7 @@ export default async function DashboardPage() {
                                                 {(event.aiResult as any)?.summary || "No summary available."}
                                             </p>
                                         </div>
-                                        <div className="flex items-center gap-3 sm:border-l sm:border-border/40 sm:pl-4 min-w-[140px]">
+                                        <div className="flex flex-col sm:flex-row sm:items-center gap-3 mt-3 sm:mt-0 sm:border-l sm:border-border/40 sm:pl-4 min-w-[120px]">
                                             <div className="flex flex-col gap-1 w-full">
                                                 <span className={`text-xs px-2 py-1 rounded-md text-center font-medium w-full
                                                 ${event.urgency === 'High'

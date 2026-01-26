@@ -1,5 +1,6 @@
 "use client"
 
+import { useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
@@ -14,6 +15,7 @@ const navLinks = [
 ]
 
 export function Navigation({ session }: { session: Session | null }) {
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const pathname = usePathname()
 
   return (
@@ -27,8 +29,7 @@ export function Navigation({ session }: { session: Session | null }) {
           {/* Logo */}
           <Link
             href="/"
-            className="flex items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded-sm"
-            aria-label="Pluto Home"
+            className="flex items-center gap-2"
           >
             <Image
               src="/logo.jpg"
@@ -41,67 +42,91 @@ export function Navigation({ session }: { session: Session | null }) {
             <span className="text-lg font-semibold text-foreground">Pluto</span>
           </Link>
 
-          <div className="flex items-center gap-4">
-            {/* Nav Links */}
-            <ul className="hidden md:flex items-center gap-1" role="list">
+          {/* Desktop Nav */}
+          <div className="hidden md:flex items-center gap-6">
+            <ul className="flex items-center gap-1">
               {navLinks.map((link) => {
                 const isActive = pathname === link.href
                 return (
                   <li key={link.href}>
                     <Link
                       href={link.href}
-                      className={`relative px-3 py-1.5 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded-md ${isActive
+                      className={`relative px-3 py-1.5 text-sm font-medium transition-colors rounded-md ${isActive
                         ? "text-foreground"
                         : "text-muted-foreground hover:text-foreground"
                         }`}
-                      aria-current={isActive ? "page" : undefined}
                     >
                       {link.label}
-                      {isActive && (
-                        <motion.div
-                          layoutId="nav-underline"
-                          className="absolute bottom-0 left-3 right-3 h-0.5 bg-primary"
-                          transition={{
-                            type: "spring",
-                            stiffness: 500,
-                            damping: 35,
-                          }}
-                        />
-                      )}
                     </Link>
                   </li>
                 )
               })}
             </ul>
 
-            {/* Auth Buttons */}
             <div className="flex items-center gap-2 border-l border-border pl-4">
               {session?.user ? (
                 <Link
                   href="/dashboard"
-                  className="inline-flex h-9 items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50"
+                  className="inline-flex h-9 items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow transition-colors hover:bg-primary/90"
                 >
                   Dashboard
                 </Link>
               ) : (
                 <>
-                  <Link
-                    href="/login"
-                    className="text-sm font-medium text-muted-foreground hover:text-foreground"
-                  >
-                    Log in
-                  </Link>
-                  <Link
-                    href="/signup"
-                    className="hidden sm:inline-flex h-8 items-center justify-center rounded-md border border-input bg-background px-3 text-xs font-medium shadow-sm transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-                  >
-                    Sign up
-                  </Link>
+                  <Link href="/login" className="text-sm font-medium text-muted-foreground hover:text-foreground">Log in</Link>
+                  <Link href="/signup" className="text-sm font-medium text-primary hover:text-primary/80">Sign up</Link>
                 </>
               )}
             </div>
           </div>
+
+          {/* Mobile Menu Toggle */}
+          <button
+            className="md:hidden p-2 text-muted-foreground"
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          >
+            {isMobileMenuOpen ? (
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="size-6"><path d="M18 6 6 18" /><path d="m6 6 18 18" /></svg>
+            ) : (
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="size-6"><line x1="4" x2="20" y1="12" y2="12" /><line x1="4" x2="20" y1="6" y2="6" /><line x1="4" x2="20" y1="18" y2="18" /></svg>
+            )}
+          </button>
         </div>
+
+        {/* Mobile Dropdown */}
+        {isMobileMenuOpen && (
+          <div className="md:hidden border-t border-border bg-background p-4 flex flex-col gap-4 shadow-xl">
+            <ul className="flex flex-col gap-2">
+              {navLinks.map((link) => (
+                <li key={link.href}>
+                  <Link
+                    href={link.href}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="block px-4 py-3 text-base font-medium text-foreground hover:bg-secondary/50 rounded-lg"
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+            <div className="border-t border-border pt-4 flex flex-col gap-3">
+              {session?.user ? (
+                <Link
+                  href="/dashboard"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="w-full inline-flex h-10 items-center justify-center rounded-md bg-primary text-primary-foreground font-medium"
+                >
+                  Go to Dashboard
+                </Link>
+              ) : (
+                <>
+                  <Link href="/login" className="w-full inline-flex h-10 items-center justify-center rounded-md bg-secondary text-secondary-foreground font-medium">Log in</Link>
+                  <Link href="/signup" className="w-full inline-flex h-10 items-center justify-center rounded-md bg-primary text-primary-foreground font-medium">Sign up</Link>
+                </>
+              )}
+            </div>
+          </div>
+        )}
       </nav>
     </header>
   )
