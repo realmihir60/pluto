@@ -477,19 +477,19 @@ export default function DemoPage() {
   }
 
   return (
-    <div className="relative min-h-screen flex flex-col pt-24 pb-8 px-4 md:px-8 overflow-hidden">
+    <div className="relative h-screen flex flex-col pt-16 overflow-hidden">
       <PremiumBackground />
 
-      {/* Main Glass Container */}
+      {/* Main Full-Screen Layout */}
       <motion.div
-        initial={{ opacity: 0, scale: 0.98 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-        className="flex-1 max-w-5xl mx-auto w-full glass-morphism border border-white/20 shadow-2xl rounded-[2.5rem] overflow-hidden flex flex-col relative"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.5 }}
+        className="flex-1 w-full flex flex-col relative"
       >
         {/* Results Area - Scrollable */}
-        <div className="flex-1 overflow-y-auto px-4 pt-8 pb-32 md:px-12 scroll-smooth">
-          <div className="max-w-3xl mx-auto">
+        <div className="flex-1 overflow-y-auto px-4 pt-10 pb-40 md:px-12 scroll-smooth">
+          <div className="max-w-4xl mx-auto h-full">
             <AnimatePresence mode="wait">
               {/* Idle State */}
               {state === "idle" && !showHistory && (

@@ -47,10 +47,9 @@ export function CTASection() {
                             </Button>
                         </div>
 
-                        <div className="mt-12 flex items-center justify-center gap-8 text-white/50 text-sm font-bold uppercase tracking-widest">
-                            <span>No CARD REQUIRED</span>
-                            <span className="size-1 bg-white/30 rounded-full" />
-                            <span>HIPAA ALIGNED</span>
+                        <div className="mt-12 flex items-center justify-center gap-10 opacity-60">
+                            <span className="text-[11px] font-black uppercase tracking-[0.2em] text-white/50">No Card Required</span>
+                            <span className="text-[11px] font-black uppercase tracking-[0.2em] text-white/50">HIPAA Aligned</span>
                         </div>
                     </motion.div>
                 </div>

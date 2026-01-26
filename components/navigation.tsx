@@ -77,11 +77,11 @@ export function Navigation({ session }: { session: Session | null }) {
                   <Link href="/dashboard">Dashboard</Link>
                 </Button>
               ) : (
-                <div className="flex items-center gap-2">
-                  <Button asChild variant="ghost" size="sm" className="rounded-xl font-bold tracking-tight">
-                    <Link href="/login">Log in</Link>
-                  </Button>
-                  <Button asChild size="sm" className="rounded-xl font-bold tracking-tight shadow-xl shadow-primary/20">
+                <div className="flex items-center gap-3">
+                  <Link href="/login" className="text-sm font-bold text-muted-foreground hover:text-foreground transition-colors px-2">
+                    Log in
+                  </Link>
+                  <Button asChild size="sm" className="h-10 px-6 rounded-xl font-bold tracking-tight primary-gradient shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all active:scale-95">
                     <Link href="/signup">Sign up</Link>
                   </Button>
                 </div>

@@ -4,7 +4,7 @@ import { useEffect, useState } from "react"
 import Link from "next/link"
 import { motion, AnimatePresence } from "framer-motion"
 import { Button } from "@/components/ui/button"
-import { ArrowRight, Sparkles, Activity, Search, ShieldCheck, Heart, Zap } from "lucide-react"
+import { ArrowRight, Sparkles, Activity, Search, ShieldCheck, Heart, Zap, ChevronRight } from "lucide-react"
 
 export function HeroSection() {
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false)
@@ -84,34 +84,31 @@ export function HeroSection() {
             </Link>
           </Button>
 
-          <Button
-            asChild
-            variant="ghost"
-            size="lg"
-            className="h-14 px-10 text-lg font-medium rounded-2xl border border-transparent hover:border-border hover:bg-secondary/40 transition-all"
+          <Link
+            href="/how-it-works"
+            className="text-lg font-bold text-muted-foreground hover:text-foreground transition-all duration-300 flex items-center gap-2 group"
           >
-            <Link href="/how-it-works">
-              Explore Methodology
-            </Link>
-          </Button>
+            Explore Methodology
+            <ChevronRight className="size-4 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
+          </Link>
         </motion.div>
 
-        {/* Trust markers */}
+        {/* Trust markers - De-emphasized */}
         <motion.div
           {...(prefersReducedMotion ? {} : { ...fadeIn, transition: { ...fadeIn.transition, delay: 0.5 } })}
-          className="mt-16 flex flex-wrap items-center justify-center gap-8 md:gap-16 opacity-60 grayscale hover:grayscale-0 transition-all duration-500"
+          className="mt-20 flex flex-wrap items-center justify-center gap-10 opacity-40 hover:opacity-100 transition-opacity duration-700"
         >
-          <div className="flex items-center gap-2 font-semibold tracking-tighter text-lg">
-            <ShieldCheck className="size-5 text-primary" />
-            AES-256 ENCRYPTED
+          <div className="flex items-center gap-2 text-[11px] font-black uppercase tracking-[0.2em] text-muted-foreground">
+            <ShieldCheck className="size-3.5" />
+            AES-256 Encrypted
           </div>
-          <div className="flex items-center gap-2 font-semibold tracking-tighter text-lg">
-            <Heart className="size-5 text-red-500" />
-            HIPAA COMPLIANT ARCH
+          <div className="flex items-center gap-2 text-[11px] font-black uppercase tracking-[0.2em] text-muted-foreground">
+            <Heart className="size-3.5" />
+            HIPAA Aligned
           </div>
-          <div className="flex items-center gap-2 font-semibold tracking-tighter text-lg">
-            <Zap className="size-5 text-amber-500" />
-            GROQ POWERED
+          <div className="flex items-center gap-2 text-[11px] font-black uppercase tracking-[0.2em] text-muted-foreground">
+            <Zap className="size-3.5" />
+            Groq Powered
           </div>
         </motion.div>
 
