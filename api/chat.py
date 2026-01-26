@@ -1,6 +1,7 @@
 import os
 import json
 import openai
+import traceback
 from fastapi import FastAPI, Request, HTTPException, Depends
 from sqlmodel import Session
 
@@ -11,6 +12,7 @@ from python_core.auth import get_consented_user, get_db_session
 app = FastAPI()
 
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+BUILD_ID = "v2.5.1-C03-strict-schema"
 
 async def extract_and_save_facts(user_id: str, text: str, db: Session):
     """Memory extraction for Chat history"""
@@ -28,14 +30,14 @@ async def extract_and_save_facts(user_id: str, text: str, db: Session):
         )
         res = json.loads(completion.choices[0].message.content)
         for fact in res.get("facts", []):
-            db.add(MedicalFact(userId=user_id, type=fact['type'], value=fact['value'], source="Chat Extraction"))
+            db.add(MedicalFact(id=f"fact_{os.urandom(4).hex()}", userId=user_id, type=fact['type'], value=fact['value'], source="Chat Extraction"))
         db.commit()
     except Exception as e:
         print(f"Chat Memory Sync Error: {e}")
 
 @app.get("/api/chat")
 def ping_chat():
-    return {"status": "alive", "service": "chat-api"}
+    return {"status": "alive", "service": "chat-api", "build": BUILD_ID}
 
 @app.post("/")
 @app.post("/api/chat")
@@ -52,7 +54,7 @@ async def post_chat(
             raise HTTPException(status_code=503, detail="Chat unavailable (No API Key).")
 
         # Fetch medical facts
-        facts = user.medical_facts
+        facts = user.medicalFacts
         facts_list = "\n".join([f"- {f.type}: {f.value}" for f in facts])
 
         client = openai.OpenAI(api_key=GROQ_API_KEY, base_url="https://api.groq.com/openai/v1")
@@ -85,4 +87,6 @@ async def post_chat(
         return {"role": "assistant", "content": content}
 
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        error_info = traceback.format_exc()
+        print(f"Vercel Chat Error: {error_info}")
+        raise HTTPException(status_code=500, detail={"error": str(e), "traceback": error_info})

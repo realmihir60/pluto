@@ -230,7 +230,14 @@ export default function DemoPage() {
 
       if (!res.ok) {
         const errorText = await res.text();
-        throw new Error(`Server returned ${res.status}: ${errorText}`);
+        let displayError = errorText;
+        try {
+          const jsonErr = JSON.parse(errorText);
+          displayError = JSON.stringify(jsonErr.detail || jsonErr, null, 2);
+        } catch (e) {
+          // Keep as raw text if not JSON
+        }
+        throw new Error(displayError);
       }
 
       const data = await res.json();
@@ -239,12 +246,14 @@ export default function DemoPage() {
         setShowConsentModal(false)
         await updateSession()
       } else {
-        alert("Clinical Logic Alert: " + (data.detail || "Failed to save consent. Please refresh."));
+        const detail = JSON.stringify(data.detail || data, null, 2);
+        alert(`Clinical Logic Alert: \n${detail}`);
       }
     } catch (err: any) {
       console.error("GATEWAY_ERROR:", err);
       // Detailed error for mobile debugging
-      alert(`Gateway Error: ${err.message || 'Connection failed'}. \n\nCheck if the /api/consent route is active.`);
+      const cleanMsg = err.message || 'Connection failed';
+      alert(`Gateway Error: \n\n${cleanMsg}`);
     } finally {
       setIsSavingConsent(false);
     }

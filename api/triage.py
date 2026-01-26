@@ -1,7 +1,8 @@
 import os
 import json
-import uuid
 import openai
+import uuid
+import traceback
 from datetime import datetime
 from fastapi import FastAPI, Request, HTTPException, Depends
 from sqlmodel import Session
@@ -15,6 +16,7 @@ from python_core.auth import get_consented_user, get_db_session
 app = FastAPI()
 
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+BUILD_ID = "v2.5.1-C03-strict-schema"
 
 async def extract_and_save_facts(user_id: str, text: str, db: Session):
     """Refactored memory extraction logic for Vercel"""
@@ -32,14 +34,14 @@ async def extract_and_save_facts(user_id: str, text: str, db: Session):
         )
         res = json.loads(completion.choices[0].message.content)
         for fact in res.get("facts", []):
-            db.add(MedicalFact(userId=user_id, type=fact['type'], value=fact['value'], source="Triage Extraction"))
+            db.add(MedicalFact(id=f"fact_{uuid.uuid4().hex[:6]}", userId=user_id, type=fact['type'], value=fact['value'], source="Triage Extraction"))
         db.commit()
     except Exception as e:
         print(f"Memory Sync Error: {e}")
 
 @app.get("/api/triage")
 def ping_triage():
-    return {"status": "alive", "service": "triage-api"}
+    return {"status": "alive", "service": "triage-api", "build": BUILD_ID}
 
 @app.post("/")
 @app.post("/api/triage")
@@ -153,5 +155,6 @@ async def post_triage(
             }
 
     except Exception as e:
-        print(f"Vercel Triage Error: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        error_info = traceback.format_exc()
+        print(f"Vercel Triage Error: {error_info}")
+        raise HTTPException(status_code=500, detail={"error": str(e), "traceback": error_info})

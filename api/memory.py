@@ -1,6 +1,7 @@
 import os
 import json
 import openai
+import traceback
 from fastapi import FastAPI, Request, HTTPException, Depends
 from sqlmodel import Session
 
@@ -11,15 +12,16 @@ from python_core.auth import get_current_user, get_db_session
 app = FastAPI()
 
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+BUILD_ID = "v2.5.1-C03-strict-schema"
 
 @app.get("/api/memory")
 def ping_memory():
-    return {"status": "alive", "service": "memory-api"}
+    return {"status": "alive", "service": "memory-api", "build": BUILD_ID}
 
 @app.post("/")
 @app.post("/api/memory")
 async def extract_memory(
-    request: Request, 
+    request: Request,
     user: User = Depends(get_current_user),
     db: Session = Depends(get_db_session)
 ):
@@ -46,6 +48,7 @@ async def extract_memory(
         
         for fact in facts_data:
             new_fact = MedicalFact(
+                id=f"fact_{os.urandom(4).hex()}",
                 userId=user.id,
                 type=fact.get("type"),
                 value=fact.get("value"),
@@ -57,5 +60,6 @@ async def extract_memory(
         return {"success": True, "count": len(facts_data)}
 
     except Exception as e:
-        print(f"Memory Error: {e}")
-        return {"error": str(e)}
+        error_info = traceback.format_exc()
+        print(f"Vercel Memory Error: {error_info}")
+        raise HTTPException(status_code=500, detail={"error": str(e), "traceback": error_info})
