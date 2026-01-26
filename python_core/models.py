@@ -3,14 +3,20 @@ from datetime import datetime
 import os
 from sqlmodel import SQLModel, Field, Relationship, JSON, Column, create_engine
 
-DATABASE_URL = os.getenv("DATABASE_URL")
-engine = create_engine(DATABASE_URL)
+def get_engine():
+    db_url = os.getenv("DATABASE_URL")
+    if not db_url:
+        # Fallback to dev or raise structured error
+        return None
+    return create_engine(db_url)
+
+engine = get_engine()
 
 class Session(SQLModel, table=True):
     __tablename__ = "Session"
     id: str = Field(default=None, primary_key=True)
-    sessionToken: str = Field(unique=True, index=True)
-    userId: str = Field(foreign_key="User.id")
+    sessionToken: str = Field(sa_column=Column("sessionToken", unique=True, index=True))
+    userId: str = Field(sa_column=Column("userId", foreign_key="User.id"))
     expires: datetime
 
 class User(SQLModel, table=True):
@@ -32,38 +38,38 @@ class User(SQLModel, table=True):
 class PatientProfile(SQLModel, table=True):
     __tablename__ = "PatientProfile"
     id: str = Field(default=None, primary_key=True)
-    userId: str = Field(foreign_key="User.id", unique=True)
+    userId: str = Field(sa_column=Column("userId", foreign_key="User.id", unique=True))
     dob: Optional[datetime] = None
     sex: Optional[str] = None
-    heightCm: Optional[int] = None
-    weightKg: Optional[int] = None
-    bloodType: Optional[str] = None
+    heightCm: Optional[int] = Field(default=None, sa_column=Column("heightCm"))
+    weightKg: Optional[int] = Field(default=None, sa_column=Column("weightKg"))
+    bloodType: Optional[str] = Field(default=None, sa_column=Column("bloodType"))
 
     user: User = Relationship(back_populates="profile")
 
 class MedicalFact(SQLModel, table=True):
     __tablename__ = "MedicalFact"
     id: str = Field(default=None, primary_key=True)
-    userId: str = Field(foreign_key="User.id")
+    userId: str = Field(sa_column=Column("userId", foreign_key="User.id"))
     type: str
     value: str
     meta: Optional[Any] = Field(default={}, sa_column=Column(JSON))
     confidence: str = Field(default="Reported")
     source: str
-    createdAt: datetime = Field(default_factory=datetime.utcnow)
+    createdAt: datetime = Field(default_factory=datetime.utcnow, sa_column=Column("createdAt", default=datetime.utcnow))
 
-    user: User = Relationship(back_populates="medical_facts")
+    user: "User" = Relationship(back_populates="medical_facts")
 
 class TriageEvent(SQLModel, table=True):
     __tablename__ = "TriageEvent"
     id: str = Field(default=None, primary_key=True)
-    userId: str = Field(foreign_key="User.id")
+    userId: str = Field(sa_column=Column("userId", foreign_key="User.id"))
     symptoms: str
     aiResult: Any = Field(default={}, sa_column=Column("aiResult", JSON))
-    engine_version: str = Field(default="2.1.0", sa_column=Column("engineVersion"))
-    logic_snapshot: Any = Field(default={}, sa_column=Column("logicSnapshot", JSON))
-    actionRecommended: str
+    engineVersion: str = Field(default="2.1.0", sa_column=Column("engineVersion"))
+    logicSnapshot: Any = Field(default={}, sa_column=Column("logicSnapshot", JSON))
+    actionRecommended: str = Field(sa_column=Column("actionRecommended"))
     urgency: str
-    createdAt: datetime = Field(default_factory=datetime.utcnow)
+    createdAt: datetime = Field(default_factory=datetime.utcnow, sa_column=Column("createdAt", default=datetime.utcnow))
 
-    user: User = Relationship(back_populates="triage_events")
+    user: "User" = Relationship(back_populates="triage_events")
