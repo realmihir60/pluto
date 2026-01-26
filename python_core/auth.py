@@ -27,10 +27,17 @@ async def get_current_user(
     # 2. Try Cookie (Vercel style)
     if not x_token:
         cookie_header = request.headers.get("cookie", "")
-        if "authjs.session-token=" in cookie_header:
-            x_token = cookie_header.split("authjs.session-token=")[1].split(";")[0]
-        elif "__Secure-authjs.session-token=" in cookie_header:
-            x_token = cookie_header.split("__Secure-authjs.session-token=")[1].split(";")[0]
+        # Common NextAuth/Auth.js cookie names
+        potential_keys = [
+            "authjs.session-token=", 
+            "__Secure-authjs.session-token=",
+            "next-auth.session-token=",
+            "__Secure-next-auth.session-token="
+        ]
+        for key in potential_keys:
+            if key in cookie_header:
+                x_token = cookie_header.split(key)[1].split(";")[0]
+                break
 
     if not x_token:
         # Fallback for development ENV

@@ -12,6 +12,8 @@ import traceback
 
 from sqlmodel import select, func
 
+BUILD_ID = "v2.5.1-C01-hardened"
+
 @app.get("/api/consent")
 def ping(db: Session = Depends(get_db_session)):
     try:
@@ -19,6 +21,7 @@ def ping(db: Session = Depends(get_db_session)):
         return {
             "status": "alive", 
             "service": "consent-api", 
+            "build": BUILD_ID,
             "db_connected": engine is not None,
             "user_count": count
         }
