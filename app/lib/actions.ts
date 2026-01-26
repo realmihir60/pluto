@@ -1,6 +1,6 @@
 'use server';
 
-import { signIn } from '@/auth';
+import { signIn, auth } from '@/auth';
 import { AuthError } from 'next-auth';
 
 export async function authenticate(
@@ -64,4 +64,39 @@ export async function registerUser(prevState: string | undefined, formData: Form
 
     // 4. Redirect to login (or auto-login)
     redirect('/login');
+}
+
+export async function saveTriageResult(data: {
+    symptoms: string;
+    aiResult: any;
+}) {
+    const session = await auth();
+    if (!session?.user?.email) {
+        return { error: "Not authenticated" };
+    }
+
+    const { symptoms, aiResult } = data;
+
+    try {
+        const user = await prisma.user.findUnique({
+            where: { email: session.user.email },
+        });
+
+        if (!user) throw new Error("User not found");
+
+        await prisma.triageEvent.create({
+            data: {
+                userId: user.id,
+                symptoms: symptoms,
+                aiResult: aiResult,
+                actionRecommended: aiResult.severity?.level || "Unknown",
+                urgency: aiResult.severity?.level?.includes("URGENT") ? "High" : "Low",
+            },
+        });
+
+        return { success: true };
+    } catch (error) {
+        console.error("Failed to save triage:", error);
+        return { error: "Database error" };
+    }
 }

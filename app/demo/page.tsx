@@ -77,6 +77,10 @@ export default function DemoPage() {
   const [result, setResult] = useState<AnalysisResult | null>(null)
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false)
 
+  const { data: session, status } = useSession()
+  const isLoading = status === "loading"
+  const isAuthenticated = !!session?.user
+
   // Vault State
   const [history, setHistory] = useState<CheckupRecord[]>([])
   const [showHistory, setShowHistory] = useState(false)
@@ -276,16 +280,23 @@ export default function DemoPage() {
       ]);
       setState("results");
 
-      // Save to Vault
+      // Save to Vault (Local)
       saveCheckup(symptoms, adaptedResult, adaptedResult.confidence.level === "AI Analysis" ? adaptedResult.summary : undefined)
         .then(() => getHistory().then(setHistory))
         .catch(err => console.error("Failed to save to vault", err));
+
+      // Save to Server (Prisma)
+      if (isAuthenticated) {
+        import("@/app/lib/actions").then(({ saveTriageResult }) => {
+          saveTriageResult({ symptoms, aiResult: adaptedResult });
+        });
+      }
 
     } catch (error) {
       console.error(error);
       setState("idle");
     }
-  }, [symptoms, attachedImage]);
+  }, [symptoms, attachedImage, isAuthenticated]);
 
   // Chat State
   const [chatMessages, setChatMessages] = useState<{ role: string, content: string }[]>([])
@@ -370,7 +381,6 @@ export default function DemoPage() {
 
   const canSubmit = symptoms.trim().length >= 10
 
-  // Animation variants
   const fadeUp = prefersReducedMotion
     ? {}
     : {
@@ -388,10 +398,6 @@ export default function DemoPage() {
         animate: { opacity: 1, y: 0 },
         transition: { duration: 0.25, delay, ease: [0.22, 1, 0.36, 1] as const },
       }
-
-  const { data: session, status } = useSession()
-  const isLoading = status === "loading"
-  const isAuthenticated = !!session?.user
 
   // Show loading state while checking auth
   if (isLoading || !isAuthenticated) {
