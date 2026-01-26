@@ -30,8 +30,8 @@ export function HeroSection() {
     <section className="relative min-h-screen flex flex-col items-center justify-center px-6 pt-32 pb-40 overflow-hidden bg-background">
       {/* Dynamic Animated Background */}
       <div className="absolute inset-0 -z-10 overflow-hidden pointer-events-none">
-        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/10 rounded-full blur-[120px] animate-pulse" />
-        <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-blue-500/5 rounded-full blur-[140px]" />
+        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/10 rounded-full blur-[80px] animate-pulse will-change-transform" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-blue-500/5 rounded-full blur-[100px] will-change-transform" />
 
         {/* Fine Noise Texture */}
         <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.15] mix-blend-overlay" />

@@ -18,7 +18,7 @@ export function PremiumBackground() {
                     repeat: Infinity,
                     ease: "easeInOut"
                 }}
-                className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/20 rounded-full blur-[120px]"
+                className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/20 rounded-full blur-[80px] will-change-transform"
             />
             <motion.div
                 animate={{
@@ -33,7 +33,7 @@ export function PremiumBackground() {
                     ease: "easeInOut",
                     delay: 1
                 }}
-                className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-blue-500/10 rounded-full blur-[140px]"
+                className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-blue-500/10 rounded-full blur-[100px] will-change-transform"
             />
 
             {/* Fine Noise Texture */}

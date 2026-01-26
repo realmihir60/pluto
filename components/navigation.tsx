@@ -77,12 +77,9 @@ export function Navigation({ session }: { session: Session | null }) {
                   <Link href="/dashboard">Dashboard</Link>
                 </Button>
               ) : (
-                <div className="flex items-center gap-3">
-                  <Link href="/login" className="text-sm font-bold text-muted-foreground hover:text-foreground transition-colors px-2">
-                    Log in
-                  </Link>
+                <div className="flex items-center gap-4">
                   <Button asChild size="sm" className="h-10 px-6 rounded-xl font-bold tracking-tight primary-gradient shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all active:scale-95">
-                    <Link href="/signup">Sign up</Link>
+                    <Link href="/signup">Join Pluto</Link>
                   </Button>
                 </div>
               )}
@@ -109,7 +106,7 @@ export function Navigation({ session }: { session: Session | null }) {
               initial={{ opacity: 0, y: 10, scale: 0.95 }}
               animate={{ opacity: 1, y: 10, scale: 1 }}
               exit={{ opacity: 0, y: 10, scale: 0.95 }}
-              className="md:hidden glass border border-white/10 rounded-[2.5rem] p-6 flex flex-col gap-6 shadow-2xl mt-4 overflow-hidden relative"
+              className="md:hidden glass border border-white/10 rounded-[2.5rem] p-6 flex flex-col gap-6 shadow-2xl mt-4 overflow-hidden relative bg-background/95 backdrop-blur-2xl z-[60]"
             >
               <ul className="flex flex-col gap-2">
                 {navLinks.map((link) => (
@@ -131,14 +128,9 @@ export function Navigation({ session }: { session: Session | null }) {
                     <Link href="/dashboard" onClick={() => setIsMobileMenuOpen(false)}>Dashboard</Link>
                   </Button>
                 ) : (
-                  <>
-                    <Button asChild variant="outline" className="w-full h-14 rounded-2xl font-bold text-lg">
-                      <Link href="/login" onClick={() => setIsMobileMenuOpen(false)}>Log in</Link>
-                    </Button>
-                    <Button asChild className="w-full h-14 rounded-2xl font-bold text-lg shadow-xl shadow-primary/20">
-                      <Link href="/signup" onClick={() => setIsMobileMenuOpen(false)}>Sign up</Link>
-                    </Button>
-                  </>
+                  <Button asChild className="w-full h-14 rounded-2xl font-bold text-lg primary-gradient shadow-xl shadow-primary/20">
+                    <Link href="/signup" onClick={() => setIsMobileMenuOpen(false)}>Join Pluto</Link>
+                  </Button>
                 )}
               </div>
             </motion.div>

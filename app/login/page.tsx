@@ -36,13 +36,13 @@ export default function LoginPage() {
 
                     <LoginForm />
 
-                    <div className="mt-10 text-center space-y-6 relative z-10">
-                        <div className="text-sm text-muted-foreground font-medium">
-                            Don't have an account? <Link href="/signup" className="text-primary hover:text-primary/80 transition-colors font-black uppercase tracking-widest">Sign up</Link>
+                    <div className="mt-12 text-center space-y-8 relative z-10">
+                        <div className="text-sm text-muted-foreground font-medium pb-2">
+                            Don't have an account? <Link href="/signup" className="text-primary hover:text-primary/80 transition-colors font-black uppercase tracking-[0.1em]">Sign up</Link>
                         </div>
                         <Link
                             href="/"
-                            className="text-xs text-muted-foreground/60 hover:text-primary transition-all flex items-center justify-center gap-1.5 hover:-translate-x-1 duration-200 font-bold uppercase tracking-widest"
+                            className="text-xs text-muted-foreground/60 hover:text-primary transition-all flex items-center justify-center gap-1.5 hover:-translate-x-1 duration-200 font-bold uppercase tracking-widest pt-2"
                         >
                             <ArrowLeft className="size-3" />
                             Back to Home

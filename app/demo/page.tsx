@@ -488,7 +488,7 @@ export default function DemoPage() {
         className="flex-1 w-full flex flex-col relative"
       >
         {/* Results Area - Scrollable */}
-        <div className="flex-1 overflow-y-auto px-4 pt-10 pb-40 md:px-12 scroll-smooth">
+        <div className="flex-1 overflow-y-auto px-4 pt-4 md:pt-10 pb-40 md:px-12 scroll-smooth">
           <div className="max-w-4xl mx-auto h-full">
             <AnimatePresence mode="wait">
               {/* Idle State */}
@@ -669,7 +669,7 @@ export default function DemoPage() {
         </div>
 
         {/* Input Area */}
-        <div className="shrink-0 bg-white/50 dark:bg-black/50 backdrop-blur-xl border-t border-border/50 p-6 md:p-10">
+        <div className="shrink-0 bg-white/50 dark:bg-black/50 backdrop-blur-xl border-t border-border/50 p-4 md:p-10">
           <div className="max-w-3xl mx-auto relative group">
             <textarea
               ref={textareaRef}
