@@ -421,7 +421,7 @@ export default function DemoPage() {
       <div className="flex-1 max-w-5xl mx-auto w-full bg-white/80 dark:bg-black/60 backdrop-blur-md border border-white/40 dark:border-white/10 shadow-2xl shadow-blue-900/5 rounded-3xl overflow-hidden flex flex-col relative ring-1 ring-black/5">
 
         {/* Results Area - Scrollable */}
-        <div className="flex-1 overflow-y-auto px-4 py-8 md:px-12 scroll-smooth">
+        <div className="flex-1 overflow-y-auto px-4 pt-8 pb-32 md:px-12 scroll-smooth">
           <div className="max-w-3xl mx-auto">
             <AnimatePresence mode="wait">
               {/* Idle State (Only if not showing history) */}
@@ -789,24 +789,7 @@ export default function DemoPage() {
                       )}
                     </div>
 
-                    {/* Chat Input */}
-                    <div className="flex gap-2">
-                      <input
-                        type="text"
-                        value={chatInput}
-                        onChange={(e) => setChatInput(e.target.value)}
-                        onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
-                        placeholder="Ask a follow-up question..."
-                        className="flex-1 px-4 py-2 text-sm bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20"
-                      />
-                      <button
-                        onClick={handleSendMessage}
-                        disabled={!chatInput.trim() || isChatLoading}
-                        className="px-4 py-2 text-sm bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-                      >
-                        Send
-                      </button>
-                    </div>
+
                   </motion.div>
                 </motion.div>
               )}
