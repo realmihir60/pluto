@@ -10,8 +10,16 @@ def get_engine():
         db_url = os.getenv("DATABASE_URL")
         if not db_url:
             return None
+        
+        # 1. SQLAlchemy requires postgresql://
         if db_url.startswith("postgres://"):
             db_url = db_url.replace("postgres://", "postgresql://", 1)
+        
+        # 2. PGBouncer Flag Cleanup: Psycopg2 throws on unknown options like pgbouncer=true
+        if "?" in db_url:
+            # We strip everything after the '?' to ensure a clean DSN
+            db_url = db_url.split("?")[0]
+            
         return create_engine(db_url, pool_pre_ping=True)
     except Exception as e:
         print(f"Engine Init Error: {e}")
