@@ -24,7 +24,8 @@ import {
 } from "lucide-react"
 import { saveCheckup, getHistory, CheckupRecord } from "@/lib/vault"
 import { generateMedicalReport } from "@/lib/report-generator"
-import { useAuth } from "@/context/auth-context"
+// import { useAuth } from "@/context/auth-context"
+import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
 
 type DemoState = "idle" | "input" | "processing" | "results" | "editing"
@@ -82,14 +83,14 @@ export default function DemoPage() {
 
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
-  const { isAuthenticated, isLoading } = useAuth()
-  const router = useRouter()
+  // const { isAuthenticated, isLoading } = useAuth() // Removed legacy
+  // const router = useRouter()
 
-  useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
-      router.push("/login")
-    }
-  }, [isLoading, isAuthenticated, router])
+  // useEffect(() => {
+  //   if (!isLoading && !isAuthenticated) {
+  //     router.push("/login")
+  //   }
+  // }, [isLoading, isAuthenticated, router])
 
   useEffect(() => {
     const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)")
@@ -387,6 +388,10 @@ export default function DemoPage() {
         animate: { opacity: 1, y: 0 },
         transition: { duration: 0.25, delay, ease: [0.22, 1, 0.36, 1] as const },
       }
+
+  const { data: session, status } = useSession()
+  const isLoading = status === "loading"
+  const isAuthenticated = !!session?.user
 
   // Show loading state while checking auth
   if (isLoading || !isAuthenticated) {
