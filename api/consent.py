@@ -12,7 +12,7 @@ import traceback
 
 from sqlmodel import select, func
 
-BUILD_ID = "v2.5.1-C04-db-session"
+BUILD_ID = "v2.5.2-ULTIMATE-RECOVERY"
 
 @app.get("/api/consent")
 def ping(db: Session = Depends(get_db_session)):

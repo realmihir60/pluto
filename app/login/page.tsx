@@ -14,26 +14,27 @@ export default function LoginPage() {
                 <div className="absolute bottom-[-10%] right-[-20%] h-[500px] w-[500px] rounded-full bg-purple-400/20 blur-[100px]" />
             </div>
 
-            <div className="w-full max-w-sm relative group">
-                <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-purple-500/20 rounded-3xl blur-xl transition-all duration-500 group-hover:blur-2xl opacity-50" />
-
-                <div className="relative bg-white/60 dark:bg-black/40 backdrop-blur-md border border-white/20 dark:border-white/10 rounded-3xl p-8 shadow-2xl ring-1 ring-black/5">
+            <div className="w-full max-w-sm relative">
+                <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-8 shadow-xl">
                     <div className="mb-8 text-center space-y-2">
-                        <div className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary mb-2">
+                        <div className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-blue-500/10 text-blue-600 mb-2">
                             <Sparkles className="h-6 w-6" />
                         </div>
-                        <h1 className="text-2xl font-bold tracking-tight text-foreground">
+                        <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
                             Welcome back
                         </h1>
-                        <p className="text-sm text-muted-foreground">
+                        <p className="text-sm text-slate-500 dark:text-slate-400">
                             Enter your credentials to access your vault.
                         </p>
                     </div>
 
                     <LoginForm />
 
-                    <div className="mt-6 text-center">
-                        <Link href="/" className="text-xs text-muted-foreground hover:text-primary transition-colors flex items-center justify-center gap-1">
+                    <div className="mt-6 text-center space-y-3">
+                        <div className="text-sm text-slate-600 dark:text-slate-400">
+                            Don't have an account? <Link href="/signup" className="text-blue-600 hover:underline">Sign up</Link>
+                        </div>
+                        <Link href="/" className="text-xs text-slate-400 hover:text-blue-600 transition-colors flex items-center justify-center gap-1">
                             <ArrowLeft className="size-3" />
                             Back to Home
                         </Link>
