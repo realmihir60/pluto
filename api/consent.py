@@ -8,6 +8,11 @@ from python_core.auth import get_current_user, get_db_session
 
 app = FastAPI()
 
+@app.get("/api/consent")
+def ping():
+    return {"status": "alive", "service": "consent-api"}
+
+@app.post("/")
 @app.post("/api/consent")
 async def update_consent(
     user: User = Depends(get_current_user),

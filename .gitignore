@@ -67,3 +67,5 @@ vault-data/
 
 # Turbopack
 .turbo/
+# AI Context (Internal only)
+AI_CONTEXT.md

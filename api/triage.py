@@ -37,6 +37,11 @@ async def extract_and_save_facts(user_id: str, text: str, db: Session):
     except Exception as e:
         print(f"Memory Sync Error: {e}")
 
+@app.get("/api/triage")
+def ping_triage():
+    return {"status": "alive", "service": "triage-api"}
+
+@app.post("/")
 @app.post("/api/triage")
 async def post_triage(
     request: Request, 

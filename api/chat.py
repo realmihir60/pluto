@@ -33,6 +33,11 @@ async def extract_and_save_facts(user_id: str, text: str, db: Session):
     except Exception as e:
         print(f"Chat Memory Sync Error: {e}")
 
+@app.get("/api/chat")
+def ping_chat():
+    return {"status": "alive", "service": "chat-api"}
+
+@app.post("/")
 @app.post("/api/chat")
 async def post_chat(
     request: Request, 

@@ -12,9 +12,14 @@ app = FastAPI()
 
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 
+@app.get("/api/memory")
+def ping_memory():
+    return {"status": "alive", "service": "memory-api"}
+
+@app.post("/")
 @app.post("/api/memory")
 async def extract_memory(
-    request: Request,
+    request: Request, 
     user: User = Depends(get_current_user),
     db: Session = Depends(get_db_session)
 ):
