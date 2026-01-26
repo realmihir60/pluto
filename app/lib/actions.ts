@@ -8,7 +8,10 @@ export async function authenticate(
     formData: FormData,
 ) {
     try {
-        await signIn('credentials', formData);
+        await signIn('credentials', {
+            ...Object.fromEntries(formData),
+            redirectTo: '/dashboard',
+        });
     } catch (error) {
         if (error instanceof AuthError) {
             switch (error.type) {
@@ -59,13 +62,19 @@ export async function registerUser(prevState: string | undefined, formData: Form
             },
         });
 
-    } catch (error) {
-        console.error("Registration Error:", error);
-        return `Failed to create account: ${error instanceof Error ? error.message : String(error)}`;
-    }
+        // 4. Auto-login after registration
+        await signIn('credentials', {
+            email,
+            password,
+            redirectTo: '/dashboard',
+        });
 
-    // 4. Redirect to login (or auto-login)
-    redirect('/login');
+    } catch (error) {
+        if (error instanceof AuthError) {
+            return 'Failed to log in after registration.';
+        }
+        throw error;
+    }
 }
 
 
