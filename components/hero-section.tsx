@@ -65,7 +65,7 @@ export function HeroSection() {
         {/* Headline */}
         <motion.h1
           {...(prefersReducedMotion ? {} : { ...fadeIn, transition: { ...fadeIn.transition, delay: 0.1 } })}
-          className="text-5xl md:text-7xl font-bold tracking-tight text-foreground mb-8 leading-[1.1]"
+          className="text-4xl sm:text-5xl md:text-7xl font-bold tracking-tight text-foreground mb-6 md:mb-8 leading-[1.1]"
         >
           Check your symptoms, <br className="hidden md:block" />
           <span className="text-transparent bg-clip-text bg-gradient-to-br from-primary via-blue-600 to-blue-500">
@@ -138,7 +138,7 @@ export function HeroSection() {
             </div>
 
             {/* Interface Content */}
-            <div className="p-8 md:p-12 relative min-h-[300px] flex flex-col items-center justify-center bg-gradient-to-b from-card to-secondary/20">
+            <div className="p-6 md:p-12 relative min-h-[300px] flex flex-col items-center justify-center bg-gradient-to-b from-card to-secondary/20">
 
               {/* Scanning Bar Animation */}
               <motion.div
