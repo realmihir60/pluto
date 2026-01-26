@@ -8,6 +8,7 @@ import {
   AlertTriangle,
   Pencil,
   Plus,
+  Shield,
   ChevronDown,
   Search,
   Cpu,
@@ -28,6 +29,7 @@ import { generateMedicalReport } from "@/lib/report-generator"
 // import { useAuth } from "@/context/auth-context"
 import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
+import { PremiumBackground } from "@/components/premium-background"
 
 type DemoState = "idle" | "input" | "processing" | "results" | "editing"
 
@@ -475,15 +477,21 @@ export default function DemoPage() {
   }
 
   return (
-    <div className="flex flex-col h-screen overflow-hidden pt-20 pb-4 px-4 md:px-8">
-      {/* Main Glass Container */}
-      <div className="flex-1 max-w-5xl mx-auto w-full bg-white/80 dark:bg-black/60 backdrop-blur-md border border-white/40 dark:border-white/10 shadow-2xl shadow-blue-900/5 rounded-3xl overflow-hidden flex flex-col relative ring-1 ring-black/5">
+    <div className="relative min-h-screen flex flex-col pt-24 pb-8 px-4 md:px-8 overflow-hidden">
+      <PremiumBackground />
 
+      {/* Main Glass Container */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.98 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+        className="flex-1 max-w-5xl mx-auto w-full glass-morphism border border-white/20 shadow-2xl rounded-[2.5rem] overflow-hidden flex flex-col relative"
+      >
         {/* Results Area - Scrollable */}
         <div className="flex-1 overflow-y-auto px-4 pt-8 pb-32 md:px-12 scroll-smooth">
           <div className="max-w-3xl mx-auto">
             <AnimatePresence mode="wait">
-              {/* Idle State (Only if not showing history) */}
+              {/* Idle State */}
               {state === "idle" && !showHistory && (
                 <motion.div
                   key="idle"
@@ -491,7 +499,6 @@ export default function DemoPage() {
                   className="flex flex-col items-center justify-center min-h-[60vh] text-center px-4"
                 >
                   <div className="max-w-xl mx-auto space-y-8">
-                    {/* Branding / Header */}
                     <div className="space-y-4">
                       <div className="mx-auto size-12 rounded-2xl bg-gradient-to-br from-primary/20 to-blue-500/20 flex items-center justify-center mb-6">
                         <Activity className="size-6 text-primary" />
@@ -499,7 +506,6 @@ export default function DemoPage() {
                       <h1 className="text-3xl md:text-4xl font-semibold tracking-tight text-foreground">
                         Hello. How can I help?
                       </h1>
-
                       {history.length > 0 && (
                         <div className="flex justify-center">
                           <button
@@ -511,14 +517,11 @@ export default function DemoPage() {
                           </button>
                         </div>
                       )}
-
                       <p className="text-lg text-muted-foreground leading-relaxed">
                         Describe your symptoms in your own words. <br className="hidden md:block" />
                         I'll analyze them against medical guidelines.
                       </p>
                     </div>
-
-                    {/* Example Card */}
                     <div className="bg-card/40 backdrop-blur-sm border border-border/60 p-6 rounded-2xl text-left shadow-sm ring-1 ring-border/5">
                       <div className="flex gap-4">
                         <div className="shrink-0 mt-1">
@@ -534,18 +537,6 @@ export default function DemoPage() {
                         </div>
                       </div>
                     </div>
-
-                    {/* Trust Footer */}
-                    <div className="flex items-center justify-center gap-6 pt-4 text-xs text-muted-foreground/60">
-                      <span className="flex items-center gap-1.5 hover:text-foreground transition-colors cursor-help" title="We do not store your data">
-                        <Lock className="size-3" />
-                        Private & Anonymous
-                      </span>
-                      <span className="flex items-center gap-1.5 hover:text-foreground transition-colors cursor-help" title="Based on clinical protocols">
-                        <FileText className="size-3" />
-                        Clinicially Grounded
-                      </span>
-                    </div>
                   </div>
                 </motion.div>
               )}
@@ -560,21 +551,9 @@ export default function DemoPage() {
                   <div className="flex items-center gap-1.5 mb-3">
                     {!prefersReducedMotion ? (
                       <>
-                        <motion.span
-                          className="size-2 rounded-full bg-primary"
-                          animate={{ opacity: [0.3, 1, 0.3] }}
-                          transition={{ duration: 1.2, repeat: Infinity, delay: 0 }}
-                        />
-                        <motion.span
-                          className="size-2 rounded-full bg-primary"
-                          animate={{ opacity: [0.3, 1, 0.3] }}
-                          transition={{ duration: 1.2, repeat: Infinity, delay: 0.2 }}
-                        />
-                        <motion.span
-                          className="size-2 rounded-full bg-primary"
-                          animate={{ opacity: [0.3, 1, 0.3] }}
-                          transition={{ duration: 1.2, repeat: Infinity, delay: 0.4 }}
-                        />
+                        <motion.span className="size-2 rounded-full bg-primary" animate={{ opacity: [0.3, 1, 0.3] }} transition={{ duration: 1.2, repeat: Infinity, delay: 0 }} />
+                        <motion.span className="size-2 rounded-full bg-primary" animate={{ opacity: [0.3, 1, 0.3] }} transition={{ duration: 1.2, repeat: Infinity, delay: 0.2 }} />
+                        <motion.span className="size-2 rounded-full bg-primary" animate={{ opacity: [0.3, 1, 0.3] }} transition={{ duration: 1.2, repeat: Infinity, delay: 0.4 }} />
                       </>
                     ) : (
                       <>
@@ -584,19 +563,13 @@ export default function DemoPage() {
                       </>
                     )}
                   </div>
-                  <p className="text-muted-foreground text-sm">
-                    Pluto is reviewing common symptom patterns…
-                  </p>
+                  <p className="text-muted-foreground text-sm">Pluto is reviewing common symptom patterns…</p>
                 </motion.div>
               )}
 
               {/* History View */}
               {showHistory && (
-                <motion.div
-                  key="history"
-                  {...fadeUp}
-                  className="space-y-6 pb-8"
-                >
+                <motion.div key="history" {...fadeUp} className="space-y-6 pb-8">
                   <div className="flex items-center justify-between mb-6">
                     <h2 className="text-xl font-semibold flex items-center gap-2">
                       <History className="size-5 text-primary" />
@@ -606,7 +579,6 @@ export default function DemoPage() {
                       Back to Triage
                     </Button>
                   </div>
-
                   <div className="grid gap-4">
                     {history.map((record) => (
                       <button
@@ -619,22 +591,12 @@ export default function DemoPage() {
                             <Clock className="size-3" />
                             {new Date(record.timestamp).toLocaleString()}
                           </span>
-                          <div className="flex items-center gap-2">
-                            <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${record.triageResult.severity.level.includes('URGENT')
-                              ? 'bg-red-100 text-red-700'
-                              : 'bg-blue-100 text-blue-700'
-                              }`}>
-                              {record.triageResult.severity.level}
-                            </span>
-                            <ArrowRight className="size-3 text-muted-foreground/50 group-hover:text-primary group-hover:translate-x-0.5 transition-all" />
-                          </div>
+                          <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${record.triageResult.severity.level.includes('URGENT') ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700'}`}>
+                            {record.triageResult.severity.level}
+                          </span>
                         </div>
-                        <p className="font-medium text-foreground mb-1 line-clamp-2">
-                          "{record.symptoms}"
-                        </p>
-                        <p className="text-sm text-muted-foreground line-clamp-2">
-                          {record.triageResult.summary}
-                        </p>
+                        <p className="font-medium text-foreground mb-1 line-clamp-2">"{record.symptoms}"</p>
+                        <p className="text-sm text-muted-foreground line-clamp-2">{record.triageResult.summary}</p>
                       </button>
                     ))}
                   </div>
@@ -643,496 +605,135 @@ export default function DemoPage() {
 
               {/* Results State */}
               {state === "results" && result && (
-                <motion.div
-                  key="results"
-                  className="space-y-4 pb-8"
-                  {...(prefersReducedMotion ? {} : { initial: { opacity: 0 }, animate: { opacity: 1 } })}
-                >
-                  {/* Medical Report Container */}
-                  <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.4 }}
-                    className="bg-card border border-border rounded-xl shadow-sm overflow-hidden"
-                  >
-                    {/* Header */}
-                    <div className="bg-secondary/30 border-b border-border px-4 py-4 md:px-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <motion.div key="results" className="space-y-6 pb-8">
+                  <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="bg-card border border-border rounded-xl shadow-sm overflow-hidden">
+                    <div className="bg-secondary/30 border-b border-border px-6 py-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
                       <div className="flex items-center gap-2.5">
-                        <div className="bg-primary/10 p-2 rounded-lg">
-                          <Activity className="size-5 text-primary" />
-                        </div>
-                        <div className="min-w-0">
-                          <h2 className="text-foreground font-semibold text-base truncate">Clinical Assessment</h2>
-                          <p className="text-xs text-muted-foreground flex items-center gap-1.5 flex-wrap">
-                            <span>{new Date().toLocaleDateString()}</span>
-                            <span>•</span>
-                            <span className={`${result.confidence.level === 'Clinical Analysis' ? 'text-amber-600' : 'text-green-600'} font-medium`}>
-                              {result.confidence.level} Source
-                            </span>
-                          </p>
+                        <div className="bg-primary/10 p-2 rounded-lg"><Activity className="size-5 text-primary" /></div>
+                        <div>
+                          <h2 className="text-foreground font-semibold text-base">Clinical Assessment</h2>
+                          <p className="text-xs text-muted-foreground tracking-tight">{new Date().toLocaleDateString()} • {result.confidence.level}</p>
                         </div>
                       </div>
-                      <div className="flex items-center justify-between md:justify-end gap-3 w-full md:w-auto">
-                        <button
-                          onClick={() => generateMedicalReport(symptoms, result, crypto.randomUUID(), Date.now())}
-                          className="text-xs font-medium bg-secondary hover:bg-secondary/80 text-foreground px-3 py-1.5 rounded-lg transition-colors flex items-center gap-2 whitespace-nowrap"
-                          title="Download PDF Report"
-                        >
-                          <FileDown className="size-3.5" />
-                          <span className="inline">Export</span>
+                      <div className="flex items-center gap-3">
+                        <button onClick={() => generateMedicalReport(symptoms, result, crypto.randomUUID(), Date.now())} className="text-xs font-bold bg-secondary hover:bg-secondary/80 px-4 py-2 rounded-lg transition-all flex items-center gap-2">
+                          <FileDown className="size-4" /> EXPORT
                         </button>
-                        <div className="text-right">
-                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border whitespace-nowrap
-                          ${result.severity.level.includes('URGENT') || result.severity.level.includes('CARE')
-                              ? 'bg-red-50 text-red-700 border-red-200'
-                              : 'bg-blue-50 text-blue-700 border-blue-200'}`}>
-                            {result.severity.level}
-                          </span>
-                        </div>
+                        <span className={`px-3 py-1 rounded-full text-xs font-black tracking-widest ${result.severity.level.includes('URGENT') ? 'bg-red-500 text-white' : 'bg-primary text-white'}`}>
+                          {result.severity.level}
+                        </span>
                       </div>
                     </div>
 
-                    {/* Body */}
-                    <div className="p-6 space-y-6">
-
-                      {/* Section 0: Emergency Hub (Crisis/Urgent only) */}
-                      {(result.severity.level.includes('URGENT') || result.severity.level.includes('CRISIS')) && (
-                        <div className="p-6 rounded-2xl bg-red-500/10 border-2 border-red-500/20 shadow-inner">
-                          <div className="flex flex-col md:flex-row gap-6 items-center">
-                            <div className="p-4 bg-red-500 rounded-2xl shadow-lg animate-pulse">
-                              <AlertTriangle className="size-8 text-white" />
-                            </div>
-                            <div className="flex-1 text-center md:text-left">
-                              <h2 className="text-xl font-bold text-red-600 dark:text-red-400 mb-1">
-                                Emergency Response Hub
-                              </h2>
-                              <p className="text-sm text-red-700/80 dark:text-red-400/80 font-medium">
-                                Significant clinical risks detected. Immediate action is required.
-                              </p>
-                            </div>
-                            <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
-                              <a
-                                href="tel:911"
-                                className="flex-1 text-center px-6 py-3 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl shadow-md transition-all flex items-center justify-center gap-2"
-                              >
-                                Call 911
-                              </a>
-                              <a
-                                href={`https://www.google.com/maps/search/hospital+near+me`}
-                                target="_blank"
-                                rel="noreferrer"
-                                className="flex-1 text-center px-6 py-3 bg-white dark:bg-zinc-900 border-2 border-red-200 dark:border-red-900/50 text-red-600 dark:text-red-400 font-bold rounded-xl hover:bg-red-50 transition-all flex items-center justify-center gap-2"
-                              >
-                                <Search className="size-4" />
-                                Nearest ER
-                              </a>
-                            </div>
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Section 1: Urgency Summary (One Glance) */}
+                    <div className="p-8 space-y-8">
+                      {/* Urgency Summary */}
                       {result.urgency_summary && (
-                        <div className="p-4 rounded-xl bg-amber-50/50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-800/30">
-                          <h3 className="text-xs font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wider mb-1 flex items-center gap-1.5">
-                            <AlertTriangle className="size-3" />
-                            Why This Urgency Level
-                          </h3>
-                          <p className="text-sm text-foreground font-medium break-words">{result.urgency_summary}</p>
+                        <div className="p-5 rounded-2xl bg-amber-500/5 border border-amber-500/10">
+                          <h3 className="text-xs font-black text-amber-500 uppercase tracking-widest mb-2">Findings Context</h3>
+                          <p className="text-foreground leading-relaxed">{result.urgency_summary}</p>
                         </div>
                       )}
 
-                      {/* Section 2: Key Clinical Findings */}
-                      {result.key_findings && result.key_findings.length > 0 && (
-                        <div className="space-y-2">
-                          <h3 className="text-sm font-medium text-foreground uppercase tracking-wider flex items-center gap-2">
-                            <Search className="size-4 text-primary" />
-                            Key Clinical Findings
-                          </h3>
-                          <ul className="space-y-1.5 pl-1">
-                            {result.key_findings.map((finding, i) => (
-                              <li key={i} className="text-sm text-foreground/90 flex gap-2 break-words">
-                                <span className="text-primary shrink-0">→</span>
-                                <span>{finding}</span>
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      )}
-
-                      {/* Section 3: Differential Diagnosis Table */}
+                      {/* Differential */}
                       {result.differential_diagnosis && result.differential_diagnosis.length > 0 && (
-                        <div className="space-y-2">
-                          <h3 className="text-sm font-medium text-foreground uppercase tracking-wider flex items-center gap-2">
-                            Differential Diagnosis
-                          </h3>
-                          {/* Mobile Card View (< md) */}
-                          <div className="md:hidden space-y-3">
+                        <div className="space-y-4">
+                          <h3 className="text-xs font-black text-muted-foreground uppercase tracking-widest">Differential Analysis</h3>
+                          <div className="grid gap-4">
                             {result.differential_diagnosis.map((d, i) => (
-                              <div key={i} className="bg-secondary/30 rounded-lg border border-border p-4">
+                              <div key={i} className="p-5 bg-secondary/20 rounded-2xl border border-border/50">
                                 <div className="flex justify-between items-start mb-2">
-                                  <span className="font-semibold text-foreground">{d.condition}</span>
-                                  <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${d.likelihood === 'High' ? 'bg-red-100 text-red-700' :
-                                    d.likelihood === 'Moderate' ? 'bg-amber-100 text-amber-700' :
-                                      'bg-green-100 text-green-700'
-                                    }`}>{d.likelihood}</span>
+                                  <span className="font-bold text-lg">{d.condition}</span>
+                                  <span className={`text-[10px] font-black px-2 py-0.5 rounded bg-primary/10 text-primary tracking-widest uppercase`}>{d.likelihood} Confidence</span>
                                 </div>
                                 <p className="text-sm text-muted-foreground leading-relaxed">{d.rationale}</p>
                               </div>
                             ))}
                           </div>
-
-                          {/* Desktop Table View (>= md) */}
-                          <div className="hidden md:block overflow-x-auto rounded-lg border border-border">
-                            <table className="w-full text-sm">
-                              <thead className="bg-secondary/50 text-left">
-                                <tr>
-                                  <th className="p-3 font-semibold">Condition</th>
-                                  <th className="p-3 font-semibold">Likelihood</th>
-                                  <th className="p-3 font-semibold w-1/2">Supporting Features</th>
-                                </tr>
-                              </thead>
-                              <tbody className="divide-y divide-border">
-                                {result.differential_diagnosis.map((d, i) => (
-                                  <tr key={i} className="hover:bg-secondary/30">
-                                    <td className="p-3 font-medium align-top">{d.condition}</td>
-                                    <td className="p-3 align-top">
-                                      <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${d.likelihood === 'High' ? 'bg-red-100 text-red-700' :
-                                        d.likelihood === 'Moderate' ? 'bg-amber-100 text-amber-700' :
-                                          'bg-green-100 text-green-700'
-                                        }`}>{d.likelihood}</span>
-                                    </td>
-                                    <td className="p-3 text-muted-foreground align-top">{d.rationale}</td>
-                                  </tr>
-                                ))}
-                              </tbody>
-                            </table>
-                          </div>
                         </div>
                       )}
-
-                      {/* Section 4: Suggested Focus Areas */}
-                      {result.suggested_focus && result.suggested_focus.length > 0 && (
-                        <div className="space-y-2">
-                          <h3 className="text-sm font-medium text-foreground uppercase tracking-wider flex items-center gap-2">
-                            <Sparkles className="size-4 text-purple-500" />
-                            Suggested Clinical Focus
-                          </h3>
-                          <p className="text-xs text-muted-foreground">Consider evaluating:</p>
-                          <div className="flex flex-wrap gap-2">
-                            {result.suggested_focus.map((area, i) => (
-                              <span key={i} className="px-3 py-1.5 text-sm bg-secondary/50 border border-border rounded-full font-medium">
-                                {area}
-                              </span>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Section 5: Follow-up Questions */}
-                      {result.follow_up_questions && result.follow_up_questions.length > 0 && (
-                        <div className="space-y-4 pt-4 border-t border-border/50">
-                          <div className="space-y-1">
-                            <h3 className="text-sm font-semibold text-primary uppercase tracking-widest flex items-center gap-2">
-                              <Activity className="size-3" />
-                              Clinical Logic Bridge
-                            </h3>
-                            <p className="text-xs text-muted-foreground">Select a topic to provide more details and improve accuracy:</p>
-                          </div>
-
-                          <div className="grid gap-3">
-                            {result.follow_up_questions.map((q, i) => (
-                              <button
-                                key={i}
-                                onClick={() => {
-                                  setChatInput(`Regarding "${q}": `);
-                                  textareaRef.current?.focus();
-                                }}
-                                className="text-left group relative p-4 bg-blue-50/50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-900/30 rounded-xl hover:border-primary/40 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all shadow-sm"
-                              >
-                                <div className="flex items-start gap-3">
-                                  <div className="size-5 rounded-full bg-blue-500/10 text-blue-600 flex items-center justify-center shrink-0 mt-0.5 group-hover:bg-blue-600 group-hover:text-white transition-colors">
-                                    <ArrowLeft className="size-3 rotate-180" />
-                                  </div>
-                                  <span className="text-sm text-foreground/90 font-medium leading-relaxed">
-                                    {q}
-                                  </span>
-                                </div>
-                                <div className="absolute right-3 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                  <span className="text-[10px] font-bold text-blue-600 uppercase tracking-tighter">Answer Topic</span>
-                                </div>
-                              </button>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Footer */}
-                    <div className="bg-secondary/30 px-6 py-3 border-t border-border flex flex-col md:flex-row justify-between items-start md:items-center gap-2 text-xs text-muted-foreground">
-                      <p>{result.confidence.note}</p>
-                      <p className="opacity-70">Generated by Pluto Clinical Intel • Not a diagnosis</p>
                     </div>
                   </motion.div>
 
-                  {/* Edit Button */}
-                  <motion.div {...stagger(0.4)} className="pt-2">
-                    <button
-                      onClick={handleEdit}
-                      className="flex items-center gap-2 text-primary hover:text-primary/80 text-sm transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded"
-                    >
-                      <Pencil className="size-3.5" aria-hidden="true" />
-                      Edit symptoms
+                  <div className="flex justify-center gap-4">
+                    <button onClick={handleEdit} className="text-sm font-bold text-primary hover:underline flex items-center gap-2">
+                      <Pencil className="size-4" /> EDIT SYMPTOMS
                     </button>
-                  </motion.div>
-
-                  {/* --- Follow-up Chat Section --- */}
-                  <motion.div {...stagger(0.5)} className="pt-8 border-t border-border mt-8">
-                    <h3 className="text-foreground font-medium mb-4 flex items-center gap-2">
-                      <span className="flex items-center justify-center size-6 rounded-full bg-primary/10 text-primary text-[10px] font-bold">INTEL</span>
-                      Protocol Follow-up
-                    </h3>
-
-                    {/* Chat Messages */}
-                    <div className="space-y-4 mb-4">
-                      {chatMessages.map((msg, idx) => (
-                        idx > 1 && (
-                          <div key={idx} className={`flex gap-3 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                            <div className={`max-w-[85%] p-3 text-sm rounded-lg ${msg.role === 'user'
-                              ? 'bg-primary text-primary-foreground'
-                              : 'bg-secondary/50 text-foreground border border-border/50'
-                              }`}>
-                              {msg.content}
-                            </div>
-                          </div>
-                        )
-                      ))}
-                      {isChatLoading && (
-                        <div className="flex gap-3 justify-start">
-                          <div className="bg-secondary/50 p-3 rounded-lg flex items-center gap-1">
-                            <span className="size-1.5 bg-foreground/40 rounded-full animate-bounce" style={{ animationDelay: '0s' }} />
-                            <span className="size-1.5 bg-foreground/40 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }} />
-                            <span className="size-1.5 bg-foreground/40 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }} />
-                          </div>
-                        </div>
-                      )}
-                    </div>
-
-
-                  </motion.div>
-                </motion.div>
-              )}
-
-              {/* Input/Editing visible state */}
-              {(state === "input" || state === "editing") && (
-                <motion.div key="typing" {...fadeUp} className="py-16 text-center">
-                  <p className="text-muted-foreground text-sm">
-                    Press Enter to analyze or Shift+Enter for new line
-                  </p>
+                    <button onClick={() => setState("idle")} className="text-sm font-bold text-muted-foreground hover:text-foreground">
+                      START OVER
+                    </button>
+                  </div>
                 </motion.div>
               )}
             </AnimatePresence>
           </div>
         </div>
 
-        {/* Input Area - Pinned to bottom of Glass Container */}
-        <div className="shrink-0 bg-white/50 dark:bg-black/50 backdrop-blur-md border-t border-white/20 dark:border-white/5 px-4 py-4 md:px-8">
-          <div className="max-w-3xl mx-auto space-y-3">
-            {/* Textarea */}
-            <div className="relative group">
-              <textarea
-                ref={textareaRef}
-                value={state === "results" ? chatInput : symptoms}
-                onChange={(e) => state === "results" ? setChatInput(e.target.value) : setSymptoms(e.target.value)}
-                onFocus={handleFocus}
-                onKeyDown={(e) => {
-                  if (state === "results") {
-                    if (e.key === "Enter" && !e.shiftKey) {
-                      e.preventDefault();
-                      handleSendMessage();
-                    }
-                  } else {
-                    handleKeyDown(e);
+        {/* Input Area */}
+        <div className="shrink-0 bg-white/50 dark:bg-black/50 backdrop-blur-xl border-t border-border/50 p-6 md:p-10">
+          <div className="max-w-3xl mx-auto relative group">
+            <textarea
+              ref={textareaRef}
+              value={state === "results" ? chatInput : symptoms}
+              onChange={(e) => state === "results" ? setChatInput(e.target.value) : setSymptoms(e.target.value)}
+              onFocus={handleFocus}
+              onKeyDown={(e) => {
+                if (state === "results") {
+                  if (e.key === "Enter" && !e.shiftKey) {
+                    e.preventDefault();
+                    handleSendMessage();
                   }
-                }}
-                placeholder={state === "results" ? "Ask a follow-up question..." : "Describe your symptoms..."}
-                rows={1}
-                className="w-full pl-5 pr-32 py-4 bg-secondary/80 hover:bg-secondary focus:bg-background transition-colors text-foreground placeholder:text-muted-foreground/70 border border-transparent focus:border-primary/20 rounded-2xl resize-none focus:outline-none focus:ring-4 focus:ring-primary/10 text-base leading-relaxed shadow-inner"
-                style={{ maxHeight: "120px" }}
-                aria-label={state === "results" ? "Chat input" : "Describe your symptoms"}
-                disabled={state === "processing" || isChatLoading}
-              />
-
-              <div className="absolute right-3 bottom-2.5 flex items-center gap-2">
-                {/* Voice Button */}
-                {state !== "results" && (
-                  <button
-                    type="button"
-                    onClick={toggleRecording}
-                    disabled={isTranscribing}
-                    className={`p-2 rounded-full transition-all ${isRecording
-                      ? 'bg-red-500 text-white animate-pulse shadow-lg ring-4 ring-red-500/20'
-                      : isTranscribing
-                        ? 'bg-secondary text-muted-foreground'
-                        : 'text-muted-foreground hover:bg-black/5'
-                      }`}
-                    title={isRecording ? "Stop Recording" : "Start Voice Triage"}
-                  >
-                    {isTranscribing ? (
-                      <Loader2 className="size-5 animate-spin" />
-                    ) : (
-                      <Mic className={`size-5 ${isRecording ? 'fill-current' : ''}`} />
-                    )}
-                  </button>
-                )}
-
-                {/* Attachment Button */}
-                {state !== "results" && (
-                  <>
-                    <input
-                      type="file"
-                      ref={fileInputRef}
-                      className="hidden"
-                      accept="image/*"
-                      onChange={handleFileSelect}
-                    />
-                    <button
-                      type="button"
-                      onClick={handleFileUpload}
-                      className={`p-2 rounded-full transition-colors ${attachedImage ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-black/5'}`}
-                      title="Attach image"
-                    >
-                      <Plus className="size-5" />
-                    </button>
-                  </>
-                )}
-
-                {/* Send Button */}
-                <Button
-                  size="icon"
-                  onClick={state === "results" ? handleSendMessage : handleAnalyze}
-                  disabled={state === "results" ? (!chatInput.trim() || isChatLoading) : ((!canSubmit && !attachedImage) || state === "processing")}
-                  className="h-9 w-9 bg-primary hover:bg-primary/90 text-primary-foreground rounded-full shadow-sm transition-transform active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  <ArrowRight className="size-4" />
-                </Button>
-              </div>
+                } else {
+                  handleKeyDown(e);
+                }
+              }}
+              placeholder={state === "results" ? "Ask a clinical follow-up..." : "Describe your symptoms in detail..."}
+              className="w-full pl-6 pr-36 py-5 bg-background border-border/50 focus:border-primary/50 rounded-3xl resize-none focus:outline-none focus:ring-4 focus:ring-primary/5 shadow-2xl transition-all text-lg"
+              rows={1}
+            />
+            <div className="absolute right-4 bottom-4 flex items-center gap-2">
+              <button onClick={toggleRecording} className={`p-3 rounded-2xl transition-all ${isRecording ? 'bg-red-500 text-white' : 'hover:bg-secondary text-muted-foreground'}`}>
+                {isRecording ? <div className="size-4 bg-white rounded-sm animate-pulse" /> : <Mic className="size-5" />}
+              </button>
+              <button
+                onClick={state === "results" ? handleSendMessage : handleAnalyze}
+                disabled={state === "processing"}
+                className="size-12 rounded-2xl bg-primary text-primary-foreground flex items-center justify-center shadow-xl shadow-primary/20 hover:scale-105 transition-transform"
+              >
+                <ArrowRight className="size-6" />
+              </button>
             </div>
-
-            {/* Footer / Reset */}
-            {state === "results" && (
-              <div className="text-center flex justify-center gap-6">
-                {history.length > 0 && (
-                  <button
-                    onClick={() => setShowHistory(true)}
-                    className="text-xs font-medium text-muted-foreground hover:text-primary transition-colors flex items-center gap-1.5"
-                  >
-                    <History className="size-3" />
-                    View History
-                  </button>
-                )}
-                <button
-                  onClick={() => {
-                    setState("idle");
-                    setSymptoms("");
-                    setResult(null);
-                    setChatMessages([]);
-                  }}
-                  className="text-xs font-medium text-muted-foreground hover:text-red-500 transition-colors"
-                >
-                  Start New Checkup
-                </button>
-              </div>
-            )}
-
           </div>
         </div>
-      </div>
+      </motion.div>
 
-      {/* Consent Gate Modal */}
+      {/* Consent Modal */}
       <AnimatePresence>
         {showConsentModal && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm"
-          >
-            <motion.div
-              initial={{ scale: 0.95, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.95, opacity: 0 }}
-              className="w-full max-w-lg bg-card border border-border rounded-2xl shadow-2xl overflow-hidden"
-            >
-              <div className="p-6 border-b border-border bg-secondary/30">
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="p-2 bg-primary/10 rounded-lg">
-                    <Lock className="size-5 text-primary" />
-                  </div>
-                  <h2 className="text-xl font-bold text-foreground">Clinical Terms of Use</h2>
-                </div>
-                <p className="text-sm text-muted-foreground">
-                  Please review and accept our medical safety terms before proceeding.
-                </p>
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md">
+            <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="w-full max-w-lg bg-card rounded-[2.5rem] border border-white/10 shadow-3xl p-10 overflow-hidden relative">
+              <div className="absolute top-0 left-0 w-full h-2 primary-gradient" />
+              <div className="mb-8">
+                <h2 className="text-3xl font-black tracking-tight mb-2">Clinical Consent</h2>
+                <p className="text-muted-foreground">Pluto is an educational triage engine. By continuing, you agree that this is not medical advice.</p>
               </div>
-
-              <div className="p-6 space-y-4 max-h-[60vh] overflow-y-auto">
-                <div className="space-y-3">
-                  <div className="flex gap-3 p-3 rounded-xl bg-secondary/20 border border-border/50">
-                    <AlertTriangle className="size-5 text-amber-500 shrink-0 mt-0.5" />
-                    <div>
-                      <p className="text-sm font-semibold text-foreground">Not a Diagnosis</p>
-                      <p className="text-xs text-muted-foreground">
-                        Pluto is an educational utility. It cannot diagnose disease or prescribe treatment.
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex gap-3 p-3 rounded-xl bg-secondary/20 border border-border/50">
-                    <Activity className="size-5 text-red-500 shrink-0 mt-0.5" />
-                    <div>
-                      <p className="text-sm font-semibold text-foreground">Emergency Awareness</p>
-                      <p className="text-xs text-muted-foreground">
-                        If you have chest pain, signs of stroke, or severe trauma, call emergency services immediately.
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex gap-3 p-3 rounded-xl bg-secondary/20 border border-border/50">
-                    <Lock className="size-5 text-blue-500 shrink-0 mt-0.5" />
-                    <div>
-                      <p className="text-sm font-semibold text-foreground">Data Privacy</p>
-                      <p className="text-xs text-muted-foreground">
-                        Your data is encrypted and stored in your secure health vault. PII is scrubbed before processing.
-                      </p>
-                    </div>
-                  </div>
+              <div className="space-y-4 mb-10">
+                <div className="flex gap-4 p-4 rounded-2xl bg-secondary/30">
+                  <Shield className="size-6 text-primary shrink-0" />
+                  <p className="text-sm">Deterministic protocols are used for primary safety screening.</p>
+                </div>
+                <div className="flex gap-4 p-4 rounded-2xl bg-secondary/30">
+                  <Lock className="size-6 text-primary shrink-0" />
+                  <p className="text-sm">Health data is scrubbed of PII and encrypted locally.</p>
                 </div>
               </div>
-
-              <div className="p-6 bg-secondary/10 border-t border-border flex flex-col sm:flex-row gap-3">
-                <Button
-                  variant="outline"
-                  className="flex-1 rounded-xl"
-                  onClick={() => setShowConsentModal(false)}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  className="flex-1 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90"
-                  onClick={handleConsentSubmit}
-                  disabled={isSavingConsent}
-                >
-                  {isSavingConsent ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Saving...
-                    </>
-                  ) : "I Accept & Agree"}
-                </Button>
+              <div className="flex gap-4">
+                <Button variant="ghost" className="flex-1 h-14 rounded-2xl" onClick={() => setShowConsentModal(false)}>Cancel</Button>
+                <Button className="flex-1 h-14 rounded-2xl primary-gradient text-white font-bold" onClick={handleConsentSubmit} disabled={isSavingConsent}>I UNDERSTAND</Button>
               </div>
             </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
-    </div >
+    </div>
   )
 }

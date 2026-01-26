@@ -46,16 +46,10 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <body className="font-sans antialiased text-foreground bg-background relative overflow-x-hidden selection:bg-primary/20 selection:text-primary">
-        {/* Global Mesh Gradient Background */}
-        <div className="fixed inset-0 -z-10 h-full w-full bg-background">
-          <div className="absolute h-full w-full bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:16px_16px] [mask-image:radial-gradient(ellipse_50%_50%_at_50%_50%,#000_70%,transparent_100%)] opacity-30" />
-          <div className="absolute top-[-10%] left-[-20%] h-[500px] w-[500px] rounded-full bg-blue-400/20 blur-[100px]" />
-          <div className="absolute bottom-[-10%] right-[-20%] h-[500px] w-[500px] rounded-full bg-purple-400/20 blur-[100px]" />
-        </div>
-
         <SessionProvider session={session}>
           <Navigation session={session} />
           {children}
+          <FooterSection />
           <Analytics />
         </SessionProvider>
       </body>

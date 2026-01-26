@@ -1,49 +1,55 @@
 
 
+"use client"
+
 import LoginForm from '@/app/ui/login-form';
 import { Sparkles, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
+import { PremiumBackground } from '@/components/premium-background';
+import { motion } from 'framer-motion';
 
 export default function LoginPage() {
     return (
         <main className="flex min-h-screen flex-col items-center justify-center p-4 relative overflow-hidden bg-background">
-            {/* Background Effects */}
-            <div className="absolute inset-0 -z-10 h-full w-full bg-background">
-                <div className="absolute h-full w-full bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:16px_16px] [mask-image:radial-gradient(ellipse_50%_50%_at_50%_50%,#000_70%,transparent_100%)] opacity-30" />
-                <div className="absolute top-[-10%] left-[-20%] h-[500px] w-[500px] rounded-full bg-blue-400/20 blur-[100px]" />
-                <div className="absolute bottom-[-10%] right-[-20%] h-[500px] w-[500px] rounded-full bg-purple-400/20 blur-[100px]" />
-            </div>
+            <PremiumBackground />
 
-            <div className="w-full max-w-sm relative">
-                <div className="bg-white/60 dark:bg-black/40 backdrop-blur-xl border border-white/20 dark:border-white/10 rounded-3xl p-8 shadow-2xl transition-all">
-                    <div className="mb-8 text-center space-y-2">
-                        <div className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary mb-2 shadow-inner">
-                            <Sparkles className="h-6 w-6" />
+            <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+                className="w-full max-w-md relative"
+            >
+                <div className="glass-morphism border border-white/20 rounded-[2.5rem] p-10 md:p-12 shadow-3xl transition-all relative overflow-hidden group">
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 blur-3xl -mr-16 -mt-16 transition-transform duration-500 group-hover:scale-150" />
+
+                    <div className="mb-10 text-center space-y-4 relative z-10">
+                        <div className="inline-flex h-16 w-16 items-center justify-center rounded-3xl bg-primary/10 text-primary mb-2 shadow-inner">
+                            <Sparkles className="h-8 w-8" />
                         </div>
-                        <h1 className="text-3xl font-bold tracking-tight text-foreground">
-                            Welcome back
+                        <h1 className="text-4xl font-black tracking-tighter text-foreground">
+                            Welcome back.
                         </h1>
-                        <p className="text-sm text-muted-foreground">
-                            Enter your credentials to access your vault.
+                        <p className="text-lg text-muted-foreground font-medium italic">
+                            Enter your credentials to access your secure health vault.
                         </p>
                     </div>
 
                     <LoginForm />
 
-                    <div className="mt-8 text-center space-y-4">
+                    <div className="mt-10 text-center space-y-6 relative z-10">
                         <div className="text-sm text-muted-foreground font-medium">
-                            Don't have an account? <Link href="/signup" className="text-primary hover:text-primary/80 transition-colors font-semibold">Sign up</Link>
+                            Don't have an account? <Link href="/signup" className="text-primary hover:text-primary/80 transition-colors font-black uppercase tracking-widest">Sign up</Link>
                         </div>
                         <Link
                             href="/"
-                            className="text-xs text-muted-foreground/60 hover:text-primary transition-all flex items-center justify-center gap-1.5 hover:-translate-x-1 duration-200"
+                            className="text-xs text-muted-foreground/60 hover:text-primary transition-all flex items-center justify-center gap-1.5 hover:-translate-x-1 duration-200 font-bold uppercase tracking-widest"
                         >
                             <ArrowLeft className="size-3" />
                             Back to Home
                         </Link>
                     </div>
                 </div>
-            </div>
+            </motion.div>
         </main>
     );
 }
