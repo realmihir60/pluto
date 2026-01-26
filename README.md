@@ -9,7 +9,7 @@
 
 ## 🌟 Overview
 
-Pluto Health is an advanced clinical triage system that leverages **proprietary symptom intelligence** to generate professional-grade medical assessments. Built with a **Hybrid Micro-service** architecture, it combines a high-fidelity React interface with a hardened Python clinical brain.
+Pluto Health is a premium clinical triage system that leverages **proprietary symptom intelligence** and **state-of-the-art UI/UX** to generate professional-grade medical assessments. Built with a **Hybrid Micro-service** architecture, it features an immersive, lag-free full-screen chat experience.
 
 ---
 
@@ -23,6 +23,7 @@ Pluto Health is an advanced clinical triage system that leverages **proprietary 
 - **Intelligence Layer**:
   - Pluto Clinical reasoning (High-parameter reasoning)
   - Pluto Voice analysis (Deterministic transcription)
+- **Design System**: Framer Motion (High-performance animations), Tailwind CSS (Premium glassmorphism), Lucide React.
 
 ---
 
@@ -82,6 +83,8 @@ Pluto uses a **Vercel Unified** model:
 - [x] Clinical Audit Trail & Logic Snapshots
 - [x] Adversarial PII Scrubbing
 - [x] User Authentication & Consent Gate
+- [x] Premium UI Refinement & Full-Screen Experience
+- [x] Performance Tuning & Mobile Optimization
 - [ ] Telemedicine Integration
 
 ---
