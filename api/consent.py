@@ -4,7 +4,7 @@ from sqlmodel import Session
 
 # Local imports
 from python_core.models import User, engine
-from python_core.auth import get_current_user, get_db_session
+from python_core.auth import get_current_user_optional, get_db_session
 
 app = FastAPI()
 
@@ -12,7 +12,7 @@ import traceback
 
 from sqlmodel import select, func
 
-BUILD_ID = "v2.6.0-hardened-jwt-bridge"
+BUILD_ID = "v2.6.2-auth-purge"
 
 @app.get("/api/consent")
 def ping(db: Session = Depends(get_db_session)):
@@ -28,20 +28,20 @@ def ping(db: Session = Depends(get_db_session)):
     except Exception as e:
         return {
             "status": "error",
-            "error": str(e),
-            "traceback": traceback.format_exc()
+            "error": str(e)
         }
 
 @app.post("/")
 @app.post("/api/consent")
 async def update_consent(
-    user: User = Depends(get_current_user),
+    user: Optional[User] = Depends(get_current_user_optional),
     db: Session = Depends(get_db_session)
 ):
     try:
-        user.has_consented = True
-        db.add(user)
-        db.commit()
+        if user:
+            user.has_consented = True
+            db.add(user)
+            db.commit()
         return {"success": True}
     except Exception as e:
         error_info = traceback.format_exc()

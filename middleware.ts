@@ -4,12 +4,8 @@ import { authConfig } from './auth.config';
 export default NextAuth(authConfig).auth;
 
 export const config = {
-    // Matcher protects only dashboard and consent/chat APIs
-    // Demo and triage are public for testing
+    // PUBLIC MODE: Removing protection for testing clinical flows
     matcher: [
         '/dashboard/:path*',
-        '/api/chat',
-        '/api/memory',
-        '/api/consent'
     ],
 };

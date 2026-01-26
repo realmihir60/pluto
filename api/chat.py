@@ -7,17 +7,18 @@ from sqlmodel import Session
 
 # Local imports
 from python_core.models import User, engine, MedicalFact
-from python_core.auth import get_consented_user, get_db_session
+from python_core.auth import get_current_user_optional, get_db_session
 
 app = FastAPI()
 
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
-BUILD_ID = "v2.5.1-C03-strict-schema"
+BUILD_ID = "v2.6.2-auth-purge"
 
 async def extract_and_save_facts(user_id: str, text: str, db: Session):
     """Memory extraction for Chat history"""
     if not GROQ_API_KEY: return
     try:
+        if user_id == "anonymous": return # Don't save for anonymous
         client = openai.OpenAI(api_key=GROQ_API_KEY, base_url="https://api.groq.com/openai/v1")
         completion = client.chat.completions.create(
             model="llama-3.3-70b-versatile",
@@ -37,13 +38,13 @@ async def extract_and_save_facts(user_id: str, text: str, db: Session):
 
 @app.get("/api/chat")
 def ping_chat():
-    return {"status": "alive", "service": "chat-api", "build": BUILD_ID}
+    return {"status": "alive", "service": "chat-api", "build": BUILD_ID, "mode": "auth_purged"}
 
 @app.post("/")
 @app.post("/api/chat")
 async def post_chat(
     request: Request, 
-    user: User = Depends(get_consented_user),
+    user: Optional[User] = Depends(get_current_user_optional),
     db: Session = Depends(get_db_session)
 ):
     try:
@@ -53,9 +54,13 @@ async def post_chat(
         if not GROQ_API_KEY:
             raise HTTPException(status_code=503, detail="Chat unavailable (No API Key).")
 
-        # Fetch medical facts
-        facts = user.medicalFacts
-        facts_list = "\n".join([f"- {f.type}: {f.value}" for f in facts])
+        # Fetch medical facts (if authenticated)
+        facts_list = ""
+        user_id = "anonymous"
+        if user:
+            user_id = user.id
+            facts = user.medicalFacts
+            facts_list = "\n".join([f"- {f.type}: {f.value}" for f in facts])
 
         client = openai.OpenAI(api_key=GROQ_API_KEY, base_url="https://api.groq.com/openai/v1")
         
