@@ -19,18 +19,15 @@ async def get_current_user(
     request: Request,
     db: SQLSession = Depends(get_db_session)
 ) -> User:
-    """
-    Validates a session token from either Header or Cookie.
-    Bridges NextAuth session to Vercel Python Function.
-    """
     try:
-        # 1. Try Header
+        # 1. Capture ALL credentials for Vercel Logs
+        cookie_header = request.headers.get("cookie", "")
+        print(f"DEBUG_AUTH: Received Cookie Header: {cookie_header}")
+        
         x_token = request.headers.get("x-session-token")
         
         # 2. Try Cookie (Vercel style)
         if not x_token:
-            cookie_header = request.headers.get("cookie", "")
-            # Common NextAuth/Auth.js cookie names
             potential_keys = [
                 "authjs.session-token=", 
                 "__Secure-authjs.session-token=",
@@ -40,35 +37,42 @@ async def get_current_user(
             for key in potential_keys:
                 if key in cookie_header:
                     x_token = cookie_header.split(key)[1].split(";")[0]
+                    print(f"DEBUG_AUTH: Found token in {key}")
                     break
 
+        print(f"DEBUG_AUTH: Final Token Probe: {x_token[:10]}..." if x_token else "DEBUG_AUTH: No Token Found")
+
         if not x_token:
-            # Fallback for development ENV
             if os.getenv("VERCEL_ENV") != "production":
                 x_token = "DEMO_TOKEN"
             else:
-                raise HTTPException(status_code=401, detail="Session token required")
+                raise HTTPException(status_code=401, detail="Session token required (Not found in cookies)")
 
         statement = select(UserSession).where(UserSession.sessionToken == x_token)
         session_record = db.exec(statement).first()
 
         if not session_record:
             if x_token == "DEMO_TOKEN":
-                # Return a development fallback user
                 stmt = select(User).where(User.email == "mihirmaru1234@gmail.com")
                 dev_user = db.exec(stmt).first()
                 if dev_user: return dev_user
-            raise HTTPException(status_code=401, detail="Invalid session token")
+            
+            # Diagnostic detail for the user
+            all_sessions = db.exec(select(UserSession)).all()
+            session_count = len(all_sessions)
+            raise HTTPException(status_code=401, detail={
+                "error": "Invalid session token",
+                "token_sent_prefix": x_token[:8] if x_token else "None",
+                "db_session_count": session_count,
+                "hint": "Try logging out and logging back in to reset the database session."
+            })
 
-        # Check expiration
         if session_record.expires < datetime.utcnow():
-            raise HTTPException(status_code=401, detail="Session expired")
+            raise HTTPException(status_code=401, detail="Session expired in database")
 
-        statement = select(User).where(User.id == session_record.userId)
-        user = db.exec(statement).first()
-
+        user = db.exec(select(User).where(User.id == session_record.userId)).first()
         if not user:
-            raise HTTPException(status_code=401, detail="User not found")
+            raise HTTPException(status_code=401, detail="User referenced in session not found in DB")
 
         return user
     except HTTPException:
