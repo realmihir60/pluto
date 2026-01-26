@@ -5,6 +5,5 @@ sqlalchemy
 psycopg2-binary
 sqlmodel
 python-multipart
-PyJWT
-cryptography
+python-jose[cryptography]
 # Slim requirements for Vercel Serverless

@@ -1,5 +1,5 @@
 import os
-import jwt
+from jose import jwt, JWTError
 import traceback
 from datetime import datetime, timezone
 from fastapi import Header, HTTPException, Depends, Request
@@ -27,7 +27,7 @@ async def get_current_user(
 ) -> User:
     """
     Robust JWT Bridge for NextAuth v5 to Python Serverless.
-    Validates signature, expiration, and provides detailed error taxonomy.
+    Uses python-jose which handles NextAuth's token format correctly.
     """
     if not AUTH_SECRET:
         raise HTTPException(status_code=500, detail="AUTH_SECRET not configured on server.")
@@ -36,83 +36,120 @@ async def get_current_user(
     cookie_header = request.headers.get("cookie", "")
     token = None
     
-    # Priority order for session cookies
+    # Priority order for session cookies (NextAuth v5)
     cookie_keys = [
-        "__Secure-authjs.session-token",
         "authjs.session-token",
-        "__Secure-next-auth.session-token",
-        "next-auth.session-token"
+        "__Secure-authjs.session-token",
+        "next-auth.session-token",
+        "__Secure-next-auth.session-token"
     ]
     
-    cookies = {c.split('=')[0].strip(): c.split('=')[1].strip() for c in cookie_header.split(';') if '=' in c}
+    # Parse cookies safely
+    cookies = {}
+    for cookie in cookie_header.split(';'):
+        cookie = cookie.strip()
+        if '=' in cookie:
+            key, value = cookie.split('=', 1)
+            cookies[key.strip()] = value.strip()
     
     for key in cookie_keys:
         if key in cookies:
             token = cookies[key]
+            print(f"DEBUG_AUTH: Found session token in cookie: {key}")
             break
 
     if not token:
         # Fallback for local development headers
         token = request.headers.get("x-session-token")
+        if token:
+            print("DEBUG_AUTH: Using token from x-session-token header")
 
     if not token:
         raise HTTPException(
             status_code=401, 
-            detail={"code": "MISSING_TOKEN", "message": "No session token found in cookies or headers."}
+            detail={
+                "code": "MISSING_TOKEN", 
+                "message": "No session token found in cookies or headers.",
+                "cookies_found": list(cookies.keys())
+            }
         )
 
     # 2. Verify JWT Signature and Claims
     try:
-        # Note: NextAuth v5 uses 'jose' with a specific salt/secret derivation 
-        # for JWE encryption by default. If using JWS (signing only), this works directly.
+        # python-jose handles NextAuth's specific JWT implementation
         payload = jwt.decode(
             token, 
             AUTH_SECRET, 
             algorithms=[JWT_ALGORITHM],
-            leeway=JWT_LEEWAY
+            options={
+                "verify_exp": True,
+                "verify_iat": True,
+                "verify_aud": False,  # NextAuth doesn't always set audience
+                "leeway": JWT_LEEWAY
+            }
         )
         
-        user_id = payload.get("id") or payload.get("sub")
+        # Extract user ID from token
+        user_id = payload.get("sub") or payload.get("id")
         if not user_id:
             raise HTTPException(
                 status_code=401, 
-                detail={"code": "INVALID_PAYLOAD", "message": "Token is valid but missing User ID claim."}
+                detail={
+                    "code": "INVALID_PAYLOAD", 
+                    "message": "Token is valid but missing User ID claim.",
+                    "payload_keys": list(payload.keys())
+                }
             )
 
+        print(f"DEBUG_AUTH: Successfully decoded JWT for user: {user_id}")
+
         # 3. Retrieve User from Database
-        # We use 'userId' (lowercase i) to match normalized schema
         statement = select(User).where(User.id == user_id)
         user = db.exec(statement).first()
 
         if not user:
             raise HTTPException(
                 status_code=401, 
-                detail={"code": "USER_NOT_FOUND", "message": "Verified user session refers to a non-existent user."}
+                detail={
+                    "code": "USER_NOT_FOUND", 
+                    "message": f"Verified user session refers to non-existent user: {user_id}"
+                }
             )
 
         return user
 
-    except jwt.ExpiredSignatureError:
-        raise HTTPException(
-            status_code=401, 
-            detail={"code": "TOKEN_EXPIRED", "message": "Your session has expired. Please log in again."}
-        )
-    except jwt.InvalidSignatureError:
-        raise HTTPException(
-            status_code=401, 
-            detail={"code": "INVALID_SIGNATURE", "message": "Tampered or incorrectly signed session token."}
-        )
-    except jwt.DecodeError:
-        # This often happens if the token is encrypted (JWE) instead of signed (JWS)
-        raise HTTPException(
-            status_code=401, 
-            detail={
-                "code": "DECODE_ERROR", 
-                "message": "Could not decode session token. Ensure HS256 signing is used."
-            }
-        )
+    except JWTError as e:
+        # python-jose specific errors
+        error_type = type(e).__name__
+        if "expired" in str(e).lower():
+            raise HTTPException(
+                status_code=401, 
+                detail={
+                    "code": "TOKEN_EXPIRED", 
+                    "message": "Your session has expired. Please log in again."
+                }
+            )
+        elif "signature" in str(e).lower():
+            raise HTTPException(
+                status_code=401, 
+                detail={
+                    "code": "INVALID_SIGNATURE", 
+                    "message": "Token signature verification failed.",
+                    "hint": "Ensure AUTH_SECRET matches between NextAuth and Python."
+                }
+            )
+        else:
+            raise HTTPException(
+                status_code=401, 
+                detail={
+                    "code": "JWT_ERROR", 
+                    "message": f"JWT verification failed: {str(e)}",
+                    "error_type": error_type
+                }
+            )
     except Exception as e:
         error_info = traceback.format_exc()
+        print(f"DEBUG_AUTH: Unexpected error: {error_info}")
         raise HTTPException(
             status_code=500, 
             detail={
