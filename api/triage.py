@@ -11,12 +11,12 @@ from sqlmodel import Session
 from python_core.models import User, TriageEvent, engine, MedicalFact
 from python_core.rule_engine import RuleEngine
 from python_core.sanitizer import sanitize_and_analyze
-from python_core.auth import get_consented_user, get_db_session
+from python_core.auth import get_current_user_optional, get_db_session # Changed import
 
 app = FastAPI()
 
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
-BUILD_ID = "v2.5.1-C03-strict-schema"
+BUILD_ID = "v2.6.1-anonymous-testing" # Changed BUILD_ID
 
 async def extract_and_save_facts(user_id: str, text: str, db: Session):
     """Refactored memory extraction logic for Vercel"""
@@ -41,19 +41,22 @@ async def extract_and_save_facts(user_id: str, text: str, db: Session):
 
 @app.get("/api/triage")
 def ping_triage():
-    return {"status": "alive", "service": "triage-api", "build": BUILD_ID}
+    return {"status": "alive", "service": "triage-api", "build": BUILD_ID, "mode": "anonymous_ok"} # Added mode
 
 @app.post("/")
 @app.post("/api/triage")
 async def post_triage(
     request: Request, 
-    user: User = Depends(get_consented_user),
+    user: Optional[User] = Depends(get_current_user_optional), # Changed user dependency
     db: Session = Depends(get_db_session)
 ):
     try:
         data = await request.json()
         input_text = data.get("input")
         
+        # Determine user ID for logging/persistence
+        user_id_for_event = user.id if user else "anonymous"
+
         # 1. Sanitization
         analysis = sanitize_and_analyze(input_text)
         
@@ -107,22 +110,23 @@ async def post_triage(
         if is_ambiguous and final_level == "home_care":
             final_level = "seek_care"
 
-        # 6. Persistence
-        event = TriageEvent(
-            id=f"evt_{uuid.uuid4().hex[:8]}",
-            userId=user.id,
-            symptoms=input_text,
-            aiResult=ai_result or {},
-            actionRecommended=final_level,
-            urgency="High" if "urgent" in final_level or "crisis" in final_level else "Low",
-            engineVersion="2.5.0-vercel",
-            logicSnapshot={"rule_engine": assessment, "is_ambiguous": is_ambiguous}
-        )
-        db.add(event)
-        db.commit()
+        # 6. Persistence (only for authenticated users)
+        if user:
+            event = TriageEvent(
+                id=f"evt_{uuid.uuid4().hex[:8]}",
+                userId=user.id,
+                symptoms=input_text,
+                aiResult=ai_result or {},
+                actionRecommended=final_level,
+                urgency="High" if "urgent" in final_level or "crisis" in final_level else "Low",
+                engineVersion="2.6.1-anonymous",
+                logicSnapshot={"rule_engine": assessment, "is_ambiguous": is_ambiguous}
+            )
+            db.add(event)
+            db.commit()
 
-        # 7. Background Memory Sync (Sequential for Serverless reliability)
-        await extract_and_save_facts(user.id, input_text, db)
+            # 7. Background Memory Sync (only for authenticated)
+            await extract_and_save_facts(user.id, input_text, db)
 
         # 8. Return Flattened Response for UI Compatibility
         if ai_result:
