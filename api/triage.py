@@ -1,3 +1,4 @@
+from typing import Optional, List, Any
 import os
 import json
 import openai
@@ -11,12 +12,12 @@ from sqlmodel import Session
 from python_core.models import User, TriageEvent, engine, MedicalFact
 from python_core.rule_engine import RuleEngine
 from python_core.sanitizer import sanitize_and_analyze
-from python_core.auth import get_current_user_optional, get_db_session # Changed import
+from python_core.auth import get_current_user_optional, get_db_session
 
 app = FastAPI()
 
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
-BUILD_ID = "v2.6.3-route-fix"
+BUILD_ID = "v2.6.4-final-handshake"
 
 async def extract_and_save_facts(user_id: str, text: str, db: Session):
     """Refactored memory extraction logic for Vercel"""
@@ -40,13 +41,15 @@ async def extract_and_save_facts(user_id: str, text: str, db: Session):
         print(f"Memory Sync Error: {e}")
 
 @app.get("/")
+@app.get("/api/triage")
 def ping_triage():
     return {"status": "alive", "service": "triage-api", "build": BUILD_ID, "mode": "anonymous_ok"}
 
 @app.post("/")
+@app.post("/api/triage")
 async def post_triage(
     request: Request, 
-    user: Optional[User] = Depends(get_current_user_optional), # Changed user dependency
+    user: Optional[User] = Depends(get_current_user_optional),
     db: Session = Depends(get_db_session)
 ):
     try:
