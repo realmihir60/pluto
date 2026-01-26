@@ -66,6 +66,75 @@ export async function registerUser(prevState: string | undefined, formData: Form
     redirect('/login');
 }
 
+
+// --- AI Memory Service ---
+
+import OpenAI from 'openai';
+
+const groq = new OpenAI({
+    apiKey: process.env.GROQ_API_KEY,
+    baseURL: "https://api.groq.com/openai/v1",
+});
+
+export async function extractAndSaveFacts(userId: string, text: string) {
+    console.log("Memory Service: Extracting facts for user", userId);
+
+    try {
+        const completion = await groq.chat.completions.create({
+            model: "llama-3.3-70b-versatile",
+            messages: [
+                {
+                    role: "system",
+                    content: `You are a medical data clerk. Extract PERMANENT medical facts from the user's text.
+                    Ignore temporary symptoms like "I have a headache".
+                    Focus on:
+                    1. Chronic Conditions (e.g. Asthma, Diabetes)
+                    2. Medications (e.g. Lisinopril, Ibuprofen)
+                    3. Allergies (e.g. Penicillin, Peanuts)
+                    4. Surgeries (e.g. Appendectomy)
+                    5. Biological Sex or Age if mentioned.
+
+                    **OUTPUT JSON**:
+                    {
+                        "facts": [
+                            { "type": "Condition" | "Medication" | "Allergy" | "Surgery" | "Profile", "value": "Asthma", "meta": {} }
+                        ]
+                    }
+                    If nothing relevant, return { "facts": [] }.`
+                },
+                { role: "user", content: text }
+            ],
+            response_format: { type: "json_object" },
+            temperature: 0,
+        });
+
+        const content = completion.choices[0].message.content;
+        const result = JSON.parse(content || '{"facts": []}');
+
+        if (result.facts && result.facts.length > 0) {
+            console.log("Memory Service: Found facts:", result.facts);
+
+            // Save via Prisma
+            // We use a loop to save each fact. In a real app, use createMany or careful upsert.
+            for (const fact of result.facts) {
+                await prisma.medicalFact.create({
+                    data: {
+                        userId: userId,
+                        type: fact.type,
+                        value: fact.value,
+                        meta: fact.meta || {},
+                        source: "Chat Extraction",
+                        confidence: "Inferred"
+                    }
+                });
+            }
+        }
+
+    } catch (error) {
+        console.error("Memory Extraction Failed:", error);
+    }
+}
+
 export async function saveTriageResult(data: {
     symptoms: string;
     aiResult: any;
@@ -84,6 +153,7 @@ export async function saveTriageResult(data: {
 
         if (!user) throw new Error("User not found");
 
+        // 1. Save Event
         await prisma.triageEvent.create({
             data: {
                 userId: user.id,
@@ -93,6 +163,10 @@ export async function saveTriageResult(data: {
                 urgency: aiResult.severity?.level?.includes("URGENT") ? "High" : "Low",
             },
         });
+
+        // 2. Trigger Memory Extraction (Fire and forget, or await)
+        // We await it here to ensure it runs during the demo loop
+        await extractAndSaveFacts(user.id, symptoms);
 
         return { success: true };
     } catch (error) {

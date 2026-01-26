@@ -1,5 +1,9 @@
+import { auth } from "@/auth";
+import { PrismaClient } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
 import OpenAI from "openai";
+
+const prisma = new PrismaClient();
 
 // Switch to Node.js runtime for OpenAI SDK support
 export const runtime = "nodejs";
@@ -24,12 +28,33 @@ export async function POST(req: NextRequest) {
             );
         }
 
+        const session = await auth();
+        let userProfile = "Unknown User (Guest)";
+        let factsList = "None";
+
+        if (session?.user?.email) {
+            const user = await prisma.user.findUnique({
+                where: { email: session.user.email },
+                include: { medicalFacts: true }
+            });
+            if (user) {
+                userProfile = `${user.name} (${user.email})`;
+                factsList = user.medicalFacts.map((f: any) => `- ${f.type}: ${f.value}`).join("\n");
+            }
+        }
+
         const completion = await groq.chat.completions.create({
             model: "llama-3.3-70b-versatile",
             messages: [
                 {
                     role: "system",
                     content: `You are Pluto, a **Medical Education Assistant**.
+          
+          **USER CONTEXT**:
+          User: ${userProfile}
+          KNOWN MEDICAL PROFILE (from DB):
+          ${factsList}
+
           You have just provided an educational assessment to the user.
           Now you are answering follow-up questions about **concepts**, not the user's specific body.
           
@@ -43,7 +68,7 @@ export async function POST(req: NextRequest) {
                 ...messages
             ],
             max_tokens: 300,
-            temperature: 0.3, // Lower temperature for more deterministic behavior
+            temperature: 0.3,
         });
 
         const content = completion.choices[0].message.content;
