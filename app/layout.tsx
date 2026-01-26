@@ -4,7 +4,6 @@ import { Geist, Geist_Mono } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
 import { Navigation } from "@/components/navigation"
 import { FooterSection } from "@/components/footer-section"
-import { AuthProvider } from "@/context/auth-context"
 import "./globals.css"
 
 const _geist = Geist({ subsets: ["latin"] })
@@ -34,11 +33,15 @@ export const metadata: Metadata = {
   },
 }
 
-export default function RootLayout({
+import { auth } from "@/auth"
+
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  const session = await auth();
+
   return (
     <html lang="en">
       <body className="font-sans antialiased text-foreground bg-background relative overflow-x-hidden selection:bg-primary/20 selection:text-primary">
@@ -49,11 +52,9 @@ export default function RootLayout({
           <div className="absolute bottom-[-10%] right-[-20%] h-[500px] w-[500px] rounded-full bg-purple-400/20 blur-[100px]" />
         </div>
 
-        <AuthProvider>
-          <Navigation />
-          {children}
-          <Analytics />
-        </AuthProvider>
+        <Navigation session={session} />
+        {children}
+        <Analytics />
       </body>
     </html>
   )
