@@ -34,6 +34,7 @@ export const metadata: Metadata = {
 }
 
 import { auth } from "@/auth"
+import { SessionProvider } from "next-auth/react"
 
 export default async function RootLayout({
   children,
@@ -52,9 +53,11 @@ export default async function RootLayout({
           <div className="absolute bottom-[-10%] right-[-20%] h-[500px] w-[500px] rounded-full bg-purple-400/20 blur-[100px]" />
         </div>
 
-        <Navigation session={session} />
-        {children}
-        <Analytics />
+        <SessionProvider session={session}>
+          <Navigation session={session} />
+          {children}
+          <Analytics />
+        </SessionProvider>
       </body>
     </html>
   )
