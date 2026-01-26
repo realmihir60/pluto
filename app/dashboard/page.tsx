@@ -50,7 +50,7 @@ export default async function DashboardPage() {
                 </div>
 
                 <div className="mt-8">
-                    <a href="/" className="inline-flex items-center justify-center rounded-lg bg-blue-600 px-5 py-3 text-center text-base font-medium text-white hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-900">
+                    <a href="/demo" className="inline-flex items-center justify-center rounded-lg bg-blue-600 px-5 py-3 text-center text-base font-medium text-white hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-900">
                         Start New Triage
                     </a>
                 </div>

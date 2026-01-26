@@ -92,7 +92,7 @@ export function HeroSection() {
             size="lg"
             className="h-12 px-8 text-base shadow-xl shadow-primary/20 hover:shadow-primary/30 transition-all rounded-full bg-primary hover:bg-primary/90"
           >
-            <Link href="/signup" className="inline-flex items-center gap-2">
+            <Link href="/demo" className="inline-flex items-center gap-2">
               Start Free Checkup
               <ArrowRight className="size-4" />
             </Link>
