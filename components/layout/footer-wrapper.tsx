@@ -1,7 +1,7 @@
 "use client"
 
 import { usePathname } from "next/navigation"
-import { FooterSection } from "./footer-section"
+import { FooterSection } from "@/components/sections/footer-section"
 
 export function FooterWrapper() {
     const pathname = usePathname()

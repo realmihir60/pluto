@@ -47,7 +47,7 @@ server.setRequestHandler(ReadResourceRequestSchema, async (request) => {
     if (request.params.uri === "medical://protocols/catalog") {
         // Return sanitized rule metadata (exclude implementation details if needed, 
         // but here we just map our rules to a clean format)
-        const catalog = MEDICAL_RULES.map((rule) => ({
+        const catalog = MEDICAL_RULES.map((rule: any) => ({
             id: rule.id,
             category: rule.triage_level, // Using triage level as category for now
             severity: rule.triage_level,

@@ -3,7 +3,7 @@
 import { useRef, useEffect, useState } from "react"
 import { motion, useInView } from "framer-motion"
 import { ShieldAlert, Zap, Cpu, Lock, Activity, ChevronRight } from "lucide-react"
-import { PremiumBackground } from "@/components/premium-background"
+import { PremiumBackground } from "@/components/ui/premium-background"
 
 const steps = [
   {

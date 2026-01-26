@@ -5,7 +5,7 @@
 import LoginForm from '@/app/ui/login-form';
 import { Sparkles, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
-import { PremiumBackground } from '@/components/premium-background';
+import { PremiumBackground } from '@/components/ui/premium-background';
 import { motion } from 'framer-motion';
 
 export default function LoginPage() {

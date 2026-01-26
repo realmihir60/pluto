@@ -11,7 +11,7 @@
     },
     "dependencies": {
         "@modelcontextprotocol/sdk": "latest",
-        "@pluto/core": "file:../../packages/pluto-core",
+        "@pluto/core": "file:../../lib/pluto-core",
         "zod": "^3.22.4"
     },
     "devDependencies": {

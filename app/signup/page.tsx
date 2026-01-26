@@ -5,7 +5,7 @@
 import SignupForm from '@/app/ui/signup-form';
 import { UserPlus, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
-import { PremiumBackground } from '@/components/premium-background';
+import { PremiumBackground } from '@/components/ui/premium-background';
 import { motion } from 'framer-motion';
 
 export default function SignupPage() {

@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import { motion } from "framer-motion"
 import { Check, X, Shield, Lock, AlertTriangle, Cpu, Zap, Activity } from "lucide-react"
-import { PremiumBackground } from "@/components/premium-background"
+import { PremiumBackground } from "@/components/ui/premium-background"
 
 const doesItems = [
   "Layer 1: Instantly detects crisis keywords using local edge rules",
@@ -41,7 +41,7 @@ export default function TrustPage() {
       initial: { opacity: 0, y: 30 },
       whileInView: { opacity: 1, y: 0 },
       viewport: { once: true },
-      transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] },
+      transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] as const },
     }
 
   return (
@@ -53,7 +53,7 @@ export default function TrustPage() {
         <motion.div
           initial={prefersReducedMotion ? {} : { opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
+          transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] as const }}
           className="text-center mb-24"
         >
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/5 border border-primary/10 text-primary text-xs font-black uppercase tracking-widest mb-8">
@@ -97,7 +97,7 @@ export default function TrustPage() {
           {/* Strict Limitations */}
           <motion.div
             {...animationProps}
-            transition={{ duration: 0.8, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+            transition={{ duration: 0.8, delay: 0.2, ease: [0.16, 1, 0.3, 1] as const }}
             className="glass-morphism border border-white/20 rounded-[2.5rem] p-10 md:p-12 shadow-2xl relative overflow-hidden"
           >
             <div className="absolute top-0 right-0 w-32 h-32 bg-red-500/10 blur-3xl -mr-16 -mt-16" />
