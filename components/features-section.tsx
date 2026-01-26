@@ -22,8 +22,8 @@ const features = [
     },
     {
         icon: Lock,
-        title: "Zero-Knowledge",
-        description: "Your health data is radioactive to us. We don't store it. Once you close the tab, your session is wiped from our memory forever.",
+        title: "Secure Memory",
+        description: "Your health history is encrypted in your personal vault. We use AI to remember your conditions, so you don't have to repeat yourself.",
     },
     {
         icon: Activity,

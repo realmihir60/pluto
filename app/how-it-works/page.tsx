@@ -43,14 +43,14 @@ const steps = [
   },
   {
     icon: Lock,
-    title: "4. Ephemeral Processing",
+    title: "4. Secure Memory Injection",
     description:
-      "The entire pipeline is stateless. Once the analysis is delivered to your browser, the data is discarded from our inference servers.",
+      "Instead of discarding data, we now securely retrieve your past medical facts (e.g. allergies, conditions) and inject them into the AI's context window for personalized safety.",
     details: [
-      "No database storage of symptom text",
-      "No user profiles or persistent history",
-      "HIPAA-compliant processing standards",
-      "You own your data - it disappears when you close the tab",
+      "Encrypted Postgres Storage (Prisma)",
+      "Proactive Context Awareness",
+      "Facts are extracted automatically after triage",
+      "You own your data - delete it anytime via Dashboard",
     ],
   },
 ]
