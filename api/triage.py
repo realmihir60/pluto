@@ -384,7 +384,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(router)
+# Crucial: Explicit prefix for Vercel routing
+app.include_router(router, prefix="/api/triage")
 
 # This is what Vercel invokes
 handler = Mangum(app, lifespan="off")

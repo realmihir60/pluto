@@ -83,6 +83,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(router)
+# Explicit prefix for Vercel routing
+app.include_router(router, prefix="/api/memory")
 
 handler = Mangum(app, lifespan="off")
