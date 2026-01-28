@@ -73,17 +73,4 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from mangum import Mangum
 
-app = FastAPI()
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-# Explicit prefix for Vercel routing
-app.include_router(router, prefix="/api/memory")
-
-handler = Mangum(app, lifespan="off")
+# Router module for Master Router
