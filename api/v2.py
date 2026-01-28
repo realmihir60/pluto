@@ -27,14 +27,19 @@ app.add_middleware(
 )
 
 @app.get("/api/v2/health")
+@app.get("/health")
 def health():
-    return {"status": "healthy", "version": "2.0.0", "namespace": "v2"}
+    return {"status": "healthy", "version": "2.1.0", "namespace": "v2"}
 
-# Mount routers - Explicitly using /api/v2/ prefix to avoid conflicts
+# Mount routers - Both prefixed and root for stability
 app.include_router(triage_router, prefix="/api/v2/triage")
+app.include_router(triage_router, prefix="/triage")
 app.include_router(chat_router, prefix="/api/v2/chat")
+app.include_router(chat_router, prefix="/chat")
 app.include_router(consent_router, prefix="/api/v2/consent")
+app.include_router(consent_router, prefix="/consent")
 app.include_router(memory_router, prefix="/api/v2/memory")
+app.include_router(memory_router, prefix="/memory")
 
 # Vercel entry point
 handler = Mangum(app, lifespan="off")
