@@ -1,8 +1,8 @@
 {
     "rewrites": [
         {
-            "source": "/api/triage",
-            "destination": "/py_api/triage.py"
+            "source": "/api/v2/:path*",
+            "destination": "/api/v2.py"
         }
     ]
 }

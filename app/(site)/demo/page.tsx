@@ -194,7 +194,7 @@ export default function DemoPage() {
   const handleConsentSubmit = async () => {
     setIsSavingConsent(true);
     try {
-      const res = await fetch('/api/consent', {
+      const res = await fetch('/api/v2/consent', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include'
@@ -245,7 +245,7 @@ export default function DemoPage() {
           message: docData.summary || "Document analyzed successfully.",
         };
       } else {
-        const res = await fetch('/api/triage', {
+        const res = await fetch('/api/v2/triage', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ input: symptoms }),
@@ -314,7 +314,7 @@ export default function DemoPage() {
     setIsChatLoading(true);
 
     try {
-      const res = await fetch('/api/chat', {
+      const res = await fetch('/api/v2/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ messages: newHistory }),
