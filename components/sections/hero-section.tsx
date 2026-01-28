@@ -65,7 +65,7 @@ export function HeroSection() {
           {...(prefersReducedMotion ? {} : { ...fadeIn, transition: { ...fadeIn.transition, delay: 0.2 } })}
           className="text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto mb-12 leading-relaxed text-balance"
         >
-          Talk to Pluto like a doctor. Get clear answers in plain English.<br />No medical jargon. No guessing. Just reassuring guidance when you need it most.
+          Describe your symptoms. Get clear, reassuring guidance in plain English.<br />No confusing medical jargon. Just answers you can understand.
         </motion.p>
 
         {/* Primary CTA Area */}
