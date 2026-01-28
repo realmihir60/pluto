@@ -15,9 +15,10 @@ model User {
   emailVerified DateTime?
   image         String?
   password      String?
-  hasConsented  Boolean         @default(false)
   createdAt     DateTime        @default(now())
   updatedAt     DateTime        @updatedAt
+  hasConsented  Boolean         @default(false)
+  isAdmin       Boolean         @default(false)
   accounts      Account[]
   medicalFacts  MedicalFact[]
   profile       PatientProfile?
@@ -87,10 +88,10 @@ model TriageEvent {
   userId            String
   symptoms          String
   aiResult          Json
-  engineVersion     String   @default("2.1.0")
-  logicSnapshot     Json     @default("{}")
   actionRecommended String
   urgency           String
   createdAt         DateTime @default(now())
+  engineVersion     String   @default("2.1.0")
+  logicSnapshot     Json     @default("{}")
   user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

@@ -113,4 +113,74 @@ NextAuth (JS) and Python (Serverless) share the same database.
 - **Bundle Hygiene**: Heavy libraries (Charts, Maps) are lazy-loaded or excluded from initial chunks.
 
 ---
+
+## 12. Recent UI/UX Changes Log
+### Textarea Positioning Fix (2026-01-28)
+- **Issue**: The symptom input textarea at `/demo` was positioned too close to the bottom of the viewport, being cut off
+- **Root Cause**: Two issues: (1) The textarea container had responsive bottom padding that wasn't consistent, (2) The parent container used `h-screen overflow-hidden` which prevented proper spacing from the viewport bottom
+- **Solution**: 
+  - Changed textarea container to use fixed `pb-[15px]` for exactly 15px gap from bottom
+  - Changed root page container from `h-screen overflow-hidden` to `min-h-screen` to allow proper bottom spacing
+- **Files Modified**: 
+  - `/app/demo/page.tsx` line 579: Updated textarea container className from `"shrink-0 bg-transparent p-4 md:p-6 pb-8 md:pb-12 mb-6 relative z-20"` to `"shrink-0 bg-transparent p-4 md:p-6 pb-[15px] relative z-20"`
+  - `/app/demo/page.tsx` line 396: Updated root container className from `"relative h-screen flex flex-col pt-16 overflow-hidden"` to `"relative min-h-screen flex flex-col pt-16"`
+- **Context**: This is part of the glassmorphism floating input design that appears on all states (idle, input, results) of the demo page
+- **No Build Required**: Next.js hot-reloads these changes automatically via the dev server
+
+### Dynamic Follow-Up System & Clinical Pivots (2026-01-28)
+- **Goal**: Implement intelligent question management where answered questions are removed and new symptom areas are documented as clinical notes.
+- **Backend Implementation**:
+  - Updated `/api/chat` and `/api/triage` system prompts to track conversation history and detect "multi-system involvement".
+  - LLM now removes answered `follow_up_questions` and refines vague ones.
+  - Added `clinical_notes` field to response JSON to document "symptom pivots" (e.g., Leg Pain → Blurry Vision) with 3-5 sentences of analysis.
+- **Frontend Implementation**:
+  - Added `clinical_notes` to `AnalysisResult` type in `app/demo/page.tsx`.
+  - Created a professional "Clinical Intelligence Note" section below the differential diagnosis table using a themed card with a `Sparkles` icon and structured font weights.
+  - Removed informal quotes/italics for a more authoritative medical assistant tone.
+  - Questions are dynamically updated in the UI when the assistant's state changes.
+- **Impact**: Improves diagnostic accuracy, reduces redundant questioning, and provides clear transparency when the clinical focus shifts across body systems.
+
+---
+
+## 13. Email Verification System (2026-01-28)
+### Security Architecture
+Pluto enforces mandatory email verification before platform access to prevent unauthorized accounts.
+
+**Core Flow:**
+1. User signs up → Account created with `emailVerified = null`
+2. OTP sent via email (6-digit code, 15-minute expiration)
+3. User enters code in verification modal
+4. On success → `emailVerified` set to current timestamp
+5. Login blocked until verified
+
+**Components:**
+- **Authentication Gate**: `auth.ts` throws `EMAIL_NOT_VERIFIED` error if `user.emailVerified` is `null`
+- **OTP Generation**: `/api/send-verification` creates bcrypt-hashed tokens, stores in `VerificationToken` table
+- **OTP Validation**: `/api/verify-email` verifies code, updates `User.emailVerified`, deletes token
+- **Frontend Modal**: `components/auth/verify-email-modal.tsx` - 6-digit input with auto-submit
+- **Signup Integration**: `app/ui/signup-form.tsx` detects `VERIFICATION_REQUIRED:<email>` response, shows modal
+- **Login Handling**: `app/ui/login-form.tsx` catches verification error, provides "Resend" button
+
+**Email Providers (Priority Order):**
+1. **Resend** (if `RESEND_API_KEY` set) - Dedicated service
+2. **Gmail SMTP** (if `GMAIL_USER` + `GMAIL_APP_PASSWORD` set) - Free, 500 emails/day
+3. **Console Logging** (dev fallback) - OTP printed to terminal
+
+**Security Features:**
+- OTP codes hashed with bcrypt before database storage
+- 15-minute token expiration
+- Rate limiting: 3 verification emails per hour per user
+- Tokens deleted immediately after successful verification
+- Database-level enforcement at auth layer
+
+**Migration Strategy:**
+- Existing users auto-verified via `scripts/verify-existing-users.ts`
+- New users required to verify before access
+- No disruption to current user base
+
+---
+
 *End of Context Specification. Maintain the safety-first and performance-first override at all times.*
+
+
+

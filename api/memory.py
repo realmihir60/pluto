@@ -3,25 +3,25 @@ import json
 import openai
 import traceback
 from typing import Optional # Added for Optional type hint
-from fastapi import FastAPI, Request, HTTPException, Depends
+from fastapi import APIRouter, Request, HTTPException, Depends
 from sqlmodel import Session
 
 # Local imports
 from python_core.models import User, MedicalFact, engine
 from python_core.auth import get_current_user_optional, get_db_session # Changed get_current_user to get_current_user_optional
 
-app = FastAPI()
+router = APIRouter()
 
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 BUILD_ID = "v2.6.4-final-handshake"
 
-@app.get("")
-@app.get("/")
+@router.get("")
+@router.get("/")
 def ping_memory():
     return {"status": "alive", "service": "memory-api", "build": BUILD_ID, "mode": "auth_purged"}
 
-@app.post("")
-@app.post("/")
+@router.post("")
+@router.post("/")
 async def extract_memory(
     request: Request,
     user: Optional[User] = Depends(get_current_user_optional), # Changed to Optional[User] and get_current_user_optional

@@ -26,11 +26,11 @@ export function CTASection() {
                             AVAILABLE FOR PUBLIC PREVIEW
                         </div>
 
-                        <h2 className="text-4xl md:text-7xl font-bold text-white mb-8 tracking-tight">
-                            Ready for clinical <br /><span className="opacity-80 font-serif italic">certainty?</span>
+                        <h2 className="text-4xl md:text-7xl font-bold text-white mb-8 tracking-tight drop-shadow-lg">
+                            Ready for clinical <br /><span className="font-serif italic">certainty?</span>
                         </h2>
 
-                        <p className="text-xl md:text-2xl text-white/80 mb-12 max-w-2xl mx-auto leading-relaxed">
+                        <p className="text-xl md:text-2xl text-white/95 mb-12 max-w-2xl mx-auto leading-relaxed drop-shadow-md">
                             Join thousands who trust Pluto for professional-grade clinical insights and absolute health privacy.
                         </p>
 
@@ -47,9 +47,9 @@ export function CTASection() {
                             </Button>
                         </div>
 
-                        <div className="mt-12 flex items-center justify-center gap-10 opacity-60">
-                            <span className="text-[11px] font-black uppercase tracking-[0.2em] text-white/50">No Card Required</span>
-                            <span className="text-[11px] font-black uppercase tracking-[0.2em] text-white/50">HIPAA Aligned</span>
+                        <div className="mt-12 flex items-center justify-center gap-10">
+                            <span className="text-[11px] font-black uppercase tracking-[0.2em] text-white/70">No Card Required</span>
+                            <span className="text-[11px] font-black uppercase tracking-[0.2em] text-white/70">HIPAA Aligned</span>
                         </div>
                     </motion.div>
                 </div>

@@ -8,9 +8,18 @@ export async function authenticate(
     formData: FormData,
 ) {
     try {
+        // Check if user is admin
+        const email = formData.get('email') as string;
+        const user = await prisma.user.findUnique({
+            where: { email },
+            select: { isAdmin: true }
+        });
+
+        const isAdmin = user?.isAdmin || false;
+
         await signIn('credentials', {
             ...Object.fromEntries(formData),
-            redirectTo: '/dashboard',
+            redirectTo: isAdmin ? '/admin' : '/dashboard',
         });
     } catch (error) {
         if (error instanceof AuthError) {
@@ -20,6 +29,10 @@ export async function authenticate(
                 default:
                     return 'Something went wrong.';
             }
+        }
+        // Handle email verification error
+        if (error instanceof Error && error.message === 'EMAIL_NOT_VERIFIED') {
+            return 'EMAIL_NOT_VERIFIED';
         }
         throw error;
     }
@@ -53,27 +66,22 @@ export async function registerUser(prevState: string | undefined, formData: Form
         // 2. Hash password
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        // 3. Create user
+        // 3. Create user with emailVerified = null (verification required)
         await prisma.user.create({
             data: {
                 name,
                 email,
                 password: hashedPassword,
+                emailVerified: null, // Force verification
             },
         });
 
-        // 4. Auto-login after registration
-        await signIn('credentials', {
-            email,
-            password,
-            redirectTo: '/dashboard',
-        });
+        // 4. Return special success message for frontend to trigger verification
+        return "VERIFICATION_REQUIRED:" + email;
 
     } catch (error) {
-        if (error instanceof AuthError) {
-            return 'Failed to log in after registration.';
-        }
-        throw error;
+        console.error("Registration error:", error);
+        return "Failed to create account. Please try again.";
     }
 }
 

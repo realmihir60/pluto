@@ -38,11 +38,17 @@ export const { auth, signIn, signOut, handlers } = NextAuth({
 
                     const passwordsMatch = await bcrypt.compare(password, user.password || '');
                     if (passwordsMatch) {
+                        // SECURITY: Enforce email verification
+                        if (!user.emailVerified) {
+                            throw new Error('EMAIL_NOT_VERIFIED');
+                        }
+
                         return {
                             id: (user as any).id,
                             email: (user as any).email,
                             name: (user as any).name,
-                            hasConsented: (user as any).hasConsented
+                            hasConsented: (user as any).hasConsented,
+                            isAdmin: (user as any).isAdmin || false
                         };
                     }
                 }
@@ -57,6 +63,7 @@ export const { auth, signIn, signOut, handlers } = NextAuth({
             if (user) {
                 token.id = user.id;
                 token.hasConsented = (user as any).hasConsented;
+                token.isAdmin = (user as any).isAdmin || false;
             }
             return token;
         },
@@ -64,6 +71,7 @@ export const { auth, signIn, signOut, handlers } = NextAuth({
             if (session.user) {
                 (session.user as any).id = token.id as string;
                 (session.user as any).hasConsented = token.hasConsented as boolean;
+                (session.user as any).isAdmin = token.isAdmin as boolean;
             }
             return session;
         },

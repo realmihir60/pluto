@@ -5,10 +5,10 @@ load_dotenv()
 sys.path.append(os.getcwd())
 
 from fastapi import FastAPI
-from api.chat import app as chat_app
-from api.triage import app as triage_app
-from api.consent import app as consent_app
-from api.memory import app as memory_app
+from api.chat import router as chat_router
+from api.triage import router as triage_router
+from api.consent import router as consent_router
+from api.memory import router as memory_router
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
@@ -22,10 +22,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(chat_app.router, prefix="/api/chat")
-app.include_router(triage_app.router, prefix="/api/triage")
-app.include_router(consent_app.router, prefix="/api/consent")
-app.include_router(memory_app.router, prefix="/api/memory")
+app.include_router(chat_router, prefix="/api/chat")
+app.include_router(triage_router, prefix="/api/triage")
+app.include_router(consent_router, prefix="/api/consent")
+app.include_router(memory_router, prefix="/api/memory")
 
 if __name__ == "__main__":
     import uvicorn

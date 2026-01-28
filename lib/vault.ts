@@ -25,6 +25,14 @@ async function getEncryptionKey(): Promise<CryptoKey> {
     const KEY_STORAGE_NAME = 'pluto-vault-key';
     if (typeof window === 'undefined') return null as any; // Server-side guard
 
+    if (!window.crypto || !window.crypto.subtle) {
+        throw new Error(
+            "Web Crypto API (window.crypto.subtle) is not available. " +
+            "This usually happens when the site is accessed over an insecure context (HTTP). " +
+            "Please use https or 'localhost' to enable encryption features."
+        );
+    }
+
     const existingKeyJwk = localStorage.getItem(KEY_STORAGE_NAME);
 
     if (existingKeyJwk) {

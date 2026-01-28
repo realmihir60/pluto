@@ -3,14 +3,14 @@ import os
 import json
 import openai
 import traceback
-from fastapi import FastAPI, Request, HTTPException, Depends
+from fastapi import APIRouter, Request, HTTPException, Depends
 from sqlmodel import Session
 
 # Local imports
 from python_core.models import User, engine, MedicalFact
 from python_core.auth import get_current_user_optional, get_db_session
 
-app = FastAPI()
+router = APIRouter()
 
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 BUILD_ID = "v2.6.4-final-handshake"
@@ -37,13 +37,13 @@ async def extract_and_save_facts(user_id: str, text: str, db: Session):
     except Exception as e:
         print(f"Chat Memory Sync Error: {e}")
 
-@app.get("")
-@app.get("/")
+@router.get("")
+@router.get("/")
 def ping_chat():
     return {"status": "alive", "service": "chat-api", "build": BUILD_ID, "mode": "auth_purged"}
 
-@app.post("")
-@app.post("/")
+@router.post("")
+@router.post("/")
 async def post_chat(
     request: Request, 
     user: Optional[User] = Depends(get_current_user_optional),
@@ -92,8 +92,14 @@ async def post_chat(
                         "   b. CHECK for 'Red Flags'. If present, escalate.\n"
                         "   c. CHECK for 'Green Flags'. If present, DO NOT ESCALATE to 'Emergency' or 'Seek Care' unnecessarily.\n"
                         "   d. AVOID 'Premature Closure': Do NOT diagnose worst-case scenarios (e.g. Brain Tumor for Headache) without 'Red Flags'.\n"
-                        "2. Answer the user's question or ask a relevant clinical follow-up question in 'response_text'.\n"
-                        "3. Based on the ENTIRE conversation so far, Re-Evaluate the clinical picture.\n"
+                        "2. DYNAMIC QUESTION MANAGEMENT:\n"
+                        "   a. Analyze the conversation history. If a previous 'follow_up_question' has been answered (completely or partially), REMOVE it from the list.\n"
+                        "   b. If the answer is vague, RECURSE or REFINE the question in the list to get more specific context.\n"
+                        "   c. If all clinical clarifying questions are answered, the 'follow_up_questions' array should be EMPTY.\n"
+                        "3. CLINICAL PIVOT & MULTI-SYSTEM ANALYSIS:\n"
+                        "   a. If the conversation shifts (e.g., 'Leg Pain' -> 'Blurry Vision') or if the user describes symptoms across UNRELATED body systems (Multi-System Involvement), you MUST trigger a 'clinical_pivot'.\n"
+                        "   b. In the 'clinical_notes' field, provide a structured clinical reasoning block (3-5 sentences). Explain if you suspect a systemic link (e.g., diabetes, inflammation) or if these appear to be independent co-occurring issues.\n"
+                        "   c. This note should be the 'Clinical Intelligence' that helps the user understand why unrelated symptoms are being assessed together.\n"
                         "4. Return a JSON object with the following structure:\n"
                         "{\n"
                         "  'response_text': 'Your conversational response here...',\n"
@@ -102,7 +108,9 @@ async def post_chat(
                         "      'urgency_summary': '...',\n"
                         "      'differential_diagnosis': [{'condition': '...', 'likelihood': '...', 'rationale': '...'}],\n"
                         "      'suggested_focus': ['...'],\n"
-                        "      'key_findings': ['...']\n"
+                        "      'key_findings': ['...'],\n"
+                        "      'follow_up_questions': ['Question 1', 'Question 2'],\n"
+                        "      'clinical_notes': 'A structured, detailed clinical analysis if a pivot or multi-system involvement occurs. NEVER return empty if a pivot is detected.'\n"
                         "  }\n"
                         "}"
                     )

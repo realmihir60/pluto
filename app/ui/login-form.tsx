@@ -1,13 +1,45 @@
 'use client';
 
-import { useActionState } from 'react';
+import { useActionState, useState } from 'react';
 import { authenticate } from '@/app/lib/actions';
+import { AlertCircle, Mail } from 'lucide-react';
 
 export default function LoginForm() {
     const [errorMessage, formAction, isPending] = useActionState(
         authenticate,
         undefined,
     );
+    const [email, setEmail] = useState('');
+    const [resendingVerification, setResendingVerification] = useState(false);
+    const [resendMessage, setResendMessage] = useState('');
+
+    const handleResendVerification = async () => {
+        if (!email) return;
+
+        setResendingVerification(true);
+        setResendMessage('');
+
+        try {
+            const res = await fetch('/api/send-verification', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email }),
+            });
+
+            if (res.ok) {
+                setResendMessage('Verification email sent! Check your inbox.');
+            } else {
+                const data = await res.json();
+                setResendMessage(data.error || 'Failed to send verification email');
+            }
+        } catch (err) {
+            setResendMessage('Failed to send verification email');
+        } finally {
+            setResendingVerification(false);
+        }
+    };
+
+    const isUnverified = errorMessage === 'EMAIL_NOT_VERIFIED';
 
     return (
         <form action={formAction} className="space-y-3">
@@ -27,6 +59,7 @@ export default function LoginForm() {
                             name="email"
                             placeholder="Enter your email address"
                             required
+                            onChange={(e) => setEmail(e.target.value)}
                         />
                     </div>
                 </div>
@@ -56,15 +89,43 @@ export default function LoginForm() {
             >
                 {isPending ? 'Signing in...' : 'Log in'}
             </button>
+
+            {/* Error Messages */}
             <div
-                className="flex h-8 items-end space-x-1"
+                className="flex flex-col gap-2 items-center min-h-[2rem]"
                 aria-live="polite"
                 aria-atomic="true"
             >
-                {errorMessage && (
-                    <>
-                        <p className="text-sm text-red-500 font-medium">{errorMessage}</p>
-                    </>
+                {isUnverified && (
+                    <div className="w-full space-y-3">
+                        <div className="flex items-start gap-2 text-sm text-amber-500 bg-amber-500/10 border border-amber-500/20 rounded-xl p-3">
+                            <AlertCircle className="size-4 mt-0.5 shrink-0" />
+                            <div className="space-y-1">
+                                <p className="font-semibold">Email not verified</p>
+                                <p className="text-xs text-amber-400/80">
+                                    Please check your inbox for the verification code.
+                                </p>
+                            </div>
+                        </div>
+                        <button
+                            type="button"
+                            onClick={handleResendVerification}
+                            disabled={resendingVerification}
+                            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-white text-sm font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            <Mail className="size-4" />
+                            {resendingVerification ? 'Sending...' : 'Resend Verification Email'}
+                        </button>
+                        {resendMessage && (
+                            <p className={`text-xs text-center ${resendMessage.includes('sent') ? 'text-green-400' : 'text-red-400'}`}>
+                                {resendMessage}
+                            </p>
+                        )}
+                    </div>
+                )}
+
+                {errorMessage && !isUnverified && (
+                    <p className="text-sm text-red-500 font-medium">{errorMessage}</p>
                 )}
             </div>
         </form>

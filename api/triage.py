@@ -5,7 +5,7 @@ import openai
 import uuid
 import traceback
 from datetime import datetime
-from fastapi import FastAPI, Request, HTTPException, Depends
+from fastapi import APIRouter, Request, HTTPException, Depends
 from sqlmodel import Session
 
 # Local imports
@@ -14,7 +14,7 @@ from python_core.rule_engine import RuleEngine
 from python_core.sanitizer import sanitize_and_analyze
 from python_core.auth import get_current_user_optional, get_db_session
 
-app = FastAPI()
+router = APIRouter()
 
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 BUILD_ID = "v2.6.4-final-handshake"
@@ -40,13 +40,13 @@ async def extract_and_save_facts(user_id: str, text: str, db: Session):
     except Exception as e:
         print(f"Memory Sync Error: {e}")
 
-@app.get("")
-@app.get("/")
+@router.get("")
+@router.get("/")
 def ping_triage():
     return {"status": "alive", "service": "triage-api", "build": BUILD_ID, "mode": "anonymous_ok"}
 
-@app.post("")
-@app.post("/")
+@router.post("")
+@router.post("/")
 async def post_triage(
     request: Request, 
     user: Optional[User] = Depends(get_current_user_optional),
@@ -92,19 +92,63 @@ async def post_triage(
             client = openai.OpenAI(api_key=GROQ_API_KEY, base_url="https://api.groq.com/openai/v1")
             ambiguity_directive = "Input is ambiguous. Escalate rather than infer." if is_ambiguous else ""
             
+            # Load Clinical Protocols for detailed guidance
+            try:
+                with open("python_core/clinical_protocols.json", "r") as f:
+                    protocols = json.load(f)
+                protocol_guidance = json.dumps(protocols, indent=2)
+            except Exception as e:
+                print(f"Failed to load protocols: {e}")
+                protocol_guidance = "No specific protocols available."
+            
+            system_prompt = f"""You are Pluto, an AI Clinical Triage Assistant. Your role is to provide DETAILED clinical analysis.
+
+SCOPE: ONLY answer questions regarding medical symptoms, health data, or clinical triage. If the user input is not medical (e.g. general chat, math, coding, cooking), return: {{'triage_level': 'info', 'message': 'I can only assist with medical or health-related inquiries.', 'matched_symptoms': [], 'urgency_summary': 'Out of Scope.', 'follow_up_questions': []}}
+
+CLINICAL PROTOCOLS (Use these to guide your analysis):
+{protocol_guidance}
+
+INSTRUCTIONS FOR DETAILED ANALYSIS:
+1. **Analyze Thoroughly**: Consider all aspects of the symptoms described
+2. **Generate Follow-up Questions**: ALWAYS ask 3-5 specific clinical questions to gather more information
+3. **Provide Context**: Explain WHY youre asking each question and what youre ruling out
+4. **Differential Diagnosis**: List 2-4 possible conditions with likelihood and rationale
+5. **Key Findings**: Extract and highlight the most important clinical details
+
+{ambiguity_directive}
+
+REQUIRED JSON OUTPUT SCHEMA:
+{{
+  "triage_level": "home_care" | "seek_care" | "urgent" | "crisis" | "info",
+  "message": "Brief 1-2 sentence summary of the situation",
+  "matched_symptoms": ["List of key symptoms identified"],
+  "urgency_summary": "Detailed 3-4 sentence explanation of why this urgency level was chosen. Include context about what youre concerned about and what youre monitoring for.",
+  "key_findings": ["Important clinical detail 1", "Important clinical detail 2", "etc"],
+  "differential_diagnosis": [
+    {{"condition": "Most likely condition", "likelihood": "High/Medium/Low", "rationale": "Why this is considered"}},
+    {{"condition": "Alternative possibility", "likelihood": "Medium/Low", "rationale": "Why this is also considered"}}
+  ],
+  "suggested_focus": ["Area to monitor 1", "Area to monitor 2"],
+  "follow_up_questions": [
+    "Specific question about timing/onset?",
+    "Question about associated symptoms?",
+    "Question about severity/progression?",
+    "Question about previous history?"
+  ],
+  "clinical_notes": "Detailed clinical reasoning block if a pivot or multi-system involvement is detected. NEVER return empty if a pivot occurs."
+}}
+
+CRITICAL: Always include at least 3 follow_up_questions to better understand the clinical picture. Make urgency_summary detailed (3-4 sentences minimum). Provide comprehensive differential_diagnosis."""
+            
             completion = client.chat.completions.create(
                 model="llama-3.3-70b-versatile",
                 messages=[
-                    {"role": "system", "content": (
-                        "You are Pluto, a Clinical Assistant. SCOPE: ONLY answer questions regarding medical symptoms, health data, or clinical triage. "
-                        "If the user input is not medical (e.g. general chat, math, non-health jokes), return a JSON object with: "
-                        "{'triage_level': 'info', 'message': 'I am Pluto, and I can only assist with medical or health-related inquiries. Please provide your symptoms.', 'matched_symptoms': [], 'urgency_summary': 'Out of Scope.'} "
-                        f"{ambiguity_directive}"
-                    )},
+                    {"role": "system", "content": system_prompt},
                     {"role": "user", "content": analysis.safeInput}
                 ],
                 response_format={"type": "json_object"},
-                temperature=0.1
+                temperature=0.2,
+                max_tokens=1000
             )
             ai_result = json.loads(completion.choices[0].message.content)
 
@@ -143,6 +187,7 @@ async def post_triage(
                 "differential_diagnosis": ai_result.get("differential_diagnosis", []),
                 "suggested_focus": ai_result.get("suggested_focus", []),
                 "follow_up_questions": ai_result.get("follow_up_questions", []),
+                "clinical_notes": ai_result.get("clinical_notes", ""),
                 "ai_analysis": True,
                 "is_ambiguous": is_ambiguous
             }
@@ -157,6 +202,7 @@ async def post_triage(
                 "differential_diagnosis": [],
                 "suggested_focus": ["General Evaluation"],
                 "follow_up_questions": ["Please provide more details."],
+                "clinical_notes": "",
                 "ai_analysis": False,
                 "is_ambiguous": is_ambiguous
             }

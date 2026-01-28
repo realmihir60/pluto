@@ -1,13 +1,13 @@
 from typing import Optional
 import os
-from fastapi import FastAPI, Request, HTTPException, Depends
+from fastapi import APIRouter, Request, HTTPException, Depends
 from sqlmodel import Session
 
 # Local imports
 from python_core.models import User, engine
 from python_core.auth import get_current_user_optional, get_db_session
 
-app = FastAPI()
+router = APIRouter()
 
 import traceback
 
@@ -15,8 +15,8 @@ from sqlmodel import select, func
 
 BUILD_ID = "v2.6.4-final-handshake"
 
-@app.get("")
-@app.get("/")
+@router.get("")
+@router.get("/")
 def ping(db: Session = Depends(get_db_session)):
     try:
         count = db.exec(select(func.count()).select_from(User)).one()
@@ -33,8 +33,8 @@ def ping(db: Session = Depends(get_db_session)):
             "error": str(e)
         }
 
-@app.post("")
-@app.post("/")
+@router.post("")
+@router.post("/")
 async def update_consent(
     user: Optional[User] = Depends(get_current_user_optional),
     db: Session = Depends(get_db_session)

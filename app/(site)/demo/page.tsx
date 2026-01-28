@@ -1,5 +1,6 @@
 "use client"
 
+// Pluto Intelligence Console - Demo Interface v4.2
 import React, { useState, useCallback, useEffect, useRef } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Button } from "@/components/ui/button"
@@ -37,6 +38,7 @@ interface AnalysisResult {
   differential_diagnosis?: { condition: string; likelihood: string; rationale: string }[]
   suggested_focus?: string[]
   follow_up_questions?: string[]
+  clinical_notes?: string
 }
 
 export default function DemoPage() {
@@ -90,12 +92,14 @@ export default function DemoPage() {
     getHistory().then(setHistory).catch(console.error);
   }, []);
 
-  // Handle loading and unauthenticated states
+  // Handle session state - only redirect if EXPLICITLY unauthenticated (not during loading)
   useEffect(() => {
+    // Only redirect if we're sure the user is not authenticated (status must be "unauthenticated", not "loading")
     if (status === "unauthenticated") {
       router.push("/login");
     }
-    if (session?.user) {
+    // Set consent status once session is loaded
+    else if (status === "authenticated" && session?.user) {
       setHasConsented((session.user as any).hasConsented ?? false);
     }
   }, [status, session, router]);
@@ -270,7 +274,8 @@ export default function DemoPage() {
         key_findings: data.key_findings || [],
         differential_diagnosis: data.differential_diagnosis || [],
         suggested_focus: data.suggested_focus || [],
-        follow_up_questions: data.follow_up_questions || []
+        follow_up_questions: data.follow_up_questions || [],
+        clinical_notes: data.clinical_notes || ""
       };
 
       setResult(adaptedResult);
@@ -288,9 +293,9 @@ export default function DemoPage() {
 
       saveCheckup(symptoms, adaptedResult, adaptedResult.confidence.level === "AI Analysis" ? adaptedResult.summary : undefined)
         .then(() => getHistory().then(setHistory))
-        .catch(err => console.error("Failed to save to vault", err));
+        .catch((err: any) => console.error("Failed to save to vault", err));
 
-    } catch (error) {
+    } catch (error: any) {
       console.error(error);
       setState("idle");
     }
@@ -333,6 +338,8 @@ export default function DemoPage() {
             differential_diagnosis: data.updated_analysis.differential_diagnosis || prev.differential_diagnosis,
             suggested_focus: data.updated_analysis.suggested_focus || prev.suggested_focus,
             key_findings: data.updated_analysis.key_findings || prev.key_findings,
+            follow_up_questions: data.updated_analysis.follow_up_questions || [],
+            clinical_notes: data.updated_analysis.clinical_notes || ""
           }
         });
       }
@@ -393,7 +400,7 @@ export default function DemoPage() {
   }
 
   return (
-    <div className="relative h-screen flex flex-col pt-16 overflow-hidden">
+    <div className="relative min-h-screen flex flex-col pt-16">
       <PremiumBackground />
 
       <motion.div
@@ -402,16 +409,16 @@ export default function DemoPage() {
         transition={{ duration: 0.5 }}
         className="flex-1 w-full flex flex-col relative"
       >
-        <div className="flex-1 overflow-y-auto px-4 pt-4 md:pt-10 pb-40 md:px-12 scroll-smooth">
+        <div className="flex-1 overflow-y-auto px-4 pt-4 md:pt-10 pb-[180px] md:px-12 scroll-smooth">
           <div className="max-w-4xl mx-auto h-full">
             <AnimatePresence mode="wait">
-              {state === "idle" && !showHistory && (
+              {(state === "idle" || state === "input") && !showHistory && (
                 <motion.div
                   key="idle"
                   {...fadeUp}
                   className="flex flex-col items-center justify-center min-h-[60vh] text-center px-4"
                 >
-                  <div className="max-w-xl mx-auto space-y-8">
+                  <div className="max-w-xl mx-auto space-y-4">
                     <div className="space-y-4">
                       <div className="mx-auto size-12 rounded-2xl bg-gradient-to-br from-primary/20 to-blue-500/20 flex items-center justify-center mb-6">
                         <Activity className="size-6 text-primary" />
@@ -535,28 +542,56 @@ export default function DemoPage() {
                       </div>
                     </div>
 
-                    <div className="p-8 space-y-8">
+                    <div className="p-6 space-y-6">
                       {result.urgency_summary && (
-                        <div className="p-5 rounded-2xl bg-amber-500/5 border border-amber-500/10">
-                          <h3 className="text-xs font-black text-amber-500 uppercase tracking-widest mb-2">Findings Context</h3>
-                          <p className="text-foreground leading-relaxed">{result.urgency_summary}</p>
+                        <div className="p-4 rounded-xl bg-amber-500/5 border border-amber-500/10">
+                          <h3 className="text-xs font-black text-amber-500 uppercase tracking-widest mb-1.5">Findings Context</h3>
+                          <p className="text-sm text-foreground leading-relaxed">{result.urgency_summary}</p>
                         </div>
                       )}
 
                       {result.differential_diagnosis && result.differential_diagnosis.length > 0 && (
-                        <div className="space-y-4">
+                        <div className="space-y-3">
                           <h3 className="text-xs font-black text-muted-foreground uppercase tracking-widest">Differential Analysis</h3>
-                          <div className="grid gap-4">
+                          <div className="grid gap-3">
                             {result.differential_diagnosis.map((d, i) => (
-                              <div key={i} className="p-5 bg-secondary/20 rounded-2xl border border-border/50">
-                                <div className="flex justify-between items-start mb-2">
-                                  <span className="font-bold text-lg">{d.condition}</span>
+                              <div key={i} className="p-4 bg-secondary/20 rounded-xl border border-border/50">
+                                <div className="flex justify-between items-start mb-1.5">
+                                  <span className="font-bold text-base">{d.condition}</span>
                                   <span className={`text-[10px] font-black px-2 py-0.5 rounded bg-primary/10 text-primary tracking-widest uppercase`}>{d.likelihood} Confidence</span>
                                 </div>
                                 <p className="text-sm text-muted-foreground leading-relaxed">{d.rationale}</p>
                               </div>
                             ))}
                           </div>
+                        </div>
+                      )}
+
+                      {result.follow_up_questions && result.follow_up_questions.length > 0 && (
+                        <div className="space-y-3">
+                          <h3 className="text-xs font-black text-primary uppercase tracking-widest">Questions to Clarify Diagnosis</h3>
+                          <div className="bg-primary/5 border border-primary/10 rounded-xl p-4">
+                            <ul className="space-y-2">
+                              {result.follow_up_questions.map((q, i) => (
+                                <li key={i} className="flex gap-2 text-sm text-foreground">
+                                  <span className="text-primary font-bold shrink-0">•</span>
+                                  <span>{q}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        </div>
+                      )}
+
+                      {result.clinical_notes && (
+                        <div className="p-5 rounded-xl bg-blue-500/5 border border-blue-500/10 animate-in fade-in slide-in-from-bottom-2 duration-500 shadow-sm">
+                          <div className="flex items-center gap-2 mb-2">
+                            <Sparkles className="size-4 text-blue-500" />
+                            <h3 className="text-xs font-black text-blue-500 uppercase tracking-widest">Clinical Intelligence Note</h3>
+                          </div>
+                          <p className="text-sm text-foreground leading-relaxed font-medium">
+                            {result.clinical_notes}
+                          </p>
                         </div>
                       )}
                     </div>
@@ -576,7 +611,7 @@ export default function DemoPage() {
           </div>
         </div>
 
-        <div className="shrink-0 bg-transparent p-4 md:p-10 relative z-20">
+        <div className="fixed bottom-0 left-0 right-0 bg-gradient-to-t from-background via-background to-transparent p-4 md:p-6 pb-[15px] z-50">
           <div className="max-w-3xl mx-auto relative group">
             <div className="relative glass-morphism border border-white/20 rounded-[2.5rem] shadow-3xl overflow-hidden transition-all duration-500 group-within:ring-4 group-within:ring-primary/10">
               <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 blur-3xl -mr-16 -mt-16 transition-transform duration-500 group-within:scale-150" />
