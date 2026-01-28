@@ -6,4 +6,5 @@ psycopg2-binary
 sqlmodel
 python-multipart
 python-jose[cryptography]
+mangum
 # Slim requirements for Vercel Serverless

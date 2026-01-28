@@ -53,3 +53,14 @@ async def update_consent(
             "error": str(e),
             "traceback": error_info
         })
+
+# Vercel Serverless Handler
+from fastapi import FastAPI
+app = FastAPI()
+app.include_router(router, prefix="")
+
+def handler(request):
+    """Vercel serverless entry point"""
+    from mangum import Mangum
+    asgi_handler = Mangum(app)
+    return asgi_handler(request, None)
