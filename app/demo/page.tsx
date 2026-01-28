@@ -40,7 +40,7 @@ interface AnalysisResult {
 }
 
 export default function DemoPage() {
-  const [hasConsented, setHasConsented] = useState(true)
+  const [hasConsented, setHasConsented] = useState<boolean>(false)
   const [showConsentModal, setShowConsentModal] = useState<boolean>(false)
   const [isSavingConsent, setIsSavingConsent] = useState<boolean>(false)
 
@@ -95,7 +95,10 @@ export default function DemoPage() {
     if (status === "unauthenticated") {
       router.push("/login");
     }
-  }, [status, router]);
+    if (session?.user) {
+      setHasConsented((session.user as any).hasConsented ?? false);
+    }
+  }, [status, session, router]);
 
   // -- Telemetry: Start Input --
   const handleSymptomsChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -104,6 +107,12 @@ export default function DemoPage() {
       trackEvent('START_INPUT');
     }
     setSymptoms(val);
+
+    // Auto-resize textarea
+    if (textareaRef.current) {
+      textareaRef.current.style.height = 'auto';
+      textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
+    }
   }
 
   const handleStartRecording = async () => {
@@ -573,6 +582,7 @@ export default function DemoPage() {
               <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 blur-3xl -mr-16 -mt-16 transition-transform duration-500 group-within:scale-150" />
 
               <textarea
+                id="symptom-textarea"
                 ref={textareaRef}
                 value={state === "results" ? chatInput : symptoms}
                 onChange={state === "results" ? (e) => setChatInput(e.target.value) : handleSymptomsChange}
@@ -594,6 +604,8 @@ export default function DemoPage() {
 
               <div className="absolute right-4 bottom-4 flex items-center gap-3">
                 <button
+                  id="voice-triage-button"
+                  aria-label={isRecording ? "Stop recording" : "Start voice triage"}
                   onClick={toggleRecording}
                   className={`p-3.5 rounded-2xl transition-all duration-300 ${isRecording
                     ? 'bg-red-500 text-white shadow-lg shadow-red-500/20'
@@ -603,6 +615,8 @@ export default function DemoPage() {
                   {isRecording ? <div className="size-5 bg-white rounded-sm animate-pulse" /> : <Mic className="size-5" />}
                 </button>
                 <button
+                  id="submit-triage-button"
+                  aria-label="Send symptoms"
                   onClick={state === "results" ? handleSendMessage : handleAnalyze}
                   disabled={state === "processing" || (state !== "results" && !canSubmit)}
                   className={`size-14 rounded-2xl flex items-center justify-center transition-all duration-300 shadow-2xl ${canSubmit || state === "results"

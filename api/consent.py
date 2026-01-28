@@ -15,8 +15,8 @@ from sqlmodel import select, func
 
 BUILD_ID = "v2.6.4-final-handshake"
 
+@app.get("")
 @app.get("/")
-@app.get("/api/consent")
 def ping(db: Session = Depends(get_db_session)):
     try:
         count = db.exec(select(func.count()).select_from(User)).one()
@@ -33,8 +33,8 @@ def ping(db: Session = Depends(get_db_session)):
             "error": str(e)
         }
 
+@app.post("")
 @app.post("/")
-@app.post("/api/consent")
 async def update_consent(
     user: Optional[User] = Depends(get_current_user_optional),
     db: Session = Depends(get_db_session)

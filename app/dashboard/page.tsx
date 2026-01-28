@@ -1,10 +1,8 @@
 import { auth, signOut } from '@/auth';
 import { handleSignOut } from '@/app/lib/actions';
-import { PrismaClient } from '@prisma/client';
+import prisma from '@/lib/prisma';
 import { History, Activity, LogOut, FileText, ArrowRight, Pill, User } from 'lucide-react';
 import Link from 'next/link';
-
-const prisma = new PrismaClient();
 
 async function getDashboardData(email: string) {
     const user = await prisma.user.findUnique({

@@ -52,27 +52,84 @@ Pluto uses a **Vercel Unified** model:
    cd pluto
    ```
 
-2. **Unified Setup**
+2. **Install Frontend Dependencies**
    ```bash
    npm install
    npx prisma generate
    npx prisma db push
-   # Python deps handled automatically by Vercel on push
    ```
 
-3. **Environment Variables**
-   Create a `.env` file:
-   ```env
-   GROQ_API_KEY=your_groq_key
-   DATABASE_URL="postgresql://..."
-   AUTH_SECRET="..."
-   ```
-
-4. **Run Development Server**
+3. **Setup Python Backend**
    ```bash
-   # Both JS and Python APIs run on one command:
+   # Create virtual environment
+   python3 -m venv venv
+   
+   # Activate virtual environment
+   source venv/bin/activate  # On macOS/Linux
+   # OR
+   venv\Scripts\activate     # On Windows
+   
+   # Install Python dependencies
+   pip install -r requirements.txt
+   pip install uvicorn python-dotenv
+   ```
+
+4. **Environment Variables**
+   Create a `.env` file in the root directory:
+   ```env
+   GROQ_API_KEY=your_groq_api_key_here
+   DATABASE_URL="postgresql://user:password@host:port/database?pgbouncer=true"
+   DIRECT_URL="postgresql://user:password@host:port/database"
+   AUTH_SECRET="your_secret_key_here"
+   NEXT_PUBLIC_API_URL=http://localhost:8000
+   ```
+
+5. **Run Development Servers**
+   
+   You need to run **two separate terminals**:
+   
+   **Terminal 1 - Frontend (Next.js):**
+   ```bash
    npm run dev
    ```
+   
+   **Terminal 2 - Backend (FastAPI):**
+   ```bash
+   source venv/bin/activate
+   python3 main_api.py
+   ```
+   
+   The app will be available at `http://localhost:3001` (or `3000` if available)
+
+---
+
+## 🔧 Troubleshooting
+
+### Common Issues
+
+**Port 8000 already in use:**
+```bash
+# Kill existing process on port 8000
+lsof -ti:8000 | xargs kill -9
+```
+
+**Database connection errors:**
+- Ensure your `DATABASE_URL` credentials are correct
+- Check that PostgreSQL is running
+- Verify the database exists and is accessible
+
+**Missing Python modules:**
+```bash
+source venv/bin/activate
+pip install -r requirements.txt
+pip install uvicorn python-dotenv
+```
+
+**Prisma Client errors:**
+```bash
+npx prisma generate
+npx prisma db push
+```
 
 ---
 
