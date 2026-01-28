@@ -36,6 +36,7 @@ def ping(db: Session = Depends(get_db_session)):
 @router.post("")
 @router.post("/")
 async def update_consent(
+    request: Request,
     user: Optional[User] = Depends(get_current_user_optional),
     db: Session = Depends(get_db_session)
 ):
