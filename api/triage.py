@@ -368,13 +368,12 @@ Remember: You're a reassuring family doctor, not a medical textbook. Speak like 
         )
         # === END ERROR HANDLING ===
 
-# Vercel Serverless Handler
+# Vercel Serverless Handler - Correct Format
 from fastapi import FastAPI
-app = FastAPI()
-app.include_router(router, prefix="")
+from mangum import Mangum
 
-def handler(request):
-    """Vercel serverless entry point"""
-    from mangum import Mangum
-    asgi_handler = Mangum(app)
-    return asgi_handler(request, None)
+app = FastAPI()
+app.include_router(router)
+
+# This is what Vercel invokes
+handler = Mangum(app, lifespan="off")

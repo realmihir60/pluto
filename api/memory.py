@@ -68,13 +68,12 @@ async def extract_memory(
         print(f"Vercel Memory Error: {error_info}")
         raise HTTPException(status_code=500, detail={"error": str(e), "traceback": error_info})
 
-# Vercel Serverless Handler
+# Vercel Serverless Handler - Correct Format
 from fastapi import FastAPI
-app = FastAPI()
-app.include_router(router, prefix="")
+from mangum import Mangum
 
-def handler(request):
-    """Vercel serverless entry point"""
-    from mangum import Mangum
-    asgi_handler = Mangum(app)
-    return asgi_handler(request, None)
+app = FastAPI()
+app.include_router(router)
+
+# This is what Vercel invokes
+handler = Mangum(app, lifespan="off")
