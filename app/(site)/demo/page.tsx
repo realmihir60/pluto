@@ -420,40 +420,38 @@ export default function DemoPage() {
                   {...fadeUp}
                   className="flex flex-col items-center justify-center min-h-[60vh] text-center px-4"
                 >
-                  <div className="max-w-xl mx-auto space-y-4">
-                    <div className="space-y-4">
-                      <div className="mx-auto size-12 rounded-2xl bg-gradient-to-br from-primary/20 to-blue-500/20 flex items-center justify-center mb-6">
-                        <Activity className="size-6 text-primary" />
-                      </div>
-                      <h1 className="text-3xl md:text-4xl font-semibold tracking-tight text-foreground">
-                        What's bothering you?
+                  <div className="max-w-2xl mx-auto space-y-8">
+                    {/* Header Section */}
+                    <div className="text-center space-y-4">
+                      <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-foreground">
+                        Describe your symptoms
                       </h1>
                       {history.length > 0 && (
-                        <div className="flex justify-center">
-                          <button
-                            onClick={() => setShowHistory(true)}
-                            className="flex items-center gap-2 text-sm text-primary hover:underline"
-                          >
-                            <History className="size-4" />
-                            View {history.length} Past Checkups
-                          </button>
-                        </div>
+                        <button
+                          onClick={() => setShowHistory(true)}
+                          className="inline-flex items-center gap-2 text-sm font-medium text-primary hover:text-primary/80 transition-colors"
+                        >
+                          <History className="size-4" />
+                          {history.length} Past Checkup{history.length > 1 ? 's' : ''}
+                        </button>
                       )}
-                      <p className="text-lg text-muted-foreground leading-relaxed">
-                        Tell me what's going on and I'll help you make sense of it.
+                      <p className="text-xl text-muted-foreground max-w-lg mx-auto">
+                        Be specific. Include when it started, how it feels, and what makes it better or worse.
                       </p>
                     </div>
-                    <div className="bg-card/40 backdrop-blur-sm border border-border/60 p-6 rounded-2xl text-left shadow-sm ring-1 ring-border/5">
+
+                    {/* Example Section */}
+                    <div className="bg-gradient-to-br from-primary/5 to-blue-500/5 border border-primary/20 p-6 rounded-3xl">
                       <div className="flex gap-4">
-                        <div className="shrink-0 mt-1">
-                          <div className="size-8 rounded-full bg-primary/10 flex items-center justify-center text-primary">
-                            <Sparkles className="size-4" />
+                        <div className="shrink-0">
+                          <div className="size-10 rounded-2xl bg-primary/10 flex items-center justify-center">
+                            <Sparkles className="size-5 text-primary" />
                           </div>
                         </div>
-                        <div className="space-y-2">
-                          <p className="text-sm font-medium text-foreground">Try saying something like...</p>
-                          <p className="text-base text-muted-foreground italic leading-relaxed">
-                            "I have a throbbing headache on the left side that started 2 days ago. It gets worse when I look at screens."
+                        <div className="space-y-2 flex-1">
+                          <p className="text-sm font-semibold text-foreground/80 uppercase tracking-wide">Good Example</p>
+                          <p className="text-base text-foreground/90 leading-relaxed">
+                            "Sharp chest pain when I breathe deeply. Started this morning. Hurts more on the right side."
                           </p>
                         </div>
                       </div>
