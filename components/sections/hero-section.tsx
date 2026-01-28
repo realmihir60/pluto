@@ -55,9 +55,9 @@ export function HeroSection() {
           {...(prefersReducedMotion ? {} : { ...fadeIn, transition: { ...fadeIn.transition, delay: 0.1 } })}
           className="text-5xl sm:text-6xl md:text-8xl font-bold tracking-tight mb-8 leading-[1.05] selection:bg-primary/20"
         >
-          <span className="text-gradient">Precision Triage.</span>
+          <span className="text-gradient">Know What's Wrong.</span>
           <br />
-          <span className="text-primary italic font-serif">Absolute Privacy.</span>
+          <span className="text-primary italic font-serif">In Seconds.</span>
         </motion.h1>
 
         {/* Subheadline with better balance */}
@@ -65,7 +65,7 @@ export function HeroSection() {
           {...(prefersReducedMotion ? {} : { ...fadeIn, transition: { ...fadeIn.transition, delay: 0.2 } })}
           className="text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto mb-12 leading-relaxed text-balance"
         >
-          Pluto uses a doctor-like approach with simple language, methodical assessment, and conservative care recommendations—powered by production-grade safety infrastructure with rate limiting, real-time monitoring, and intelligent error handling.
+          Talk to Pluto like a doctor. Get clear answers in plain English.<br />No medical jargon. No guessing. Just reassuring guidance when you need it most.
         </motion.p>
 
         {/* Primary CTA Area */}
