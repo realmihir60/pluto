@@ -1,0 +1,629 @@
+# ML Safety Layer Implementation Plan
+**Project Pluto Health - Defensive ML Architecture**
+
+---
+
+## 🎯 Mission Statement
+
+Build a **lightweight machine learning safety layer** that reduces LLM dependency from 100% to <25%, providing:
+- **Defensive depth** (Rule Engine → ML → LLM)
+- **Predictable behavior** for 60-70% of cases
+- **Cost reduction** ($30/month → $6/month in LLM calls)
+- **Regulatory compliance** (explainable predictions)
+- **Graceful degradation** (system works even if LLM fails)
+
+---
+
+## 📊 Current Architecture (Starting Point)
+
+```
+Input → Rule Engine (20% coverage) → LLM (80% dependency) → Output
+                                       ↑
+                                 High Risk Zone
+```
+
+**Problems:**
+- ❌ 100% LLM-dependent for nuanced cases
+- ❌ Unpredictable behavior (LLM can hallucinate)
+- ❌ Unbounded costs if usage spikes
+- ❌ Single point of failure
+- ❌ Hard to explain decisions to regulators
+
+---
+
+## 🏗️ Target Architecture (End State)
+
+```
+Input → Rule Engine (20%) → ML Model (60%) → LLM (20%) → Ensemble → Output
+        ↓                    ↓                ↓            ↓
+    Deterministic    Learned Patterns    Novel Cases   Safety Net
+    (0ms)            (<100ms)            (~1s)         (Upward Bias)
+```
+
+**Benefits:**
+- ✅ 80% of cases handled without LLM
+- ✅ Explainable ML predictions (feature importance)
+- ✅ Fast responses (<200ms for ML cases)
+- ✅ Cost reduction: $24/month savings
+- ✅ Robust to LLM failures
+
+---
+
+## 📅 Implementation Timeline
+
+### **Phase 1: Data Collection** (Weeks 1-3)
+
+#### Week 1: Synthetic Data Generation
+**Goal:** Generate 3,000 high-quality synthetic examples
+
+**Tasks:**
+1. ✅ Review [clinical_protocols.json](file:///Users/mihirmaru/JOB/pluto-landing-page/python_core/clinical_protocols.json) for coverage
+2. ✅ Create symptom templates (20-30 categories)
+3. ✅ Build template variation system
+4. ✅ Generate balanced dataset (5 triage levels)
+5. ✅ Validate against rule engine for consistency
+
+**Deliverables:**
+- `data/synthetic_training_data.csv` (3,000 examples)
+- `scripts/generate_synthetic_data.py`
+
+**Success Criteria:**
+- All 5 triage levels represented (balanced)
+- 90%+ agreement with rule engine on obvious cases
+- Diverse symptom coverage (20+ body systems)
+
+---
+
+#### Week 2-3: Public Data Scraping
+**Goal:** Collect 7,000 real-world symptom examples
+
+**Data Sources:**
+
+| Source | Target | Time | Confidence |
+|--------|--------|------|------------|
+| **Reddit (r/AskDocs, r/medical)** | 5,000 | 6 hours | Medium (needs heuristic labeling) |
+| **NHS Condition Pages** | 1,500 | 4 hours | High (structured) |
+| **WebMD/HealthTap Q&A** | 500 | 2 hours | Medium |
+
+**Tasks:**
+1. ✅ Set up Reddit API credentials (free)
+2. ✅ Build Reddit scraper with rate limiting
+3. ✅ Implement heuristic urgency labeling
+4. ✅ Scrape NHS structured symptom data
+5. ✅ Combine all sources into unified dataset
+6. ✅ Manual review of 500 random examples (quality check)
+
+**Deliverables:**
+- `data/reddit_symptoms.csv` (5,000 examples)
+- `data/nhs_symptoms.csv` (1,500 examples)
+- `data/webmd_symptoms.csv` (500 examples)
+- `scripts/scrape_reddit.py`
+- `scripts/scrape_nhs.py`
+- `scripts/combine_datasets.py`
+
+**Legal/Ethical Checklist:**
+- [ ] Anonymize all user data (remove usernames)
+- [ ] Respect robots.txt
+- [ ] Aggregate only (no republishing)
+- [ ] Attribution for NHS data
+
+**Success Criteria:**
+- **10,000 total examples** (combined)
+- **Balanced classes** (20% per triage level)
+- **Diverse language** (real patient descriptions)
+- **80%+ quality** on manual review sample
+
+---
+
+### **Phase 2: Model Development** (Weeks 4-5)
+
+#### Week 4: Feature Engineering & Baseline Model
+**Goal:** Train initial Random Forest classifier
+
+**Feature Engineering:**
+```python
+Features to extract:
+1. Text features (TF-IDF, n-grams)
+   - Unigrams: "headache", "chest", "pain"
+   - Bigrams: "chest pain", "worst ever"
+   - Trigrams: "pain radiating to arm"
+
+2. Keyword flags (rule-based)
+   - Red flags: "worst ever", "sudden", "crushing"
+   - Green flags: "mild", "improving", "stable"
+   - Body systems: head, chest, abdomen (multi-system detection)
+
+3. Temporal features
+   - Onset: sudden vs gradual
+   - Duration: acute (<24h) vs chronic (>1 week)
+
+4. Demographic (if available)
+   - Age bucket (pediatric, adult, elderly)
+   - Sex (male/female/unknown)
+
+5. Sentiment/severity signals
+   - Word count (longer = more concerned?)
+   - Exclamation marks (!!!)
+   - Caps lock usage (SEVERE)
+```
+
+**Tasks:**
+1. ✅ Build preprocessing pipeline
+2. ✅ Extract features from all 10,000 examples
+3. ✅ Train/test split (80/20)
+4. ✅ Train baseline Random Forest (n_estimators=200)
+5. ✅ Evaluate accuracy, precision, recall per class
+6. ✅ Analyze feature importance
+
+**Deliverables:**
+- `python_core/preprocessing.py`
+- `python_core/ml_predictor.py`
+- `models/triage_classifier.pkl`
+- `models/feature_vectorizer.pkl`
+- `models/feature_scaler.pkl`
+- `reports/baseline_model_evaluation.md`
+
+**Success Criteria:**
+- **Overall accuracy >75%**
+- **Emergency recall >90%** (never miss emergencies)
+- **Home care precision >80%** (don't over-escalate)
+- Feature importance makes clinical sense
+
+---
+
+#### Week 5: Model Optimization & Validation
+**Goal:** Optimize model for safety and speed
+
+**Tasks:**
+1. ✅ Hyperparameter tuning (GridSearchCV)
+2. ✅ Compare models: RF vs XGBoost vs Logistic Regression
+3. ✅ Implement class weighting (bias toward higher urgency)
+4. ✅ Cross-validation (5-fold)
+5. ✅ Error analysis (where does model fail?)
+6. ✅ Calibrate confidence scores (Platt scaling)
+
+**Optimization Targets:**
+- Inference time: <100ms
+- Model size: <50MB (Vercel constraint)
+- Emergency recall: >95%
+- Confidence calibration: well-calibrated probabilities
+
+**Deliverables:**
+- `models/triage_classifier_optimized.pkl`
+- `reports/model_comparison.md`
+- `reports/error_analysis.md`
+
+**Success Criteria:**
+- **Accuracy >80%**
+- **Emergency recall >95%**
+- **Inference <100ms** on test cases
+- **Model size <50MB**
+
+---
+
+### **Phase 3: Integration** (Week 6)
+
+#### Integration with Existing Stack
+
+**Architecture Changes:**
+
+```python
+# Before:
+Input → Rule Engine → LLM → Output
+
+# After:
+Input → Rule Engine → ML Model → (Conditional) LLM → Ensemble → Output
+```
+
+**Tasks:**
+1. ✅ Implement ML predictor loader in [api/triage.py](file:///Users/mihirmaru/JOB/pluto-landing-page/api/triage.py)
+2. ✅ Add confidence threshold routing (if >85%, skip LLM)
+3. ✅ Build ensemble decision function
+4. ✅ Add logging for ML predictions
+5. ✅ Update API response schema (include ML metadata)
+6. ✅ Add health check endpoint for model
+
+**Code Changes:**
+
+**File: [api/triage.py](file:///Users/mihirmaru/JOB/pluto-landing-page/api/triage.py)**
+```python
+from python_core.ml_predictor import TriageMLModel
+
+# Load model once at startup
+ml_model = TriageMLModel() if os.path.exists("models/triage_classifier.pkl") else None
+
+@router.post("/")
+async def post_triage(request: Request, user: Optional[User] = Depends(...)):
+    # Layer 1: Rule Engine
+    if has_crisis_keywords(input_text):
+        return emergency_response()
+    
+    rule_result = RuleEngine.assess(input_text)
+    
+    # Layer 2: ML Model
+    ml_prediction, ml_confidence = ml_model.predict(input_text, user_metadata)
+    
+    # Decision: Skip LLM if ML is confident
+    if ml_confidence > 0.85:
+        return {
+            "triage_level": ml_prediction,
+            "confidence": ml_confidence,
+            "source": "ml_model",
+            "llm_called": False,
+            "ml_features": ml_model.get_feature_importance()  # For explainability
+        }
+    
+    # Layer 3: LLM (only for ambiguous cases)
+    llm_result = await call_groq_llm(input_text, context={
+        "rule_signal": rule_result,
+        "ml_signal": (ml_prediction, ml_confidence)
+    })
+    
+    # Layer 4: Ensemble (safety net)
+    final_level = ensemble_decision(rule_result, ml_prediction, llm_result)
+    
+    return {
+        "triage_level": final_level,
+        "confidence": calculate_ensemble_confidence(),
+        "sources": {
+            "rule_engine": rule_result,
+            "ml_model": (ml_prediction, ml_confidence),
+            "llm": llm_result
+        },
+        "llm_called": True,
+        "explanation": generate_explanation()  # Why this level?
+    }
+```
+
+**New File: `python_core/ensemble.py`**
+```python
+def ensemble_decision(rule_level, ml_level, ml_confidence, llm_level=None):
+    """
+    Combine signals with upward bias for safety
+    
+    Rules:
+    1. If any signal = emergency → emergency (safety first)
+    2. If ML confidence >90% and no contradicting signals → trust ML
+    3. If ML and LLM agree → use consensus
+    4. Default: take the HIGHER urgency level (conservative)
+    """
+    levels_order = ["home_care", "monitor_followup", "schedule_appointment", "urgent", "emergency"]
+    
+    # Safety override
+    if any(level == "emergency" for level in [rule_level, ml_level, llm_level]):
+        return "emergency"
+    
+    # High confidence ML
+    if ml_confidence > 0.90 and abs(levels_order.index(ml_level) - levels_order.index(rule_level)) <= 1:
+        return ml_level
+    
+    # Conservative default: take max urgency
+    candidates = [rule_level, ml_level]
+    if llm_level:
+        candidates.append(llm_level)
+    
+    return max(candidates, key=lambda x: levels_order.index(x))
+```
+
+**Deliverables:**
+- Updated [api/triage.py](file:///Users/mihirmaru/JOB/pluto-landing-page/api/triage.py)
+- New `python_core/ensemble.py`
+- Updated API response schema
+- Integration tests
+
+**Success Criteria:**
+- All endpoints respond successfully
+- ML model loads in <2s on cold start
+- Confidence threshold routing works correctly
+- No regression in existing functionality
+
+---
+
+### **Phase 4: Testing & Deployment** (Week 7)
+
+#### Testing Strategy
+
+**Unit Tests:**
+```python
+# tests/test_ml_model.py
+def test_model_loads():
+    assert ml_model is not None
+
+def test_prediction_format():
+    prediction, confidence = ml_model.predict("headache")
+    assert prediction in ["home_care", "monitor_followup", "schedule_appointment", "urgent", "emergency"]
+    assert 0 <= confidence <= 1
+
+def test_emergency_recall():
+    # Test on known emergency cases
+    emergencies = [
+        "worst headache of my life sudden",
+        "crushing chest pain left arm",
+        "can't breathe getting worse"
+    ]
+    for symptom in emergencies:
+        prediction, _ = ml_model.predict(symptom)
+        assert prediction in ["urgent", "emergency"]
+```
+
+**Integration Tests:**
+```python
+# tests/test_triage_integration.py
+def test_ml_bypasses_llm_when_confident():
+    response = client.post("/api/triage", json={"input": "mild headache 2 hours"})
+    assert response.json()["llm_called"] == False
+    assert response.json()["confidence"] > 0.85
+
+def test_ensemble_escalates_on_disagreement():
+    # If ML says home_care but rule engine says urgent, should escalate
+    response = client.post("/api/triage", json={"input": "chest pain sudden"})
+    assert response.json()["triage_level"] in ["urgent", "emergency"]
+```
+
+**A/B Testing (Production):**
+```python
+# Gradually roll out ML layer
+# Week 1: 10% of requests use ML
+# Week 2: 25%
+# Week 3: 50%
+# Week 4: 100% (if metrics look good)
+
+# Track:
+# - Accuracy vs LLM-only baseline
+# - LLM call reduction
+# - User feedback ("Was this helpful?")
+# - Edge cases where ML fails
+```
+
+**Deliverables:**
+- Full test suite
+- A/B testing framework
+- Monitoring dashboard
+
+**Success Criteria:**
+- >95% test coverage
+- All tests passing
+- A/B test shows no degradation vs LLM-only
+
+---
+
+### **Phase 5: Monitoring & Iteration** (Ongoing)
+
+#### Metrics to Track
+
+```python
+# Dashboard metrics (daily)
+{
+    "total_requests": 1000,
+    "ml_handled": 600,      # 60% handled by ML
+    "llm_called": 200,      # 20% escalated to LLM
+    "rule_engine_only": 200, # 20% caught by rules
+    
+    "ml_confidence_avg": 0.82,
+    "ml_confidence_distribution": {
+        "0.90-1.00": 400,    # Very confident
+        "0.80-0.90": 150,
+        "0.70-0.80": 50,
+        "<0.70": 0           # These get sent to LLM
+    },
+    
+    "triage_distribution": {
+        "emergency": 50,
+        "urgent": 150,
+        "schedule_appointment": 300,
+        "monitor_followup": 350,
+        "home_care": 150
+    },
+    
+    "user_feedback": {
+        "helpful": 850,       # 85% helpful
+        "not_helpful": 150
+    },
+    
+    "cost_savings": {
+        "llm_calls_avoided": 600,
+        "money_saved": "$18"  # 600 * $0.03 per 1K tokens
+    }
+}
+```
+
+#### Retraining Schedule
+
+**Trigger Retraining When:**
+1. Collected 1,000+ new production examples
+2. ML confidence drops below 0.75 average
+3. User feedback drops below 80% "helpful"
+4. New symptom patterns emerge (e.g., seasonal flu)
+
+**Retraining Process:**
+```bash
+# Monthly retraining script
+# 1. Export new production data
+python scripts/export_production_data.py
+
+# 2. Combine with existing training set
+python scripts/merge_datasets.py
+
+# 3. Retrain model
+python scripts/train_model.py --data data/combined_v2.csv
+
+# 4. Evaluate on holdout set
+python scripts/evaluate_model.py
+
+# 5. If accuracy improved, deploy new model
+python scripts/deploy_model.py --version v2
+```
+
+**Deliverables:**
+- Monitoring dashboard (Grafana/Metabase)
+- Automated retraining pipeline
+- Model versioning system
+
+---
+
+## 💰 Cost Analysis
+
+### Current Costs (LLM-Only)
+```
+1,000 requests/day × 30 days = 30,000 requests/month
+
+LLM cost:
+- Average: 500 tokens per request
+- 30,000 × 500 = 15M tokens/month
+- 15M × $0.27/1M = $4.05/month
+
+Total: ~$5/month (with buffer)
+```
+
+### Projected Costs (With ML Layer)
+```
+1,000 requests/day × 30 days = 30,000 requests/month
+
+Rule Engine: 6,000 (20%) → $0
+ML Model: 18,000 (60%) → $0 (runs on Vercel)
+LLM: 6,000 (20%) → 6,000 × 500 × $0.27/1M = $0.81/month
+
+Total: ~$1/month
+
+Savings: $4/month (80% reduction)
+```
+
+**At scale (10,000 requests/day):**
+- Current: $50/month
+- With ML: $10/month
+- **Savings: $40/month** ($480/year)
+
+---
+
+## 🚨 Risk Mitigation
+
+| Risk | Probability | Impact | Mitigation |
+|------|-------------|--------|------------|
+| **ML model performs worse than LLM** | Medium | High | A/B test before full rollout, keep LLM as fallback |
+| **Scraped data has labeling errors** | High | Medium | Manual review of 500 samples, conservative confidence thresholds |
+| **Model overfits to training data** | Medium | High | Cross-validation, diverse data sources, regular retraining |
+| **Vercel deployment size exceeds 250MB** | Low | High | Use ONNX for model compression, optimize feature extraction |
+| **ML misses critical emergency case** | Low | Critical | Ensemble always takes max urgency, emergency recall target >95% |
+
+---
+
+## 📋 Deliverables Checklist
+
+### Data
+- [ ] `data/synthetic_training_data.csv` (3,000 examples)
+- [ ] `data/reddit_symptoms.csv` (5,000 examples)
+- [ ] `data/nhs_symptoms.csv` (1,500 examples)
+- [ ] `data/combined_training_data.csv` (10,000 examples, balanced)
+
+### Scripts
+- [ ] `scripts/generate_synthetic_data.py`
+- [ ] `scripts/scrape_reddit.py`
+- [ ] `scripts/scrape_nhs.py`
+- [ ] `scripts/combine_datasets.py`
+- [ ] `scripts/train_model.py`
+- [ ] `scripts/evaluate_model.py`
+
+### Models
+- [ ] `models/triage_classifier.pkl` (<50MB)
+- [ ] `models/feature_vectorizer.pkl`
+- [ ] `models/feature_scaler.pkl`
+- [ ] `models/label_encoder.pkl`
+
+### Code
+- [ ] `python_core/preprocessing.py`
+- [ ] `python_core/ml_predictor.py`
+- [ ] `python_core/ensemble.py`
+- [ ] Updated [api/triage.py](file:///Users/mihirmaru/JOB/pluto-landing-page/api/triage.py)
+
+### Documentation
+- [ ] `reports/data_collection_summary.md`
+- [ ] `reports/model_evaluation.md`
+- [ ] `reports/feature_importance_analysis.md`
+- [ ] `reports/deployment_guide.md`
+
+### Tests
+- [ ] Unit tests for ML predictor
+- [ ] Integration tests for triage API
+- [ ] A/B testing framework
+
+---
+
+## 🎯 Success Metrics (3-Month Post-Launch)
+
+### Primary Metrics
+- **LLM Call Reduction:** >60% (target: 60-80%)
+- **ML Model Accuracy:** >80%
+- **Emergency Recall:** >95%
+- **User Satisfaction:** >85% "helpful" feedback
+- **Cost Reduction:** >$20/month savings
+
+### Secondary Metrics
+- **Response Time:** <200ms average (vs 800ms LLM-only)
+- **Model Confidence:** >0.80 average for ML-handled cases
+- **Retraining Frequency:** Monthly with improving accuracy
+- **Production Errors:** 0 crashes due to ML integration
+
+---
+
+## 🔄 Iteration Plan (Post-Launch)
+
+### Month 1-3: Data Collection & Refinement
+- Collect production feedback
+- Identify edge cases
+- Retrain monthly with new data
+
+### Month 4-6: Advanced Features
+- Add multi-symptom detection
+- Implement symptom severity scoring
+- Build user history integration
+
+### Month 7-12: Optimization
+- Experiment with XGBoost, CatBoost
+- Add SHAP explanations for predictions
+- Consider lightweight neural network (if data sufficient)
+
+---
+
+## 📞 Decision Points
+
+**Before starting Phase 2 (Week 4):**
+- ✅ Have we collected 10,000+ examples?
+- ✅ Is data quality >80% on manual review?
+- ✅ Are all 5 triage levels balanced?
+
+**Before deploying to production (Week 7):**
+- ✅ Is model accuracy >75%?
+- ✅ Is emergency recall >90%?
+- ✅ Do A/B tests show no regression?
+
+**Before full rollout (Week 8):**
+- ✅ A/B test at 10%, 25%, 50% successful?
+- ✅ Zero critical errors in 1 week of testing?
+- ✅ User feedback >80% positive?
+
+---
+
+## 🏁 Final Notes
+
+**This is a defensive architecture, not a replacement.**
+
+The ML layer exists to:
+1. Reduce LLM attack surface (100% → 20%)
+2. Add deterministic behavior for common cases
+3. Provide explainability for regulators
+4. Enable graceful degradation
+
+**The LLM still handles:**
+- Novel symptom combinations
+- Ambiguous language
+- Multi-system complexity
+- Edge cases
+
+**The ML complements, it doesn't replace.**
+
+---
+
+**Start Date:** [Fill in when you begin]  
+**Target Completion:** 7 weeks from start  
+**Owner:** [Your name]  
+**Status:** 📋 Planning → 🚧 In Progress → ✅ Complete

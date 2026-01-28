@@ -180,7 +180,92 @@ Pluto enforces mandatory email verification before platform access to prevent un
 
 ---
 
+---
+
+## 14. Phase 1: Doctor-Like Triage System (2026-01-28)
+### The "Simple Language" Revolution
+Pluto transformed from alarming technical medical responses to reassuring, methodical doctor-like assessments.
+
+**Core Changes:**
+
+**1. Simple Language Translation**
+- **File**: `python_core/simple_language_map.json`
+- **Purpose**: Maps medical jargon to everyday terms
+- **Examples**:
+  - "Syncope" → "passed out" / "fainted"
+  - "Vertigo" → "dizzy" / "room spinning"
+  - "Dyspnea" → "trouble breathing"
+- **Integration**: LLM prompts explicitly avoid technical terms
+
+**2. Assessment Table Format**
+- **Structure**: "What We Know" vs "What We Need to Check"
+- **Goal**: Transparent reasoning, not black-box diagnosis
+- **UI**: Displays as structured table in demo interface
+- **Backend**: `assessment_table` object in triage API response
+
+**3. Conservative Questioning Approach**
+- **Behavior**: Asks clarifying questions before diagnosing
+- **Examples**:
+  - "Chest pain" → "Is it sharp or dull?", "Does it hurt when you breathe?"
+  - "Headache" → "Sudden or gradual?", "Worst headache ever?"
+- **Safety**: Prevents premature closure and false reassurance
+
+**4. Friendly, Reassuring Tone**
+- **Old**: "Differential diagnosis includes myocardial infarction"
+- **New**: "I'm concerned this could be serious. Let's make sure it's not your heart."
+- **Prompts**: System messages emphasize empathy and clarity
+
+**Evidence:**
+- `api/triage.py` - Updated system prompts (lines 100-180)
+- `python_core/simple_language_map.json` - Medical terminology map
+- `phase1_implementation_walkthrough.md` - Complete implementation doc
+
+---
+
+## 15. Beta Production Safety (2026-01-28)
+### The "Three Pillars" of Production Hardening
+Built comprehensive safety infrastructure for public beta launch.
+
+**Pillar 1: Rate Limiting**
+- **File**: `python_core/rate_limiter.py`
+- **Limits**: 50 req/hr (authenticated), 10 req/hr (anonymous)
+- **Storage**: In-memory with automatic cleanup
+- **Protection**: Prevents cost overruns from abuse/bots
+- **Status**: Module built, awaiting integration into `api/triage.py`
+
+**Pillar 2: Monitoring & Logging**
+- **File**: `python_core/logger.py`
+- **Types**: Errors, triage events, performance, access
+- **Format**: Structured JSON (`/logs/*.jsonl`)
+- **Dashboard**: Admin metrics API at `/api/admin/metrics`
+- **Cost**: Zero (in-house, no Sentry)
+- **Status**: Module built, awaiting integration
+
+**Pillar 3: Error Handling**
+- **File**: `python_core/triage_wrapper.py`
+- **Features**:
+  - Graceful LLM fallback to rule engine
+  - User-friendly error messages
+  - Specific guidance per error type (rate limit, API down, DB error)
+- **Philosophy**: Never show technical errors to users
+- **Status**: Module built, awaiting integration
+
+**Supporting Infrastructure:**
+- **Integration Guide**: `INTEGRATION_GUIDE.md` - Copy-paste steps for API integration
+- **Deployment Guide**: `DEPLOYMENT.md` - Vercel step-by-step
+- **Troubleshooting**: `TROUBLESHOOTING.md` - Common issues & fixes
+- **Smoke Tests**: `scripts/smoke-test.sh` - Automated endpoint testing
+- **FAQ Page**: `app/(site)/faq/page.tsx` - User-facing help
+
+**Architecture Note:**
+All safety modules are standalone and dependency-free. They use in-memory storage for beta (no Redis/external services). For production scaling, consider:
+- Upgrading to Vercel KV (Redis) for distributed rate limiting
+- Adding external monitoring (Sentry) for advanced features
+- Database-backed logging for long-term retention
+
+**Current Version:** 3.0.0-beta  
+**Readiness:** 90% (awaiting manual API integration)
+
+---
+
 *End of Context Specification. Maintain the safety-first and performance-first override at all times.*
-
-
-

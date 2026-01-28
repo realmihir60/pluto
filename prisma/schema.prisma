@@ -84,14 +84,25 @@ model MedicalFact {
 }
 
 model TriageEvent {
-  id                String   @id @default(cuid())
+  id                String           @id @default(cuid())
   userId            String
   symptoms          String
   aiResult          Json
   actionRecommended String
   urgency           String
-  createdAt         DateTime @default(now())
-  engineVersion     String   @default("2.1.0")
-  logicSnapshot     Json     @default("{}")
-  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt         DateTime         @default(now())
+  engineVersion     String           @default("2.1.0")
+  logicSnapshot     Json             @default("{}")
+  user              User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  feedback          TriageFeedback[]
+}
+
+model TriageFeedback {
+  id             String      @id @default(cuid())
+  triageEventId  String
+  userId         String
+  rating         String
+  comment        String?
+  createdAt      DateTime    @default(now())
+  triageEvent    TriageEvent @relation(fields: [triageEventId], references: [id], onDelete: Cascade)
 }

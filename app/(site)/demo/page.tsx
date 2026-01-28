@@ -22,6 +22,7 @@ import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import { PremiumBackground } from "@/components/ui/premium-background"
 import { trackEvent } from "@/lib/analytics"
+import { FeedbackButtons } from "@/components/triage/feedback-buttons"
 
 type DemoState = "idle" | "input" | "processing" | "results" | "editing"
 
@@ -49,6 +50,7 @@ export default function DemoPage() {
   const [state, setState] = useState<DemoState>("idle")
   const [symptoms, setSymptoms] = useState("")
   const [result, setResult] = useState<AnalysisResult | null>(null)
+  const [triageEventId, setTriageEventId] = useState<string | null>(null)
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false)
 
   const { data: session, status } = useSession()

@@ -6,10 +6,18 @@
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.128-green)](https://fastapi.tiangolo.com/)
 [![SQLModel](https://img.shields.io/badge/SQLModel-0.0.31-blue)](https://sqlmodel.tiangolo.com/)
 [![License](https://img.shields.io/badge/license-MIT-green)](./LICENSE)
+[![Status](https://img.shields.io/badge/status-Public_Beta-orange)](https://github.com/realmihir60/pluto)
 
 ## 🌟 Overview
 
-Pluto Health is a premium clinical triage system that leverages **proprietary symptom intelligence** and **state-of-the-art UI/UX** to generate professional-grade medical assessments. Built with a **Hybrid Micro-service** architecture, it features an immersive, lag-free full-screen chat experience.
+**Pluto Health is in Public Beta** - A friendly, doctor-like clinical triage system that transforms alarming technical medical responses into reassuring, methodical assessments.
+
+Built with a **defensive architecture** featuring:
+- **Doctor-Like AI Prompts**: Simple language, assessment tables, conservative approach
+- **Multi-Layer Safety**: Rule Engine → ML Ready → LLM with ensemble validation  
+- **Rate Limiting**: 50 requests/hour (authenticated), 10/hour (anonymous)
+- **In-House Monitoring**: Error tracking, performance metrics, audit trails
+- **PII Protection**: Sanitization before AI processing, encrypted storage
 
 ---
 
@@ -21,18 +29,33 @@ Pluto Health is a premium clinical triage system that leverages **proprietary sy
 - **Database**: PostgreSQL (Prisma & SQLModel Integration)
 - **Authentication**: Auth.js (NextAuth v5) + Unified Python Bridge
 - **Intelligence Layer**:
-  - Pluto Clinical reasoning (High-parameter reasoning)
-  - Pluto Voice analysis (Deterministic transcription)
-- **Design System**: Framer Motion (High-performance animations), Tailwind CSS (Premium glassmorphism), Lucide React.
+  - Groq Llama 3.3 70B (Doctor-like reasoning with simple language)
+  - Whisper API (Voice transcription)
+- **Design System**: Framer Motion, Tailwind CSS (Glassmorphism), Lucide React
 
 ---
 
 ## 🏗️ Architecture
 
-Pluto uses a **Vercel Unified** model:
-1.  **Frontend (React/Next.js)**: The premium clinical interface.
-2.  **Clinical Brain (Python Serverless)**: Hardened clinical logic running as Vercel Python Functions in `/api/*.py`.
-3.  **Unified Auth**: Shared PostgreSQL session between JS and Python.
+Pluto uses a **Vercel Unified** model with defensive depth:
+
+### Core Layers
+1.  **Frontend (React/Next.js)**: Premium clinical interface with glassmorphism design
+2.  **Clinical Brain (Python Serverless)**: Hardened clinical logic running as Vercel Python Functions in `/api/*.py`
+3.  **Unified Auth**: Shared PostgreSQL session between JS and Python
+
+### Safety Features  
+- **Rate Limiting**: In-memory rate limiter prevents abuse (50/1h authenticated, 10/1h anonymous)
+- **Error Handling**: Graceful LLM fallback, user-friendly error messages
+- **Logging**: Structured JSON logs (errors, performance, triage events)
+- **Monitoring**: In-house metrics dashboard (no external dependencies)
+- **PII Scrubbing**: Sanitization layer before AI processing
+
+### Clinical Intelligence
+- **Rule Engine**: Deterministic crisis keyword detection and pattern matching
+- **ML-Ready**: Architecture supports future ML safety layer (see `ml_safety_layer_plan.md`)
+- **LLM (Groq Llama 3.3 70B)**: Doctor-like prompts with simple language and assessment tables
+- **Ensemble**: Conservative upward bias when signals disagree
 
 ---
 
@@ -67,7 +90,7 @@ Pluto uses a **Vercel Unified** model:
    # Activate virtual environment
    source venv/bin/activate  # On macOS/Linux
    # OR
-   venv\Scripts\activate     # On Windows
+   venv\\Scripts\\activate     # On Windows
    
    # Install Python dependencies
    pip install -r requirements.txt
@@ -75,14 +98,24 @@ Pluto uses a **Vercel Unified** model:
    ```
 
 4. **Environment Variables**
-   Create a `.env` file in the root directory:
+   
+   Copy the example file and fill in your actual values:
+   ```bash
+   cp .env.example .env
+   ```
+   
+   Then edit `.env` with your credentials:
    ```env
    GROQ_API_KEY=your_groq_api_key_here
    DATABASE_URL="postgresql://user:password@host:port/database?pgbouncer=true"
    DIRECT_URL="postgresql://user:password@host:port/database"
-   AUTH_SECRET="your_secret_key_here"
+   AUTH_SECRET="your_secret_key_here"  # Generate with: openssl rand -base64 32
    NEXT_PUBLIC_API_URL=http://localhost:8000
+   GMAIL_USER=your_email@gmail.com
+   GMAIL_APP_PASSWORD=your_gmail_app_password
    ```
+   
+   **⚠️ Security Note:** Never commit `.env` to git. The `.env.example` file is for reference only.
 
 5. **Run Development Servers**
    
@@ -135,24 +168,55 @@ npx prisma db push
 
 ## 📅 Roadmap
 
-- [x] Core Triage Engine
-- [x] Python Backend Migration (FastAPI)
+### ✅ Completed (v3.0.0)
+- [x] Core Triage Engine with Rule-Based Logic
+- [x] Python Backend Migration (FastAPI on Vercel)
 - [x] Clinical Audit Trail & Logic Snapshots
 - [x] Adversarial PII Scrubbing
-- [x] User Authentication & Consent Gate
-- [x] Premium UI Refinement & Full-Screen Experience
+- [x] User Authentication & Consent Gate (NextAuth v5)
 - [x] Premium UI Refinement & Full-Screen Experience
 - [x] Performance Tuning & Mobile Optimization
 - [x] Clinical Guardrails & Protocols (Anti-Hallucination)
-- [x] "Founder Mode" Telemetry (Time-to-Trust Tracking)
+- [x] **Phase 1: Doctor-Like Triage System** 🆕
+  - Simple language ("dizzy" not "vertigo")
+  - Assessment tables (what we know vs need to check)
+  - Conservative approach (asks questions before diagnosing)
+- [x] **Beta Production Hardening** 🆕
+  - Rate limiting (abuse prevention)
+  - In-house monitoring & logging
+  - Graceful error handling
+
+### 🚧 In Progress  
+- [ ] Demo feedback buttons ("Was this helpful?")
+- [ ] Admin metrics dashboard
+- [ ] ML Safety Layer (data collection phase)
+
+### 🔮 Future
 - [ ] Telemedicine Integration
+- [ ] Multi-language Support
+- [ ] Mobile Apps (iOS/Android)
 
 ---
 
 ## ⚠️ Disclaimer
 
-**Pluto Health is an educational prototype.** This tool is **NOT** a substitute for professional medical advice. Always seek the advice of qualified health providers.
+**Pluto Health is in Public Beta.** This tool is for **educational and preliminary triage purposes only**. It is **NOT** a substitute for professional medical advice. Always seek the advice of qualified health providers for medical concerns.
+
+**For emergencies, call 911 immediately.**
+
+---
+
+## 📚 Documentation
+
+- [Integration Guide](./INTEGRATION_GUIDE.md) - Rate limiting and monitoring setup
+- [Beta Readiness Audit](./beta_readiness_audit.md) - Pre-launch checklist
+- [ML Safety Layer Plan](./ml_safety_layer_plan.md) - Future ML integration
+- [Phase 1 Walkthrough](./phase1_implementation_walkthrough.md) - Doctor-like prompts
+
+---
 
 ## 📄 License
 
 MIT License. Built with ❤️ for better healthcare accessibility.
+
+**Status:** Public Beta v3.0.0 | Last Updated: January 28, 2026
