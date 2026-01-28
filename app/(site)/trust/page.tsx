@@ -6,12 +6,12 @@ import { Check, X, Shield, Lock, AlertTriangle, Cpu, Zap, Activity } from "lucid
 import { PremiumBackground } from "@/components/ui/premium-background"
 
 const doesItems = [
-  "Layer 1: Instantly detects crisis keywords using local edge rules",
-  "Layer 2: Matches symptoms against verified clinical protocols",
-  "Layer 3: Uses Advanced Synthesis only for complex reasoning",
-  "Processes data entirely in-memory without persistent storage",
-  "Clearly communicates uncertainty sources (Rules vs Intel)",
-  "Recommends when to seek professional medical care",
+  "✅ Active rate limiting (50/hr auth, 10/hr anon) prevents abuse",
+  "✅ Real-time structured logging tracks all triage events (JSON)",
+  "✅ User-friendly error handling for LLM, database, and timeout failures",
+  "✅ Feedback system: Rate every triage, help us improve continuously",
+  "✅ Admin dashboard with metrics API for complete observability",
+  "✅ Phase 1 doctor-like triage with simple language and assessment tables",
 ]
 
 const doesNotItems = [
