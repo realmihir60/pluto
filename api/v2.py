@@ -6,12 +6,12 @@ import os
 import sys
 import traceback
 
-# Add root directory to path
+# Add root directory to path for local imports
 root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if root_dir not in sys.path:
     sys.path.insert(0, root_dir)
 
-app = FastAPI(title="Pluto API v2 Diagnostics")
+app = FastAPI(title="Pluto Health API v2", version="2.3.0")
 
 # Global CORS
 app.add_middleware(
@@ -23,46 +23,59 @@ app.add_middleware(
 )
 
 @app.get("/api/v2/health")
-@app.get("/health")
-def health():
+@app.get("/api/v2/")
+@app.get("/api/v2")
+async def health_check():
+    """Diagnostic endpoint to verify API is running"""
     diag = {
-        "status": "diagnostic_mode",
+        "status": "healthy",
+        "version": "2.3.0",
+        "python_version": sys.version,
         "cwd": os.getcwd(),
-        "sys_path": sys.path,
         "root_dir": root_dir,
-        "files_in_root": os.listdir(root_dir) if os.path.exists(root_dir) else "not_found"
     }
+    
+    # Test if we can import the routers
     try:
         from py_api.triage import router as triage_router
-        return {"status": "healthy", "version": "2.2.0-diag", "diagnostics": diag}
+        diag["triage_router"] = "loaded"
     except Exception as e:
-        return JSONResponse(
-            status_code=500,
-            content={
-                "status": "import_failed",
-                "error": str(e),
-                "traceback": traceback.format_exc(),
-                "diagnostics": diag
-            }
-        )
+        diag["triage_router_error"] = str(e)
+        diag["traceback"] = traceback.format_exc()
+        return JSONResponse(status_code=500, content=diag)
+    
+    return diag
 
-# Delayed imports for sub-routers to prevent total crash
+# Import and register routers
 try:
     from py_api.triage import router as triage_router
     from py_api.chat import router as chat_router
     from py_api.consent import router as consent_router
     from py_api.memory import router as memory_router
     
-    app.include_router(triage_router, prefix="/api/v2/triage")
-    app.include_router(triage_router, prefix="/triage")
-    app.include_router(chat_router, prefix="/api/v2/chat")
-    app.include_router(chat_router, prefix="/chat")
-    app.include_router(consent_router, prefix="/api/v2/consent")
-    app.include_router(consent_router, prefix="/consent")
-    app.include_router(memory_router, prefix="/api/v2/memory")
-    app.include_router(memory_router, prefix="/memory")
+    # Register routers with /api/v2 prefix since Vercel preserves the full path
+    app.include_router(triage_router, prefix="/api/v2/triage", tags=["triage"])
+    app.include_router(chat_router, prefix="/api/v2/chat", tags=["chat"])
+    app.include_router(consent_router, prefix="/api/v2/consent", tags=["consent"])
+    app.include_router(memory_router, prefix="/api/v2/memory", tags=["memory"])
+    
+    print("✅ All routers loaded successfully")
 except Exception as e:
-    print(f"Sub-router import failed: {e}")
+    print(f"❌ Router import failed: {e}")
+    traceback.print_exc()
+    
+    # Create a fallback error route
+    @app.api_route("/api/v2/{path:path}", methods=["GET", "POST", "PUT", "DELETE"])
+    async def fallback_error(path: str):
+        return JSONResponse(
+            status_code=500,
+            content={
+                "error": "Router initialization failed",
+                "detail": str(e),
+                "path_requested": path,
+                "traceback": traceback.format_exc()
+            }
+        )
 
-# Vercel entry point
+# Vercel serverless handler
 handler = Mangum(app, lifespan="off")

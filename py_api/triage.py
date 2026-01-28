@@ -46,8 +46,8 @@ async def extract_and_save_facts(user_id: str, text: str, db: Session):
 
 @router.get("")
 @router.get("/")
-def ping_triage():
-    return {"status": "alive", "service": "triage-v2", "build": BUILD_ID}
+async def ping_triage():
+    return {"status": "alive", "service": "triage-v2", "build": BUILD_ID, "methods": ["GET", "POST"]}
 
 @router.post("")
 @router.post("/")
