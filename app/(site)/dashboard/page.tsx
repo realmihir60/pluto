@@ -28,7 +28,7 @@ export default async function DashboardPage() {
     const userData = await getDashboardData(session.user.email);
 
     return (
-        <div className="flex flex-col min-h-screen pt-20 pb-10 px-4 md:px-8 max-w-7xl mx-auto w-full">
+        <div className="flex flex-col min-h-screen pt-28 pb-10 px-4 md:px-8 max-w-7xl mx-auto w-full">
             {/* Header */}
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
                 <div>
