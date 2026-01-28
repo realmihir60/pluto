@@ -402,7 +402,7 @@ export default function DemoPage() {
   }
 
   return (
-    <div className="relative min-h-screen flex flex-col pt-16">
+    <div className="relative min-h-screen flex flex-col pt-28">
       <PremiumBackground />
 
       <motion.div
@@ -426,7 +426,7 @@ export default function DemoPage() {
                         <Activity className="size-6 text-primary" />
                       </div>
                       <h1 className="text-3xl md:text-4xl font-semibold tracking-tight text-foreground">
-                        Hello. How can I help?
+                        What's bothering you?
                       </h1>
                       {history.length > 0 && (
                         <div className="flex justify-center">
@@ -440,8 +440,7 @@ export default function DemoPage() {
                         </div>
                       )}
                       <p className="text-lg text-muted-foreground leading-relaxed">
-                        Describe your symptoms in your own words. <br className="hidden md:block" />
-                        I'll analyze them against medical guidelines.
+                        Tell me what's going on and I'll help you make sense of it.
                       </p>
                     </div>
                     <div className="bg-card/40 backdrop-blur-sm border border-border/60 p-6 rounded-2xl text-left shadow-sm ring-1 ring-border/5">
