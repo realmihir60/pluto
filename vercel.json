@@ -1,8 +1,7 @@
 {
-    "rewrites": [
-        {
-            "source": "/api/v2/(.*)",
-            "destination": "/api/v2.py"
+    "functions": {
+        "api/v2.py": {
+            "runtime": "python3.9"
         }
-    ]
+    }
 }
