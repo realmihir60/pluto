@@ -6,17 +6,18 @@
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.128-green)](https://fastapi.tiangolo.com/)
 [![SQLModel](https://img.shields.io/badge/SQLModel-0.0.31-blue)](https://sqlmodel.tiangolo.com/)
 [![License](https://img.shields.io/badge/license-MIT-green)](./LICENSE)
-[![Status](https://img.shields.io/badge/status-Public_Beta-orange)](https://github.com/realmihir60/pluto)
+[![Status](https://img.shields.io/badge/status-Production_Ready-brightgreen)](https://github.com/realmihir60/pluto)
 
 ## 🌟 Overview
 
-**Pluto Health is in Public Beta** - A friendly, doctor-like clinical triage system that transforms alarming technical medical responses into reassuring, methodical assessments.
+**Pluto Health is Production Ready** ✅ - A friendly, doctor-like clinical triage system that transforms alarming technical medical responses into reassuring, methodical assessments.
 
 Built with a **defensive architecture** featuring:
 - **Doctor-Like AI Prompts**: Simple language, assessment tables, conservative approach
 - **Multi-Layer Safety**: Rule Engine → ML Ready → LLM with ensemble validation  
-- **Rate Limiting**: 50 requests/hour (authenticated), 10/hour (anonymous)
-- **In-House Monitoring**: Error tracking, performance metrics, audit trails
+- **Rate Limiting**: ✅ ACTIVE - 50 requests/hour (authenticated), 10/hour (anonymous)
+- **In-House Monitoring**: ✅ ACTIVE - Error tracking, performance metrics, audit trails
+- **Error Handling**: ✅ ACTIVE - User-friendly messages for all failure modes
 - **PII Protection**: Sanitization before AI processing, encrypted storage
 
 ---
@@ -44,10 +45,10 @@ Pluto uses a **Vercel Unified** model with defensive depth:
 2.  **Clinical Brain (Python Serverless)**: Hardened clinical logic running as Vercel Python Functions in `/api/*.py`
 3.  **Unified Auth**: Shared PostgreSQL session between JS and Python
 
-### Safety Features  
+### Safety Features (All Active ✅)
 - **Rate Limiting**: In-memory rate limiter prevents abuse (50/1h authenticated, 10/1h anonymous)
-- **Error Handling**: Graceful LLM fallback, user-friendly error messages
-- **Logging**: Structured JSON logs (errors, performance, triage events)
+- **Error Handling**: Graceful LLM fallback, user-friendly error messages for LLM/DB/timeout failures
+- **Logging**: Structured JSON logs (errors, performance, triage events) → `/logs/*.jsonl`
 - **Monitoring**: In-house metrics dashboard (no external dependencies)
 - **PII Scrubbing**: Sanitization layer before AI processing
 

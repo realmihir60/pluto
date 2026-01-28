@@ -54,6 +54,30 @@ async def post_triage(
     user: Optional[User] = Depends(get_current_user_optional),
     db: Session = Depends(get_db_session)
 ):
+    # === SAFETY INFRASTRUCTURE ===
+    import time
+    rate_limiter = get_rate_limiter()
+    logger = get_logger()
+    start_time = time.time()
+    
+    # Identify user or IP
+    identifier = user.id if user else (request.client.host if request.client else "unknown")
+    
+    # Rate limiting check
+    try:
+        rate_limiter.check_limit(identifier, is_authenticated=bool(user))
+    except HTTPException as e:
+        logger.log_error("rate_limit", f"Rate limit hit: {identifier}")
+        raise HTTPException(
+            status_code=429,
+            detail={
+                "error": "Rate limit exceeded",
+                "message": "Too many requests. Please try again in 1 hour.",
+                "user_message": "For urgent concerns, call 911 or visit the emergency room."
+            }
+        )
+    # === END SAFETY INFRASTRUCTURE ===
+    
     try:
         data = await request.json()
         input_text = data.get("input")
@@ -265,8 +289,19 @@ Remember: You're a reassuring family doctor, not a medical textbook. Speak like 
                 "ai_analysis": True,
                 "is_ambiguous": is_ambiguous
             }
-        else:
-            return {
+        
+        # === LOG PERFORMANCE METRICS ===
+        duration_ms = (time.time() - start_time) * 1000
+        logger.log_triage(
+            user_id=user.id if user else None,
+            input_text=input_text[:100] + "..." if len(input_text) > 100 else input_text,
+            result={"triage_level": final_level, "ai_analysis": True},
+            duration_ms=duration_ms
+        )
+        logger.log_performance("triage_request", duration_ms)
+        # === END LOGGING ===
+        
+        return {
                 "version": "3.0.0-fallback",
                 "triage_level": final_level,
                 "message": assessment["guidance"],
@@ -291,7 +326,44 @@ Remember: You're a reassuring family doctor, not a medical textbook. Speak like 
                 "is_ambiguous": is_ambiguous
             }
 
+    except HTTPException:
+        # Re-raise HTTP exceptions (like rate limit)
+        raise
     except Exception as e:
-        error_info = traceback.format_exc()
-        print(f"Vercel Triage Error: {error_info}")
-        raise HTTPException(status_code=500, detail={"error": str(e), "traceback": error_info})
+        # === COMPREHENSIVE ERROR HANDLING ===
+        logger.log_error(
+            "triage_error",
+            str(e),
+            {
+                "user_id": user.id if user else None,
+                "traceback": traceback.format_exc()[:500]
+            }
+        )
+        
+        # User-friendly error messages
+        user_message = "We encountered an issue processing your symptoms. For urgent concerns, call 911."
+        error_type = "system_error"
+        
+        if "groq" in str(e).lower() or "openai" in str(e).lower():
+            user_message = "Our AI assistant is temporarily unavailable. Please try again in a moment."
+            error_type = "llm_error"
+        elif "database" in str(e).lower() or "connection" in str(e).lower():
+            user_message = "We're experiencing connection issues. Your data is safe. Please try again."
+            error_type = "database_error"
+        elif "timeout" in str(e).lower():
+            user_message = "Your request took too long to process. Please try with a shorter description."
+            error_type = "timeout_error"
+        
+        print(f"Triage Error [{error_type}]: {e}")
+        traceback.print_exc()
+        
+        raise HTTPException(
+            status_code=500,
+            detail={
+                "error": error_type,
+                "message": user_message,
+                "support": "If this persists, contact support@plutohealth.ai",
+                "emergency_notice": "For medical emergencies, call 911 immediately."
+            }
+        )
+        # === END ERROR HANDLING ===
