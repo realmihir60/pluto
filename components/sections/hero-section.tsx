@@ -55,9 +55,9 @@ export function HeroSection() {
           {...(prefersReducedMotion ? {} : { ...fadeIn, transition: { ...fadeIn.transition, delay: 0.1 } })}
           className="text-5xl sm:text-6xl md:text-8xl font-bold tracking-tight mb-8 leading-[1.05] selection:bg-primary/20"
         >
-          <span className="text-gradient">Know What's Wrong.</span>
+          <span className="text-gradient">Understand Your Symptoms.</span>
           <br />
-          <span className="text-primary italic font-serif">In Seconds.</span>
+          <span className="text-primary italic font-serif">Get Clear Answers.</span>
         </motion.h1>
 
         {/* Subheadline with better balance */}
@@ -65,7 +65,7 @@ export function HeroSection() {
           {...(prefersReducedMotion ? {} : { ...fadeIn, transition: { ...fadeIn.transition, delay: 0.2 } })}
           className="text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto mb-12 leading-relaxed text-balance"
         >
-          Describe your symptoms. Get clear, reassuring guidance in plain English.<br />No confusing medical jargon. Just answers you can understand.
+          Tell us what's going on. We'll help you figure out what to do next.
         </motion.p>
 
         {/* Primary CTA Area */}
