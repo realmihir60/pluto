@@ -5,10 +5,10 @@ load_dotenv()
 sys.path.append(os.getcwd())
 
 from fastapi import FastAPI
-from api.chat import router as chat_router
-from api.triage import router as triage_router
-from api.consent import router as consent_router
-from api.memory import router as memory_router
+from api.endpoints.chat import router as chat_router
+from api.endpoints.triage import router as triage_router
+from api.endpoints.consent import router as consent_router
+from api.endpoints.memory import router as memory_router
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
