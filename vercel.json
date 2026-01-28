@@ -1,0 +1,8 @@
+{
+    "rewrites": [
+        {
+            "source": "/api/triage",
+            "destination": "/py_api/triage.py"
+        }
+    ]
+}
