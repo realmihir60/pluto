@@ -27,7 +27,7 @@ export function HeroSection() {
     }
 
   return (
-    <section className="relative min-h-screen flex flex-col items-center justify-center px-6 pt-32 pb-40 overflow-hidden bg-background">
+    <section className="relative min-h-screen flex flex-col items-center justify-center px-6 pt-40 pb-40 overflow-hidden bg-background">
       {/* Dynamic Animated Background */}
       <div className="absolute inset-0 -z-10 overflow-hidden pointer-events-none">
         <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/10 rounded-full blur-[80px] animate-pulse will-change-transform" />
