@@ -7,4 +7,5 @@ sqlmodel
 python-multipart
 python-jose[cryptography]
 mangum
+python-dotenv
 # Slim requirements for Vercel Serverless
