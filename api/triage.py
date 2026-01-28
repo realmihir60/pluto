@@ -370,9 +370,20 @@ Remember: You're a reassuring family doctor, not a medical textbook. Speak like 
 
 # Vercel Serverless Handler - Correct Format
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from mangum import Mangum
 
 app = FastAPI()
+
+# Add CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # In production, specify your domain
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 app.include_router(router)
 
 # This is what Vercel invokes
