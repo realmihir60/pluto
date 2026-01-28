@@ -7,43 +7,43 @@ import { ShieldAlert, Zap, Cpu, Lock, Activity, Globe, CheckCircle2 } from "luci
 const features = [
     {
         icon: ShieldAlert,
-        title: "Instant Triage",
-        description: "Our edge-layer instantly flags medical emergencies. If your symptoms match critical patterns (like stroke or heart attack), we direct you to 911 immediately.",
-        color: "text-red-500",
-        bg: "bg-red-500/10"
+        title: "Doctor-Like Triage",
+        description: "Phase 1 system using simple language, assessment tables, and conservative questioning—just like a family doctor would. No alarming medical jargon, just clear guidance.",
+        color: "text-blue-500",
+        bg: "bg-blue-500/10"
     },
     {
         icon: Zap,
-        title: "Local Speed",
-        description: "Common symptoms are checked against 500+ clinical rules directly on the server. No waiting for complex generation unless necessary.",
+        title: "Production Safety",
+        description: "Active rate limiting (50 requests/hour), real-time performance logging, and user-friendly error handling. Built for reliability at scale with comprehensive monitoring.",
         color: "text-amber-500",
         bg: "bg-amber-500/10"
     },
     {
         icon: Cpu,
-        title: "Advanced Synthesis",
-        description: "For complex or rare cases, we call upon our higher-parameter reasoning engine to synthesize clinical patterns and offer context-aware insights.",
-        color: "text-blue-500",
-        bg: "bg-blue-500/10"
+        title: "Smart Fallback System",
+        description: "Rule engine validates every triage before AI analysis. If the LLM fails, we gracefully fall back to deterministic logic—you always get an answer.",
+        color: "text-purple-500",
+        bg: "bg-purple-500/10"
     },
     {
         icon: Lock,
-        title: "Secure Memory",
-        description: "Your health history is encrypted in your personal vault. Our engine securely retains your conditions, so you don't have to repeat yourself.",
+        title: "Privacy First",
+        description: "PII sanitization before processing, encrypted storage, and Gmail SMTP for secure communication. Your health data is protected by AES-256 encryption.",
         color: "text-green-500",
         bg: "bg-green-500/10"
     },
     {
         icon: Activity,
-        title: "Clinical Accuracy",
-        description: "Built on guidelines from the CDC, WHO, and peer-reviewed literature. We prioritize medical consensus over generative creativity.",
+        title: "User Feedback Loop",
+        description: "Rate every triage with thumbs up/down. Your feedback helps us improve the system continuously—stored securely in our TriageFeedback database.",
         color: "text-primary",
         bg: "bg-primary/10"
     },
     {
         icon: Globe,
-        title: "Global Accessibility",
-        description: "Designed for clarity. Whether you're a medical student or a worried parent, Pluto translates complex medical jargon into plain English.",
+        title: "Admin Dashboard",
+        description: "Real-time metrics on triage success rates, response times, and error rates. Complete observability with structured JSON logging and admin API access.",
         color: "text-indigo-500",
         bg: "bg-indigo-500/10"
     },

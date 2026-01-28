@@ -65,7 +65,7 @@ export function HeroSection() {
           {...(prefersReducedMotion ? {} : { ...fadeIn, transition: { ...fadeIn.transition, delay: 0.2 } })}
           className="text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto mb-12 leading-relaxed text-balance"
         >
-          Pluto combines deterministic clinical rules with advanced reasoning to provide professional-grade symptom analysis in seconds.
+          Pluto uses a doctor-like approach with simple language, methodical assessment, and conservative care recommendations—powered by production-grade safety infrastructure with rate limiting, real-time monitoring, and intelligent error handling.
         </motion.p>
 
         {/* Primary CTA Area */}

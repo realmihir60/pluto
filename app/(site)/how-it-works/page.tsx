@@ -8,56 +8,56 @@ import { PremiumBackground } from "@/components/ui/premium-background"
 const steps = [
   {
     icon: ShieldAlert,
-    title: "Zero-Latency Guardrails",
+    title: "Doctor-Like Assessment",
     description:
-      "Before any analysis happens, your input passes through a local edge sanitizer. This is a rule-based layer designed to instantly detect crisis keywords.",
+      "Phase 1 system uses simple language translation and assessment tables—just like a family doctor would explain things. No medical jargon, no alarming terminology. Conservative questioning focused on safety.",
     details: [
-      "Detects emergency terms (e.g., 'crushing chest pain')",
-      "Blocks harmful or non-medical queries immediately",
-      "Runs on-device or at the edge for <10ms latency",
-      "Prioritizes safety over analysis",
+      "Simple language map (e.g., 'dizzy' not 'vertigo')",
+      "Assessment tables explain thinking process",
+      "Conservative triage levels (defaults to 'seek care' when ambiguous)",
+      "Focuses on 'what we know' vs 'what we need to check'",
     ],
     accent: "text-blue-500",
     bg: "bg-blue-500/10"
   },
   {
     icon: Zap,
-    title: "Deterministic Pattern Matching",
+    title: "Production Safety Infrastructure",
     description:
-      "If safety checks pass, Pluto attempts to map your symptoms against a local clinical ruleset first. This ensures common conditions are identified without hallucination risks.",
+      "Active rate limiting (50/hr auth, 10/hr anon), real-time performance logging, and user-friendly error handling. Every request is monitored, logged, and protected against abuse.",
     details: [
-      "Matches input against 500+ verified clinical patterns",
-      "Uses Boolean logic (IF fever AND stiff neck THEN...)",
-      "Zero AI variance - ensures consistent output for known inputs",
-      "Acts as a fast-path for standard triage cases",
+      "Rate limiter prevents API cost explosion",
+      "Structured JSON logs track all triage events",
+      "Error messages tailored by failure type (LLM, DB, timeout)",
+      "Admin metrics API provides real-time statistics",
     ],
     accent: "text-amber-500",
     bg: "bg-amber-500/10"
   },
   {
     icon: Cpu,
-    title: "Advanced Clinical Synthesis",
+    title: "Smart Fallback System",
     description:
-      "For complex or ambiguous cases, Pluto activates its advanced synthesis layer for multi-factor clinical reasoning. This provides deep diagnostic correlations and context-aware advice.",
+      "Rule engine validates every AI response. If the LLM fails or times out, we gracefully fall back to deterministic clinical logic. You always get an answer—not an error screen.",
     details: [
-      "Engine: Pluto Clinical Synthesis (High-Parameter)",
-      "Role: Clinical synthesis & empathetic reasoning",
-      "Context Window: Analyzes full conversation history",
-      "Output: Structured JSON (Severity, Patterns, Advice)",
+      "Rule engine: 500+ validated clinical patterns",
+      "LLM: Groq Llama 3.3 70B for complex reasoning",
+      "Fallback logic ensures 100% uptime",
+      "Emergency flagging (chest pain, stroke symptoms)",
     ],
     accent: "text-purple-500",
     bg: "bg-purple-500/10"
   },
   {
     icon: Lock,
-    title: "Secure Memory Injection",
+    title: "Privacy & Feedback Loop",
     description:
-      "Instead of discarding data, we now securely retrieve your past medical facts (e.g. allergies, conditions) and inject them into the intelligence layer's context window for personalized safety.",
+      "PII sanitization before AI processing, encrypted storage (AES-256), and user feedback buttons after every triage. Rate the system, leave comments, help us improve continuously.",
     details: [
-      "Encrypted Postgres Storage (Prisma)",
-      "Proactive Context Awareness",
-      "Facts are extracted automatically after triage",
-      "You own your data - delete it anytime via Dashboard",
+      "Encrypted Postgres storage (Prisma)",
+      "TriageFeedback model tracks user ratings",
+      "Gmail SMTP for secure email verification",
+      "You own your data - delete anytime via dashboard",
     ],
     accent: "text-emerald-500",
     bg: "bg-emerald-500/10"
