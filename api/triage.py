@@ -384,7 +384,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Crucial: Explicit prefix for Vercel routing
+# Handle both Vercel routing styles:
+# 1. Stripped: Mangum sees "/" (prefix="")
+# 2. Keyed: Mangum sees "/api/triage" (prefix="/api/triage")
+app.include_router(router, prefix="")
 app.include_router(router, prefix="/api/triage")
 
 # This is what Vercel invokes

@@ -114,7 +114,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Explicit prefix for Vercel routing
+# Handle both Vercel routing styles
+app.include_router(router, prefix="")
 app.include_router(router, prefix="/api/chat")
 
 # This is what Vercel invokes
