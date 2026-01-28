@@ -79,7 +79,7 @@ async def global_exception_handler(request: Request, exc: Exception):
             "error": "Internal Server Error",
             "message": str(exc),
             "path": request.url.path,
-            "traceback": traceback.format_exc() if "localhost" in str(request.base_url) else "Redacted"
+            "traceback": traceback.format_exc()
         }
     )
 
