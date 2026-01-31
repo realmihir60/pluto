@@ -1,158 +1,71 @@
 # Pluto Health
 
-> **Neuro-Symbolic Clinical Triage Engine with Safety-Critical Override System** - Professional-grade symptom analysis and clinical decision support utility.
+**Neuro-Symbolic Clinical Triage Engine**
 
-[![Next.js](https://img.shields.io/badge/Next.js-15.0-black)](https://nextjs.org/)
-[![FastAPI](https://img.shields.io/badge/FastAPI-0.128-green)](https://fastapi.tiangolo.com/)
-[![Clinical Engine](https://img.shields.io/badge/Engine-v4.1.0-blue)](./python_core/clinical_reasoning_engine.py)
-[![License](https://img.shields.io/badge/license-MIT-green)](./LICENSE)
-[![Status](https://img.shields.io/badge/status-Launch_Ready-brightgreen)](https://github.com/realmihir60/pluto)
+Pluto Health is a clinical decision support system designed to provide preliminary triage and symptom analysis. It employs a neuro-symbolic architecture, combining deterministic clinical protocols with large language models to ensure safety, consistency, and natural interaction.
 
-## Overview
+## System Architecture
 
-Pluto Health is a **safety-first clinical decision support system** designed to bridge the gap between alarming medical jargon and reassuring, methodical clinical assessment. It utilizes a unique **Neuro-Symbolic** approach: combining deterministic clinical protocols (Symbolic) with the natural language nuance of advanced LLMs (Neural).
+The system operates as a hybrid application:
+-   **Frontend**: Next.js 15 (React 19) provides the user interface.
+-   **Backend**: Python FastAPI acts as the reasoning engine, deployed as serverless functions.
+-   **Data Layer**: PostgreSQL (Supabase) and Prisma.
+-   **Inference**: Groq Llama 3.3 70B provides natural language generation, constrained by internal protocols.
 
-### Core Pillars
-- **Doctor-Like AI**: Reassuring, patient-centric language that avoids jargon while maintaining clinical authority.
-- **Safety-Critical Overrides**: Hard rules for high-risk populations (infants, elderly, TIA patterns) that bypass normal logic.
-- **Defensive Architecture**: Multi-layer validation (Safety Overrides -> Rule Engine -> LLM) that always biases towards safety.
-- **Privacy by Design**: Automated PII scrubbing and de-identification before any clinical data hits the inference layer.
+### Clinical Validation
 
----
+The reasoning engine (v4.1.0) has been validated against 54 clinical scenarios, including 24 edge cases:
 
-## What's New in v4.2.0 (Polished Release)
-
-### Rich Consultation Interface
-- **Smart Text Formatting**: Markdown support for clear, structured clinical questions.
-- **Visual Triage Cards**: Immediate visual feedback on Urgency, Key Findings, and Differentials.
-- **Natural Interaction**: "Two-Message" system separates hard clinical data from empathetic conversational follow-ups.
-
-### Assessment Reports
-- **Automatic PDF Generation**: Downloadable clinical summary generated instantly upon consultation conclusion.
-- **Smart Triggers**: System detects conversation end or high-urgency states to prompt report download.
-- **Professional Format**: Vercel-ready PDF generation with vector graphics and structured layout.
-
-### Safety Override System (Enhanced)
-The Clinical Reasoning Engine now includes **6 hard safety rules** that trigger BEFORE symptom matching:
-
-| Rule | Trigger Pattern | Result |
-|------|-----------------|--------|
-| **TIA Detection** | Resolved neuro symptoms ("fine now") | EMERGENCY |
-| **Infant Safety** | <1 year + feeding/behavior change | URGENT |
-| **Elderly Protection** | 65+ + cognitive change | URGENT |
-| **Cardiac Alert** | Orthopnea + age >55 | URGENT |
-| **DVT Risk** | Flight/immobility + leg symptoms | URGENT |
-| **Metabolic Alert** | Sweating + tremor in adult | URGENT |
-
----
-
-## Architecture: Hybrid Vercel + Python
-
-Pluto operates in a **Hybrid Environment**, deployable to Vercel with a Python Serverless backend.
-
-### System Stack
-1.  **Frontend**: Next.js 15 (React 19) with `framer-motion` & `lucide-react`.
-2.  **Backend**: FastAPI (Python 3.10+) running as Vercel Serverless Functions (`/api/*`).
-3.  **Data Layer**: PostgreSQL (Supabase) + Prisma.
-4.  **AI Layer**: Groq Llama 3.3 70B (Orchestrated by Python Engine).
-
-```mermaid
-graph TD
-    A[Client UI] -->|/api/chat| B[Vercel Serverless (FastAPI)]
-    B -->|Clinical Logic| C[Reasoning Engine]
-    C -->|Completion| D[Groq LLM]
-    B -->|Response| A
-```
-
----
-
-## Quick Start
-
-### 1. Local Development
-```bash
-# Terminal 1: Frontend
-npm run dev
-
-# Terminal 2: Backend (Local FastAPI)
-./run_local_backend.sh
-```
-
-### 2. Vercel Deployment
-The project is configured for zero-config Vercel deployment.
-- `vercel.json` maps API routes to `api/index.py`.
-- `requirements.txt` installs Python dependencies automatically.
-
-
----
-
-## Security & Safety Protocol
-
-### Multi-Layer Safety Gate
-1. **Safety Overrides**: Hard rules for high-risk populations (infants, elderly, TIA) - CANNOT be bypassed
-2. **PII Sanitization**: Every input is scrubbed for name, email, phone before processing
-3. **Protocol Matching**: 20+ clinical protocols with 200+ keywords
-4. **Criteria Matrix**: 90+ red flags, tracked per symptom
-5. **Conservative Bias**: System errs on side of caution (over-triage preferred vs under-triage)
-6. **Rate Limiting**: 50 req/hr (auth), 10 req/hr (anon)
-
----
-
-## Clinical Reasoning Engine v4.1.0 - Validation
-
-The engine has been stress-tested against **54 clinical scenarios** (30 real-world + 24 edge cases).
-
-### Test Statistics
 | Metric | Result |
-|--------|--------|
-| **Stress Test Pass Rate** | 87.5% (21/24) |
-| **Emergency Detection** | 5/5 (100%) |
-| **Deceptive Critical Cases** | 4/4 (100%) |
-| **High-Risk Population Safety** | 6/6 (100%) |
-| **Under-Triage Rate** | 0% |
+| :--- | :--- |
+| Stress Test Pass Rate | 87.5% |
+| Emergency Detection | 100% |
+| Deceptive Case Detection | 100% |
+| Under-Triage Rate | 0% |
 
-### Urgency Distribution (30 Cases)
-| Level | Count | % |
-|-------|-------|---|
-| EMERGENCY | 5 | 16.7% |
-| URGENT | 12 | 40.0% |
-| MONITOR | 11 | 36.7% |
-| HOME CARE | 2 | 6.7% |
+## Installation
 
-Full test results: [python_core/test.md](./python_core/test.md)
+### Prerequisites
+- Node.js 20+
+- Python 3.10+
+- PostgreSQL
+- Groq API Key
 
----
+### Local Setup
 
-## Troubleshooting
+1.  **Clone Repository**
+    ```bash
+    git clone https://github.com/realmihir60/pluto.git
+    cd pluto
+    ```
 
-- **401 Unauthorized**: Clear browser cookies. JWS requires fresh session after config changes.
-- **Port 8000 Conflict**: Run `lsof -ti:8000 | xargs kill -9` to clear stale processes.
-- **Rate Limited**: Wait 1 hour or increase limits in `python_core/rate_limiter.py`.
+2.  **Install Dependencies**
+    ```bash
+    npm install
+    npx prisma generate
+    python3 -m venv venv && source venv/bin/activate && pip install -r requirements.txt
+    ```
 
----
+3.  **Run Development Server**
+    ```bash
+    # Terminal 1: Frontend
+    npm run dev
 
-## Roadmap
+    # Terminal 2: Backend
+    ./run_local_backend.sh
+    ```
 
-### v4.1.0 (Current - Launch Ready)
-- [x] Clinical Reasoning Engine v4.0 with 3-stage protocol matching
-- [x] Safety Override System for high-risk populations
-- [x] Criteria Matrix with red/green flag tracking
-- [x] 54 clinical scenarios validated (87.5% pass rate)
-- [x] Legal defensibility: 0% under-triage
+## Deployment
 
-### v4.2.0 (Next)
-- [ ] Voice Triage via Whisper API
-- [ ] Clinical Focus Notes extraction
-- [ ] Enterprise Audit logging
+The project is configured for seamless deployment on Vercel.
 
----
-
-## Disclaimer
-
-**Pluto Health is for educational purposes only.** It provides preliminary clinical triage and is **NOT** a substitute for professional medical advice, diagnosis, or treatment. In the event of a medical emergency, call emergency services (e.g., 911) immediately.
-
----
+-   **Routing**: `vercel.json` manages API rewrites, directing specific paths to the Python backend.
+-   **Serverless**: The `api/index.py` entry point handles serverless execution for the FastAPI application.
+-   **Configuration**: Ensure environment variables (`GROQ_API_KEY`, `DATABASE_URL`, `AUTH_SECRET`) are set in the Vercel dashboard.
 
 ## License
-MIT License. Built for the future of decentralized clinical intelligence.
 
-**Status:** Launch Ready | Engine: v4.1.0 | Last Updated: Jan 2026
+MIT License.
+
+---
+**Disclaimer**: This software is for educational purposes only and does not constitute medical advice. In an emergency, contact professional services immediately.
