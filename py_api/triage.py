@@ -81,24 +81,17 @@ async def post_triage(
         # 1. Sanitization
         analysis = sanitize_and_analyze(input_text)
         
-        # 2. Crisis Check - Immediate escalation
-        if analysis.hasCrisisKeywords:
-            return {
-                "triage_level": "emergency",
-                "severity": {"level": "EMERGENCY", "color": "red"},
-                "friendly_message": "CRITICAL: This requires immediate emergency care. Please call 911 or go to your nearest emergency room now.",
-                "summary": "Potential medical emergency detected.",
-                "when_to_worry": ["Chest pain", "Difficulty breathing", "Altered consciousness"],
-                "home_care_tips": ["Do not wait", "Call emergency services immediately"],
-                "reasoning_chain": {
-                    "stage": "crisis_detection",
-                    "trigger": "Crisis keywords detected in input"
-                }
-            }
-
-        # 3. Clinical Reasoning Engine (New Multi-Stage Pipeline)
-        engine = get_reasoning_engine()
-        result = engine.reason(analysis.safeInput, history)
+        # 2. Note crisis keywords but DON'T return early - we want full clinical analysis
+        is_crisis = analysis.hasCrisisKeywords
+        
+        # 3. Clinical Reasoning Engine - always run for full differential/follow-up
+        reasoning_engine = get_reasoning_engine()
+        result = reasoning_engine.reason(analysis.safeInput, history)
+        
+        # Override urgency to EMERGENCY if crisis detected
+        if is_crisis:
+            result.urgency_level = UrgencyLevel.EMERGENCY
+            result.urgency_rationale = "CRITICAL: Crisis keywords detected. " + result.urgency_rationale
         
         # 4. Optional: AI Enhancement for Clinical Summary
         ai_enhanced = None

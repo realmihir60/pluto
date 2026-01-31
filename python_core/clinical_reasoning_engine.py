@@ -669,35 +669,7 @@ class ClinicalReasoningEngine:
         history = history or []
         combined_input = " ".join(history + [user_input])
         
-        # SAFETY FIRST: Check hard safety overrides BEFORE anything else
-        # This catches high-risk populations even with vague complaints
-        override_level, override_rationale = self._check_safety_overrides(combined_input)
-        if override_level is not None:
-            # Safety override triggered - return with override urgency
-            return ReasoningResult(
-                chief_complaint=user_input[:100],
-                matched_protocols=["safety_override"],
-                criteria_matrix={},
-                urgency_level=override_level,
-                urgency_rationale=override_rationale,
-                differential_diagnosis=[],
-                follow_up_questions=[
-                    "Please go to an emergency room or urgent care immediately.",
-                    "If symptoms worsen, call emergency services (911)."
-                ] if override_level == UrgencyLevel.EMERGENCY else [
-                    "Please seek medical evaluation today.",
-                    "Do not delay - this pattern requires prompt attention."
-                ],
-                clinical_summary=override_rationale,
-                what_we_know=[override_rationale],
-                what_we_dont_know=[],
-                anti_hallucination_notes=[
-                    "This urgency level was determined by a SAFETY OVERRIDE rule, not symptom matching.",
-                    "High-risk populations and patterns require immediate escalation regardless of other factors."
-                ]
-            )
-        
-        # Stage 1: Classify
+        # Stage 1: Classify - ALWAYS do this first to get differentials
         protocol_ids = self.classify_chief_complaint(combined_input)
         
         # Handle unknown complaints
@@ -726,10 +698,14 @@ class ClinicalReasoningEngine:
         criteria_matrix = self.build_criteria_matrix(protocol_ids)
         criteria_matrix = self.extract_evidence_from_input(combined_input, criteria_matrix)
         
-        # Stage 3: Compute results
-        urgency, rationale = self.compute_urgency_level(criteria_matrix, combined_input)
+        # Get differentials and follow-up questions BEFORE checking overrides
         differentials = self.get_differential_diagnosis(protocol_ids, criteria_matrix)
         follow_ups = self.generate_follow_up_questions(criteria_matrix)
+        
+        # Get chief complaint name
+        chief_complaint = protocol_ids[0] if protocol_ids else "unknown"
+        if chief_complaint in self.protocol_map:
+            chief_complaint = self.protocol_map[chief_complaint]["symptom"]
         
         # Build what we know / don't know
         what_we_know = []
@@ -742,6 +718,33 @@ class ClinicalReasoningEngine:
                 what_we_know.append(f"🟢 {gf.name}: Present ({gf.evidence})")
             for urf in matrix.get_unresolved_red_flags():
                 what_we_dont_know.append(f"❓ {urf.name}: Unknown")
+        
+        # NOW check safety overrides - but WITH all the clinical context
+        override_level, override_rationale = self._check_safety_overrides(combined_input)
+        if override_level is not None:
+            # Safety override triggered - return with override urgency BUT with differentials
+            return ReasoningResult(
+                chief_complaint=chief_complaint,
+                matched_protocols=protocol_ids,
+                criteria_matrix=criteria_matrix,
+                urgency_level=override_level,
+                urgency_rationale=override_rationale,
+                differential_diagnosis=differentials,  # Now populated!
+                follow_up_questions=[
+                    "Please go to an emergency room or urgent care immediately.",
+                    "If symptoms worsen, call emergency services (911)."
+                ] if override_level == UrgencyLevel.EMERGENCY else follow_ups,
+                clinical_summary=override_rationale,
+                what_we_know=what_we_know,
+                what_we_dont_know=what_we_dont_know,
+                anti_hallucination_notes=[
+                    "This urgency level was determined by a SAFETY OVERRIDE rule.",
+                    "High-risk populations and patterns require immediate escalation."
+                ]
+            )
+        
+        # Stage 3: Compute urgency (for normal flow)
+        urgency, rationale = self.compute_urgency_level(criteria_matrix, combined_input)
         
         # Anti-hallucination notes
         anti_hallucination = []

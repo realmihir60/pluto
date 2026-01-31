@@ -8,13 +8,7 @@ import {
   Activity,
   Sparkles,
   Shield,
-  Lock,
-  ArrowRight,
-  Mic,
-  History,
-  Clock,
-  FileDown,
-  Pencil
+  FileDown
 } from "lucide-react"
 import { saveCheckup, getHistory, CheckupRecord } from "@/lib/vault"
 import { generateMedicalReport } from "@/lib/report-generator"
@@ -71,9 +65,262 @@ export default function DemoPage() {
   const audioChunksRef = useRef<Blob[]>([])
 
   // Chat State
-  const [chatMessages, setChatMessages] = useState<{ role: string, content: string }[]>([])
+  type ChatMessage =
+    | { role: 'user', content: string, type?: 'text' }
+    | { role: 'assistant', content: string, type: 'text' }
+    | { role: 'assistant', content: string, type: 'structured_analysis', data: AnalysisResult }
+    | { role: 'system', content: string, type: 'report_cta', data: AnalysisResult };
+
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([])
   const [chatInput, setChatInput] = useState("")
   const [isChatLoading, setIsChatLoading] = useState(false)
+
+  // Helper to detect if we should show the Report CTA
+  const checkForConclusion = (text: string, analysis: AnalysisResult) => {
+    const urgency = analysis.severity.level.toUpperCase();
+    const lowerText = text.toLowerCase();
+
+    // 1. High Urgency - Show immediately
+    if (urgency.includes("EMERGENCY") || urgency.includes("URGENT")) return true;
+
+    // 2. Concluding phrases - Expanded
+    const engagingPhrases = ["tell me more", "could you clarify", "?", "next step"];
+    const concludingPhrases = [
+      "emergency room", "doctor", "physician", "monitor your progress", "take care",
+      "hope you feel better", "get checked out", "schedule a follow-up", "follow-up",
+      "monitoring", "report", "conclusion", "assessment complete", "summary"
+    ];
+
+    // If asking a specific question, likely NOT done (unless it's just rhetorical)
+    // But if we have concluding phrases, we might want to show it ANYWAY as an option.
+    // Let's be aggressive: if it ends with "progress" or "follow-up", show it.
+    if (concludingPhrases.some(p => lowerText.includes(p))) return true;
+
+    return false;
+  };
+
+  const formatBold = (text: string) => {
+    const parts = text.split(/(\*\*.*?\*\*)/g);
+    return parts.map((part, i) => {
+      if (part.startsWith('**') && part.endsWith('**')) {
+        return <strong key={i} className="font-bold text-foreground">{part.slice(2, -2)}</strong>;
+      }
+      return part;
+    });
+  };
+
+  const RichText = ({ content }: { content: string }) => {
+    if (!content) return null;
+    return (
+      <div className="space-y-1">
+        {content.split('\n').map((line, i) => {
+          const trimmed = line.trim();
+          if (!trimmed) return <div key={i} className="h-1.5" />; // Proper spacer
+
+          if (trimmed.startsWith('•') || trimmed.startsWith('-')) {
+            return (
+              <div key={i} className="flex gap-2 pl-1">
+                <span className="text-primary font-bold leading-relaxed">•</span>
+                <span className="leading-relaxed">{formatBold(trimmed.replace(/^[•-]\s*/, ''))}</span>
+              </div>
+            );
+          }
+          return <p key={i} className="leading-relaxed">{formatBold(line)}</p>;
+        })}
+      </div>
+    );
+  };
+
+  console.log('[RENDER] ChatMessages:', chatMessages);
+
+  // ... (hooks) ...
+
+  const handleGenerateReport = async () => {
+    if (!result) return;
+    try {
+      const doc = generateMedicalReport(symptoms, result);
+      doc.save(`Pluto_Report_${new Date().toISOString().split('T')[0]}.pdf`);
+      trackEvent('DOWNLOAD_REPORT');
+    } catch (err) {
+      console.error("Report generation failed", err);
+    }
+  };
+
+  const handleAnalyze = useCallback(async (e?: React.FormEvent) => {
+    if (e) e.preventDefault()
+    if (symptoms.trim().length < 10 && !attachedImage) return
+
+    if (!hasConsented) {
+      setShowConsentModal(true)
+      return
+    }
+
+    // -- Telemetry: Submit Triage --
+    trackEvent('SUBMIT_TRIAGE', { length: symptoms.length, withImage: !!attachedImage });
+
+    setState("processing")
+    setResult(null)
+
+    try {
+      let data;
+      if (attachedImage) {
+        const res = await fetch('/api/analyze-document', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ image: attachedImage }),
+          credentials: 'include'
+        });
+        if (!res.ok) throw new Error('Document analysis failed');
+        const docData = await res.json();
+        data = {
+          matched_symptoms: docData.key_findings || [],
+          triage_level: 'info',
+          message: docData.summary || "Document analyzed successfully.",
+        };
+      } else {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/triage`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ input: symptoms }),
+          credentials: 'include'
+        });
+        if (!res.ok) throw new Error('Analysis failed');
+        data = await res.json();
+      }
+
+      const adaptedResult: AnalysisResult = {
+        // ... (mapping same as before) ...
+        summary: data.friendly_message || data.detailed_analysis || data.message || data.summary,
+        patterns: (data.matched_symptoms || data.matched_protocols || []).map((s: string) => ({
+          name: s.replace('_', ' ').replace(/\b\w/g, c => c.toUpperCase()),
+          prevalence: "Detected"
+        })),
+        severity: {
+          level: (data.triage_level || 'INFO').replace('_', ' ').toUpperCase(),
+          advice: data.home_care_tips || [data.message]
+        },
+        seekCare: data.when_to_worry || ["Consult a healthcare provider for any concerning symptoms"],
+        confidence: {
+          level: data.confidence?.level || ((attachedImage || data.ai_analysis) ? "Clinical Analysis" : "High"),
+          note: (attachedImage || data.ai_analysis)
+            ? "Based on Pluto engine analysis. Verify with a professional."
+            : "Based on verified medical knowledge base rules"
+        },
+        urgency_summary: data.urgency_rationale || data.urgency_summary || data.summary,
+        key_findings: data.what_we_know || data.key_findings || [],
+        differential_diagnosis: (data.differential_diagnosis || []).slice(0, 4).map((d: any) => ({
+          condition: d.condition,
+          likelihood: d.evidence_strength || d.likelihood || "Possible",
+          rationale: `Urgency: ${(d.urgency || 'monitor').replace('_', ' ')}`
+        })),
+        suggested_focus: data.suggested_focus || [],
+        follow_up_questions: data.follow_up_questions || [],
+        clinical_notes: data.anti_hallucination_notes?.join(' ') || data.clinical_notes || ""
+      };
+
+      setResult(adaptedResult);
+
+      // Message 1: The Clinical Data Card (Urgency, Findings, Differentials ONLY)
+      // We strip summary and questions to avoid duplication with the text message.
+      const cardMsg: ChatMessage = {
+        role: 'assistant',
+        content: "Clinical Assessment",
+        type: 'structured_analysis',
+        data: { ...adaptedResult, summary: undefined, follow_up_questions: [] }
+      };
+
+      // Message 2: Conversational Follow-up (Summary + Questions)
+      let followUpText = `${adaptedResult.summary}\n\n`;
+      if (adaptedResult.follow_up_questions?.length) {
+        followUpText += "**Next Steps:**\nTo help me narrow this down, could you tell me:\n";
+        adaptedResult.follow_up_questions.forEach(q => followUpText += `• ${q}\n`);
+      }
+      const textMsg: ChatMessage = { role: 'assistant', content: followUpText, type: 'text' };
+
+      const newMsgs: ChatMessage[] = [
+        { role: 'user', content: symptoms, type: 'text' },
+        cardMsg,
+        textMsg
+      ];
+
+      // Check conclusion immediately (e.g. for Emergency)
+      if (checkForConclusion(followUpText, adaptedResult)) {
+        newMsgs.push({ role: 'system', content: "Report Ready", type: 'report_cta', data: adaptedResult });
+      }
+
+      setChatMessages(newMsgs);
+      setState("results");
+      saveCheckup(symptoms, adaptedResult, adaptedResult.confidence.level === "AI Analysis" ? adaptedResult.summary : undefined)
+        .then(() => getHistory().then(setHistory))
+        .catch((err: any) => console.error("Failed to save to vault", err));
+
+    } catch (error: any) {
+      console.error(error);
+      setState("idle");
+    }
+  }, [symptoms, attachedImage, isAuthenticated, hasConsented]);
+
+  // 2. Update handleSendMessage (standard text messages)
+  const handleSendMessage = async () => {
+    if (!chatInput.trim()) return;
+
+    const newMessage: ChatMessage = { role: 'user', content: chatInput, type: 'text' };
+
+    // Filter out structured messages when sending to LLM API (it expects strings)
+    const apiHistory = chatMessages
+      .filter(m => m.type === 'text' || m.role === 'user') // simple heuristic
+      .map(m => ({ role: m.role, content: m.content || "" }));
+
+    const updatedHistory = [...chatMessages, newMessage];
+    setChatMessages(updatedHistory);
+    setChatInput("");
+    setIsChatLoading(true);
+
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/chat`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: [...apiHistory, { role: 'user', content: chatInput }] }), // Append new msg
+        credentials: 'include'
+      });
+
+      if (!res.ok) throw new Error('Chat failed');
+      const data = await res.json();
+
+      const assistantMessage: ChatMessage = { role: 'assistant', content: data.response_text || "...", type: 'text' };
+
+      const finalHistory = [...updatedHistory, assistantMessage];
+
+      // Check for conclusion
+      if (result && checkForConclusion(data.response_text || "", result)) {
+        finalHistory.push({ role: 'system', content: "Report Ready", type: 'report_cta', data: result });
+      }
+
+      setChatMessages(finalHistory);
+
+      if (data.updated_analysis && result) {
+        // ... (update result state logic) ...
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsChatLoading(false);
+    }
+  };
+
+  // ... (handleLoadRecord logic needs update too) ...
+  const handleLoadRecord = (record: CheckupRecord) => {
+    setSymptoms(record.symptoms);
+    setResult(record.triageResult as AnalysisResult);
+    setChatMessages([
+      { role: 'user', content: record.symptoms, type: 'text' },
+      { role: 'assistant', content: record.triageResult.summary || "Analysis Complete", type: 'structured_analysis', data: record.triageResult as AnalysisResult }
+    ]);
+    setShowHistory(false);
+    setState("results");
+  };
+
+
 
   // -- Telemetry: View Landing --
   useEffect(() => {
@@ -192,7 +439,7 @@ export default function DemoPage() {
     setIsSavingConsent(true);
     console.log('[CONSENT] Starting consent submission...');
     try {
-      const res = await fetch('http://localhost:8000/consent', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/consent`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include'
@@ -219,155 +466,7 @@ export default function DemoPage() {
     }
   }
 
-  const handleAnalyze = useCallback(async (e?: React.FormEvent) => {
-    if (e) e.preventDefault()
-    if (symptoms.trim().length < 10 && !attachedImage) return
 
-    if (!hasConsented) {
-      setShowConsentModal(true)
-      return
-    }
-
-    // -- Telemetry: Submit Triage --
-    trackEvent('SUBMIT_TRIAGE', { length: symptoms.length, withImage: !!attachedImage });
-
-    setState("processing")
-    setResult(null)
-
-    try {
-      let data;
-      if (attachedImage) {
-        const res = await fetch('/api/analyze-document', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ image: attachedImage }),
-          credentials: 'include'
-        });
-        if (!res.ok) throw new Error('Document analysis failed');
-        const docData = await res.json();
-        data = {
-          matched_symptoms: docData.key_findings || [],
-          triage_level: 'info',
-          message: docData.summary || "Document analyzed successfully.",
-        };
-      } else {
-        const res = await fetch('http://localhost:8000/triage', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ input: symptoms }),
-          credentials: 'include'
-        });
-        if (!res.ok) throw new Error('Analysis failed');
-        data = await res.json();
-      }
-
-      const adaptedResult: AnalysisResult = {
-        summary: (data.detailed_analysis || data.message),
-        patterns: (data.matched_symptoms || []).map((s: string) => ({
-          name: s.replace('_', ' ').replace(/\b\w/g, c => c.toUpperCase()),
-          prevalence: "Detected"
-        })),
-        severity: {
-          level: (data.triage_level || 'INFO').replace('_', ' ').toUpperCase(),
-          advice: [data.message]
-        },
-        seekCare: ["Consult a healthcare provider for any concerning symptoms"],
-        confidence: {
-          level: (attachedImage || data.ai_analysis) ? "Clinical Analysis" : "High",
-          note: (attachedImage || data.ai_analysis)
-            ? "Based on Pluto engine analysis. Verify with a professional."
-            : "Based on verified medical knowledge base rules"
-        },
-        urgency_summary: data.urgency_summary,
-        key_findings: data.key_findings || [],
-        differential_diagnosis: data.differential_diagnosis || [],
-        suggested_focus: data.suggested_focus || [],
-        follow_up_questions: data.follow_up_questions || [],
-        clinical_notes: data.clinical_notes || ""
-      };
-
-      setResult(adaptedResult);
-
-      const initialAssistantMessage = (adaptedResult.summary || "Here is my clinical assessment.");
-      const followUps = adaptedResult.follow_up_questions?.length
-        ? "\n\n**To help me narrow this down, could you tell me more about:**\n" + adaptedResult.follow_up_questions.map((q: string) => `• ${q}`).join("\n")
-        : "";
-
-      setChatMessages([
-        { role: 'user', content: symptoms },
-        { role: 'assistant', content: initialAssistantMessage + followUps }
-      ]);
-      setState("results");
-
-      saveCheckup(symptoms, adaptedResult, adaptedResult.confidence.level === "AI Analysis" ? adaptedResult.summary : undefined)
-        .then(() => getHistory().then(setHistory))
-        .catch((err: any) => console.error("Failed to save to vault", err));
-
-    } catch (error: any) {
-      console.error(error);
-      setState("idle");
-    }
-  }, [symptoms, attachedImage, isAuthenticated, hasConsented]);
-
-  const handleSendMessage = async () => {
-    if (!chatInput.trim()) return;
-
-    const newMessage = { role: 'user', content: chatInput };
-    const newHistory = [...chatMessages, newMessage];
-
-    setChatMessages(newHistory);
-    setChatInput("");
-    setIsChatLoading(true);
-
-    try {
-      const res = await fetch('http://localhost:8000/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: newHistory }),
-        credentials: 'include'
-      });
-
-      if (!res.ok) throw new Error('Chat failed');
-      const data = await res.json();
-
-      const assistantMessage = { role: 'assistant', content: data.response_text || "..." };
-      setChatMessages([...newHistory, assistantMessage]);
-
-      if (data.updated_analysis && result) {
-        setResult((prev) => {
-          if (!prev) return null;
-          return {
-            ...prev,
-            severity: {
-              level: data.updated_analysis.triage_level ? data.updated_analysis.triage_level.toUpperCase() : prev.severity.level,
-              advice: prev.severity.advice
-            },
-            urgency_summary: data.updated_analysis.urgency_summary || prev.urgency_summary,
-            differential_diagnosis: data.updated_analysis.differential_diagnosis || prev.differential_diagnosis,
-            suggested_focus: data.updated_analysis.suggested_focus || prev.suggested_focus,
-            key_findings: data.updated_analysis.key_findings || prev.key_findings,
-            follow_up_questions: data.updated_analysis.follow_up_questions || [],
-            clinical_notes: data.updated_analysis.clinical_notes || ""
-          }
-        });
-      }
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setIsChatLoading(false);
-    }
-  };
-
-  const handleLoadRecord = (record: CheckupRecord) => {
-    setSymptoms(record.symptoms);
-    setResult(record.triageResult as AnalysisResult);
-    setChatMessages([
-      { role: 'user', content: record.symptoms },
-      { role: 'assistant', content: record.triageResult.summary || "Here is the historical assessment." }
-    ]);
-    setShowHistory(false);
-    setState("results");
-  };
 
   const handleEdit = useCallback(() => {
     setState("editing")
@@ -526,148 +625,191 @@ export default function DemoPage() {
                 </motion.div>
               )}
 
-              {state === "results" && result && (
-                <motion.div key="results" className="space-y-6 pb-8">
-                  <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="bg-card border border-border rounded-xl shadow-sm overflow-hidden">
-                    <div className="bg-secondary/30 border-b border-border px-6 py-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
-                      <div className="flex items-center gap-2.5">
-                        <div className="bg-primary/10 p-2 rounded-lg"><Activity className="size-5 text-primary" /></div>
-                        <div>
-                          <h2 className="text-foreground font-semibold text-base">Clinical Assessment</h2>
-                          <p className="text-xs text-muted-foreground tracking-tight">{new Date().toLocaleDateString()} • {result.confidence.level}</p>
-                        </div>
+              {state === "results" && (
+                <motion.div key="results" className="flex flex-col h-full relative pb-32">
+                  <div className="flex-1 overflow-y-auto space-y-6 p-4">
+                    {/* Chat Header / Actions */}
+                    <div className="flex justify-between items-center bg-secondary/30 p-3 rounded-xl mb-4 border border-border/50">
+                      <div className="flex items-center gap-2">
+                        <div className="bg-primary/10 p-1.5 rounded-lg"><Activity className="size-4 text-primary" /></div>
+                        <span className="text-sm font-semibold">Live Consultation</span>
                       </div>
-                      <div className="flex items-center gap-3">
-                        <button onClick={() => generateMedicalReport(symptoms, result, crypto.randomUUID(), Date.now())} className="text-xs font-bold bg-secondary hover:bg-secondary/80 px-4 py-2 rounded-lg transition-all flex items-center gap-2">
-                          <FileDown className="size-4" /> EXPORT
+                      <div className="flex gap-2">
+                        <button
+                          onClick={handleGenerateReport}
+                          className="text-xs font-bold bg-background hover:bg-secondary border border-border px-3 py-1.5 rounded-lg transition-all flex items-center gap-2"
+                        >
+                          <FileDown className="size-3.5" /> Report
                         </button>
-                        <span className={`px-3 py-1 rounded-full text-xs font-black tracking-widest ${result.severity.level.includes('EMERGENCY') || result.severity.level.includes('URGENT') ? 'bg-red-500 text-white' : result.severity.level.includes('MONITOR') ? 'bg-amber-500 text-white' : 'bg-green-500 text-white'}`}>
-                          {result.severity.level}
-                        </span>
+                        <button onClick={() => setState("idle")} className="text-xs font-bold text-muted-foreground hover:text-foreground px-3 py-1.5">
+                          New
+                        </button>
                       </div>
                     </div>
 
-                    <div className="p-6 space-y-6">
-                      {result.urgency_summary && (
-                        <div className="p-4 rounded-xl bg-amber-500/5 border border-amber-500/10">
-                          <h3 className="text-xs font-black text-amber-500 uppercase tracking-widest mb-1.5">Findings Context</h3>
-                          <p className="text-sm text-foreground leading-relaxed">{result.urgency_summary}</p>
-                        </div>
-                      )}
+                    {/* Chat Messages Stream */}
+                    {chatMessages.map((msg, idx) => (
+                      <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        key={idx}
+                        className={`flex gap-3 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                      >
+                        {msg.role === 'assistant' && (
+                          <div className="size-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0 mt-1">
+                            <Sparkles className="size-4 text-primary" />
+                          </div>
+                        )}
 
-                      {result.differential_diagnosis && result.differential_diagnosis.length > 0 && (
-                        <div className="space-y-3">
-                          <h3 className="text-xs font-black text-muted-foreground uppercase tracking-widest">Differential Analysis</h3>
-                          <div className="grid gap-3">
-                            {result.differential_diagnosis.slice(0, 4).map((d, i) => (
-                              <div key={i} className="p-4 bg-secondary/20 rounded-xl border border-border/50">
-                                <div className="flex justify-between items-start mb-1.5">
-                                  <span className="font-bold text-base">{d.condition}</span>
-                                  <span className={`text-[10px] font-black px-2 py-0.5 rounded bg-primary/10 text-primary tracking-widest uppercase`}>{d.likelihood} Confidence</span>
+                        {msg.type === 'report_cta' ? (
+                          <div className="max-w-[85%] md:max-w-[400px] w-full">
+                            <motion.div
+                              initial={{ scale: 0.9, opacity: 0 }}
+                              animate={{ scale: 1, opacity: 1 }}
+                              className="bg-card border border-border rounded-2xl p-6 shadow-lg text-center"
+                            >
+                              <FileDown className="size-10 text-primary mx-auto mb-3" />
+                              <h3 className="text-lg font-bold mb-1">Consultation Complete</h3>
+                              <p className="text-sm text-muted-foreground mb-4">Your clinical report is ready for download.</p>
+                              <Button onClick={handleGenerateReport} className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 font-bold text-white rounded-xl h-12 shadow-md hover:shadow-lg transition-all">
+                                Download PDF Report
+                              </Button>
+                            </motion.div>
+                          </div>
+                        ) : msg.type === 'structured_analysis' && msg.data ? (
+                          <div className="max-w-[90%] md:max-w-[600px] w-full">
+                            <div className={`flex flex-col bg-card border border-border rounded-xl shadow-sm overflow-hidden`}>
+                              {/* Urgency Header */}
+                              <div className={`px-4 py-3 flex items-center justify-between border-b border-border/50 ${msg.data.severity.level.includes('EMERGENCY') ? 'bg-red-500/10' :
+                                msg.data.severity.level.includes('URGENT') ? 'bg-amber-500/10' : 'bg-green-500/10'
+                                }`}>
+                                <div className="flex items-center gap-2">
+                                  <Shield className={`size-4 ${msg.data.severity.level.includes('EMERGENCY') ? 'text-red-500' :
+                                    msg.data.severity.level.includes('URGENT') ? 'text-amber-500' : 'text-green-500'
+                                    }`} />
+                                  <span className={`text-sm font-bold tracking-tight ${msg.data.severity.level.includes('EMERGENCY') ? 'text-red-600' :
+                                    msg.data.severity.level.includes('URGENT') ? 'text-amber-600' : 'text-green-600'
+                                    }`}>
+                                    STATUS: {msg.data.severity.level}
+                                  </span>
                                 </div>
-                                <p className="text-sm text-muted-foreground leading-relaxed">{d.rationale}</p>
                               </div>
-                            ))}
-                          </div>
-                        </div>
-                      )}
 
-                      {result.follow_up_questions && result.follow_up_questions.length > 0 && (
-                        <div className="space-y-3">
-                          <h3 className="text-xs font-black text-primary uppercase tracking-widest">Questions to Clarify Diagnosis</h3>
-                          <div className="bg-primary/5 border border-primary/10 rounded-xl p-4">
-                            <ul className="space-y-2">
-                              {result.follow_up_questions.map((q, i) => (
-                                <li key={i} className="flex gap-2 text-sm text-foreground">
-                                  <span className="text-primary font-bold shrink-0">•</span>
-                                  <span>{q}</span>
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
-                        </div>
-                      )}
+                              <div className="p-5 space-y-4">
+                                {/* Key Findings */}
+                                {msg.data.key_findings && msg.data.key_findings.length > 0 && (
+                                  <div className="bg-secondary/30 rounded-lg p-3">
+                                    <p className="text-xs font-bold text-muted-foreground uppercase mb-2">Key Findings</p>
+                                    <div className="flex flex-wrap gap-2">
+                                      {msg.data.key_findings.map((f, i) => (
+                                        <span key={i} className="text-xs bg-background border border-border px-2 py-1 rounded-md">{f}</span>
+                                      ))}
+                                    </div>
+                                  </div>
+                                )}
 
-                      {result.clinical_notes && (
-                        <div className="p-5 rounded-xl bg-blue-500/5 border border-blue-500/10 animate-in fade-in slide-in-from-bottom-2 duration-500 shadow-sm">
-                          <div className="flex items-center gap-2 mb-2">
-                            <Sparkles className="size-4 text-blue-500" />
-                            <h3 className="text-xs font-black text-blue-500 uppercase tracking-widest">Clinical Intelligence Note</h3>
+                                {/* Differentials */}
+                                {msg.data.differential_diagnosis && msg.data.differential_diagnosis.length > 0 && (
+                                  <div>
+                                    <p className="text-xs font-bold text-muted-foreground uppercase mb-2">Possibilities to Consider</p>
+                                    <div className="grid gap-2">
+                                      {msg.data.differential_diagnosis.slice(0, 3).map((d, i) => (
+                                        <div key={i} className="flex justify-between items-center bg-secondary/20 p-2.5 rounded-lg border border-border/50">
+                                          <span className="text-sm font-semibold">{d.condition}</span>
+                                          <span className="text-[10px] font-bold uppercase tracking-wider text-primary bg-primary/10 px-2 py-0.5 rounded">{d.likelihood}</span>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
                           </div>
-                          <p className="text-sm text-foreground leading-relaxed font-medium">
-                            {result.clinical_notes}
-                          </p>
-                        </div>
-                      )}
-                    </div>
-                  </motion.div>
+                        ) : (
+                          <div className={`max-w-[85%] rounded-2xl p-4 text-sm leading-relaxed ${msg.role === 'user'
+                            ? 'bg-primary text-primary-foreground rounded-tr-sm whitespace-pre-wrap'
+                            : 'bg-card border border-border/50 text-foreground rounded-tl-sm shadow-sm'
+                            }`}>
+                            {msg.role === 'assistant' ? <RichText content={msg.content} /> : msg.content}
+                          </div>
+                        )}
+                      </motion.div>
+                    ))}
 
-                  <div className="flex justify-center gap-4">
-                    <button onClick={handleEdit} className="text-sm font-bold text-primary hover:underline flex items-center gap-2">
-                      <Pencil className="size-4" /> EDIT SYMPTOMS
-                    </button>
-                    <button onClick={() => setState("idle")} className="text-sm font-bold text-muted-foreground hover:text-foreground">
-                      START OVER
-                    </button>
+                    {/* Typing Indicator */}
+                    {isChatLoading && (
+                      <div className="flex gap-3">
+                        <div className="size-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0 mt-1">
+                          <Sparkles className="size-4 text-primary" />
+                        </div>
+                        <div className="bg-card border border-border/50 px-4 py-3 rounded-2xl rounded-tl-sm flex gap-1 items-center">
+                          <span className="size-1.5 bg-primary/40 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                          <span className="size-1.5 bg-primary/40 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                          <span className="size-1.5 bg-primary/40 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                        </div>
+                      </div>
+                    )}
+
+                    <div className="h-4" /> {/* Spacer */}
                   </div>
                 </motion.div>
               )}
-            </AnimatePresence>
-          </div>
-        </div>
 
-        <div className="fixed bottom-0 left-0 right-0 bg-gradient-to-t from-background via-background to-transparent p-4 md:p-6 pb-[15px] z-50">
-          <div className="max-w-3xl mx-auto relative group">
-            <div className="relative glass-morphism border border-white/20 rounded-[2.5rem] shadow-3xl overflow-hidden transition-all duration-500 group-within:ring-4 group-within:ring-primary/10">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 blur-3xl -mr-16 -mt-16 transition-transform duration-500 group-within:scale-150" />
+              <div className="fixed bottom-0 left-0 right-0 bg-gradient-to-t from-background via-background to-transparent p-4 md:p-6 pb-[15px] z-50">
+                <div className="max-w-3xl mx-auto relative group">
+                  <div className="relative glass-morphism border border-white/20 rounded-[2.5rem] shadow-3xl overflow-hidden transition-all duration-500 group-within:ring-4 group-within:ring-primary/10">
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 blur-3xl -mr-16 -mt-16 transition-transform duration-500 group-within:scale-150" />
 
-              <textarea
-                id="symptom-textarea"
-                ref={textareaRef}
-                value={state === "results" ? chatInput : symptoms}
-                onChange={state === "results" ? (e) => setChatInput(e.target.value) : handleSymptomsChange}
-                onFocus={handleFocus}
-                onKeyDown={(e) => {
-                  if (state === "results") {
-                    if (e.key === "Enter" && !e.shiftKey) {
-                      e.preventDefault();
-                      handleSendMessage();
-                    }
-                  } else {
-                    handleKeyDown(e);
-                  }
-                }}
-                placeholder={state === "results" ? "Ask a clinical follow-up..." : "Describe your symptoms in detail..."}
-                className="w-full pl-8 pr-40 py-6 bg-transparent resize-none focus:outline-none text-lg text-foreground placeholder:text-muted-foreground/50 transition-all min-h-[80px]"
-                rows={1}
-              />
+                    <textarea
+                      id="symptom-textarea"
+                      ref={textareaRef}
+                      value={state === "results" ? chatInput : symptoms}
+                      onChange={state === "results" ? (e) => setChatInput(e.target.value) : handleSymptomsChange}
+                      onFocus={handleFocus}
+                      onKeyDown={(e) => {
+                        if (state === "results") {
+                          if (e.key === "Enter" && !e.shiftKey) {
+                            e.preventDefault();
+                            handleSendMessage();
+                          }
+                        } else {
+                          handleKeyDown(e);
+                        }
+                      }}
+                      placeholder={state === "results" ? "Ask a clinical follow-up..." : "Describe your symptoms in detail..."}
+                      className="w-full pl-8 pr-40 py-6 bg-transparent resize-none focus:outline-none text-lg text-foreground placeholder:text-muted-foreground/50 transition-all min-h-[80px]"
+                      rows={1}
+                    />
 
-              <div className="absolute right-4 bottom-4 flex items-center gap-3">
-                <button
-                  id="voice-triage-button"
-                  aria-label={isRecording ? "Stop recording" : "Start voice triage"}
-                  onClick={toggleRecording}
-                  className={`p-3.5 rounded-2xl transition-all duration-300 ${isRecording
-                    ? 'bg-red-500 text-white shadow-lg shadow-red-500/20'
-                    : 'bg-secondary/50 hover:bg-secondary text-muted-foreground border border-white/10'
-                    }`}
-                >
-                  {isRecording ? <div className="size-5 bg-white rounded-sm animate-pulse" /> : <Mic className="size-5" />}
-                </button>
-                <button
-                  id="submit-triage-button"
-                  aria-label="Send symptoms"
-                  onClick={state === "results" ? handleSendMessage : handleAnalyze}
-                  disabled={state === "processing" || (state !== "results" && !canSubmit)}
-                  className={`size-14 rounded-2xl flex items-center justify-center transition-all duration-300 shadow-2xl ${canSubmit || state === "results"
-                    ? 'primary-gradient text-white shadow-primary/20 hover:scale-105 active:scale-95'
-                    : 'bg-secondary/30 text-muted-foreground/30 border border-white/5 cursor-not-allowed'
-                    }`}
-                >
-                  <ArrowRight className="size-7" />
-                </button>
+                    <div className="absolute right-4 bottom-4 flex items-center gap-3">
+                      <button
+                        id="voice-triage-button"
+                        aria-label={isRecording ? "Stop recording" : "Start voice triage"}
+                        onClick={toggleRecording}
+                        className={`p-3.5 rounded-2xl transition-all duration-300 ${isRecording
+                          ? 'bg-red-500 text-white shadow-lg shadow-red-500/20'
+                          : 'bg-secondary/50 hover:bg-secondary text-muted-foreground border border-white/10'
+                          }`}
+                      >
+                        {isRecording ? <div className="size-5 bg-white rounded-sm animate-pulse" /> : <Mic className="size-5" />}
+                      </button>
+                      <button
+                        id="submit-triage-button"
+                        aria-label="Send symptoms"
+                        onClick={state === "results" ? handleSendMessage : handleAnalyze}
+                        disabled={state === "processing" || (state !== "results" && !canSubmit)}
+                        className={`size-14 rounded-2xl flex items-center justify-center transition-all duration-300 shadow-2xl ${canSubmit || state === "results"
+                          ? 'primary-gradient text-white shadow-primary/20 hover:scale-105 active:scale-95'
+                          : 'bg-secondary/30 text-muted-foreground/30 border border-white/5 cursor-not-allowed'
+                          }`}
+                      >
+                        <ArrowRight className="size-7" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
               </div>
-            </div>
+            </AnimatePresence>
           </div>
         </div>
       </motion.div>
@@ -699,6 +841,6 @@ export default function DemoPage() {
           </motion.div>
         )}
       </AnimatePresence>
-    </div>
+    </div >
   )
 }

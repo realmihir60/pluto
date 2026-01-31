@@ -20,9 +20,19 @@ Pluto Health is a **safety-first clinical decision support system** designed to 
 
 ---
 
-## 🚀 What's New in v4.1.0 (Launch Release)
+## 🚀 What's New in v4.2.0 (Polished Release)
 
-### 🛡️ Safety Override System
+### 💬 Rich Consultation Interface
+- **Smart Text Formatting**: Markdown support for clear, structured clinical questions.
+- **Visual Triage Cards**: Immediate visual feedback on Urgency, Key Findings, and Differentials.
+- **Natural Interaction**: "Two-Message" system separates hard clinical data from empathetic conversational follow-ups.
+
+### 📄 Assessment Reports
+- **Automatic PDF Generation**: Downloadable clinical summary generated instantly upon consultation conclusion.
+- **Smart Triggers**: System detects conversation end or high-urgency states to prompt report download.
+- **Professional Format**: Vercel-ready PDF generation with vector graphics and structured layout.
+
+### 🛡️ Safety Override System (Enhanced)
 The Clinical Reasoning Engine now includes **6 hard safety rules** that trigger BEFORE symptom matching:
 
 | Rule | Trigger Pattern | Result |
@@ -34,89 +44,44 @@ The Clinical Reasoning Engine now includes **6 hard safety rules** that trigger 
 | **DVT Risk** | Flight/immobility + leg symptoms | ⚠️ URGENT |
 | **Metabolic Alert** | Sweating + tremor in adult | ⚠️ URGENT |
 
-### 📊 Validation Results
-- **87.5% pass rate** on 24 stress test edge cases
-- **100% emergency detection** (MI, Stroke, SAH, Meningitis, Cauda Equina)
-- **100% deceptive-critical detection** (DVT, Thunderclap, Cardiac mimic)
-- **0 under-triage** of dangerous conditions
-
 ---
 
-## 🏗️ Architecture: The Local Hybrid Model
+## 🏗️ Architecture: Hybrid Vercel + Python
 
-Pluto operates in a **Hybrid Local Environment** to ensure zero-latency response times and maximum data sovereignty.
+Pluto operates in a **Hybrid Environment**, deployable to Vercel with a Python Serverless backend.
 
 ### System Stack
-1. **Frontend (Port 3000)**: Next.js 15 (React 19) with premium glassmorphism UI
-2. **Clinical Brain (Port 8000)**: Python FastAPI with 3-stage reasoning engine
-3. **Unified Auth Bridge**: Shared Auth.js session between JS and Python
-4. **Data Layer**: PostgreSQL (Supabase) via Prisma + SQLModel
+1.  **Frontend**: Next.js 15 (React 19) with `framer-motion` & `lucide-react`.
+2.  **Backend**: FastAPI (Python 3.10+) running as Vercel Serverless Functions (`/api/*`).
+3.  **Data Layer**: PostgreSQL (Supabase) + Prisma.
+4.  **AI Layer**: Groq Llama 3.3 70B (Orchestrated by Python Engine).
 
 ```mermaid
 graph TD
-    A[Next.js Client :3000] -->|POST /api/triage| B[FastAPI Backend :8000]
-    B -->|Stage 0| C[🛡️ Safety Overrides]
-    C -->|Stage 1| D[Protocol Classifier]
-    D -->|Stage 2| E[Criteria Matrix]
-    E -->|Stage 3| F[Urgency Computer]
-    F -->|Enrich| G[Groq Llama 3.3 70B]
-    G -->|JSON Response| H[Next.js Client]
+    A[Client UI] -->|/api/chat| B[Vercel Serverless (FastAPI)]
+    B -->|Clinical Logic| C[Reasoning Engine]
+    C -->|Completion| D[Groq LLM]
+    B -->|Response| A
 ```
 
 ---
 
-## ⚡ Quick Start (Local Setup)
+## ⚡ Quick Start
 
-### 1. Prerequisites
-- **Node.js**: 20.x or higher
-- **Python**: 3.10 or higher
-- **PostgreSQL**: Local instance or Supabase
-- **Groq API Key**: Obtain from [Groq Cloud](https://console.groq.com/)
-
-### 2. Installation
+### 1. Local Development
 ```bash
-# Clone the repository
-git clone https://github.com/realmihir60/pluto.git
-cd pluto
+# Terminal 1: Frontend
+npm run dev
 
-# Install Node dependencies
-npm install
-npx prisma generate
-
-# Install Python dependencies
-python3 -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
-```
-
-### 3. Environment Configuration
-Create a `.env` file in the root directory:
-```env
-# API Keys
-GROQ_API_KEY=gsk_...
-
-# Database (Supabase recommended)
-DATABASE_URL="postgresql://..."
-
-# Auth (NextAuth v5)
-AUTH_SECRET="your_shared_secret"
-AUTH_URL="http://localhost:3000"
-
-# Infrastructure
-NEXT_PUBLIC_API_URL="http://localhost:8000"
-```
-
-### 4. Running the Dev Environment
-
-**Terminal 1 (Backend):**
-```bash
+# Terminal 2: Backend (Local FastAPI)
 ./run_local_backend.sh
 ```
 
-**Terminal 2 (Frontend):**
-```bash
-npm run dev
-```
+### 2. Vercel Deployment
+The project is configured for zero-config Vercel deployment.
+- `vercel.json` maps API routes to `api/index.py`.
+- `requirements.txt` installs Python dependencies automatically.
+
 
 ---
 
