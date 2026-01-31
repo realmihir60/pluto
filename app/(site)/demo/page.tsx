@@ -183,7 +183,7 @@ export default function DemoPage() {
           message: docData.summary || "Document analyzed successfully.",
         };
       } else {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/triage`, {
+        const res = await fetch('/api/triage', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ input: symptoms }),
@@ -282,7 +282,7 @@ export default function DemoPage() {
     setIsChatLoading(true);
 
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/chat`, {
+      const res = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ messages: [...apiHistory, { role: 'user', content: chatInput }] }), // Append new msg
@@ -444,9 +444,11 @@ export default function DemoPage() {
     setIsSavingConsent(true);
     console.log('[CONSENT] Starting consent submission...');
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/consent`, {
+      // Submit Consent
+      const res = await fetch('/api/consent', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ user_id: session?.user?.email || "anonymous" }),
         credentials: 'include'
       });
 
