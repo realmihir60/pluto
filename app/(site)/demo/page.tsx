@@ -8,7 +8,12 @@ import {
   Activity,
   Sparkles,
   Shield,
-  FileDown
+  FileDown,
+  Mic,
+  Lock,
+  History,
+  Clock,
+  ArrowRight
 } from "lucide-react"
 import { saveCheckup, getHistory, CheckupRecord } from "@/lib/vault"
 import { generateMedicalReport } from "@/lib/report-generator"
