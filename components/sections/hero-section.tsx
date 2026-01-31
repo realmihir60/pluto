@@ -47,7 +47,7 @@ export function HeroSection() {
           className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full glass border border-primary/20 text-[13px] font-semibold text-primary mb-10 shadow-lg shadow-primary/5"
         >
           <Sparkles className="size-3.5 fill-primary" />
-          <span>Next-Generation Clinical Intelligence</span>
+          <span>Clinical Reasoning Engine v4.1 — 87.5% Validated</span>
         </motion.div>
 
         {/* Headline with Gradient Text */}

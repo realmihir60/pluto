@@ -22,6 +22,6 @@ async def save_consent(
         user.has_consented = True
         db.add(user)
         db.commit()
-        return {"status": "success", "message": "Consent recorded"}
+        return {"success": True, "message": "Consent recorded"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

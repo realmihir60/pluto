@@ -17,13 +17,7 @@ async function getUser(email: string) {
 
 export const { auth, signIn, signOut, handlers } = NextAuth({
     ...authConfig,
-    session: {
-        strategy: 'jwt',
-        maxAge: 30 * 24 * 60 * 60, // 30 days
-    },
-    jwt: {
-        // We ensure HS256 for compatibility with standard PyJWT
-    },
+    // Providers must be defined here as they use Node modules (bcrypt, prisma)
     providers: [
         Credentials({
             async authorize(credentials) {
@@ -58,22 +52,4 @@ export const { auth, signIn, signOut, handlers } = NextAuth({
             },
         }),
     ],
-    callbacks: {
-        async jwt({ token, user }) {
-            if (user) {
-                token.id = user.id;
-                token.hasConsented = (user as any).hasConsented;
-                token.isAdmin = (user as any).isAdmin || false;
-            }
-            return token;
-        },
-        async session({ session, token }) {
-            if (session.user) {
-                (session.user as any).id = token.id as string;
-                (session.user as any).hasConsented = token.hasConsented as boolean;
-                (session.user as any).isAdmin = token.isAdmin as boolean;
-            }
-            return session;
-        },
-    },
 });

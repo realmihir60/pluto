@@ -1,139 +1,1086 @@
 {
     "triage_protocols": [
         {
+            "id": "headache",
             "symptom": "Headache",
             "must_ask_questions": [
                 "Did the pain reach its maximum intensity instantly (like a thunderclap)?",
                 "Do you have a fever, stiff neck, or confusion?",
-                "Is this the 'worst headache of your life' or significantly different from usual?"
+                "Is this the 'worst headache of your life'?",
+                "Have you had any recent head trauma?",
+                "Do you notice the headache is worse in the morning?",
+                "Are you experiencing visual changes like flashing lights or blind spots?"
             ],
             "red_flags": [
                 "Thunderclap onset (seconds to peak)",
                 "Fever with neck stiffness",
                 "New onset > 50 years old",
                 "Neurological deficit (slurred speech, weakness)",
-                "History of cancer/HIV"
+                "History of cancer/HIV",
+                "Papilledema or vision changes",
+                "Recent head trauma",
+                "Worse when lying down"
             ],
-            "green_flags_do_not_escalate": [
-                "Gradual onset",
+            "green_flags": [
+                "Gradual onset over hours",
                 "Identical to previous diagnosed migraine/tension",
                 "No fever/neck stiffness",
-                "Normal neurological exam (self-reported)"
+                "Normal neurological function",
+                "Responds to OTC pain relief"
+            ],
+            "differential_diagnosis": [
+                {
+                    "condition": "Tension Headache",
+                    "urgency": "home_care"
+                },
+                {
+                    "condition": "Migraine",
+                    "urgency": "monitor_followup"
+                },
+                {
+                    "condition": "Cluster Headache",
+                    "urgency": "schedule_appointment"
+                },
+                {
+                    "condition": "Subarachnoid Hemorrhage",
+                    "urgency": "emergency"
+                },
+                {
+                    "condition": "Meningitis",
+                    "urgency": "emergency"
+                },
+                {
+                    "condition": "Brain Tumor",
+                    "urgency": "urgent"
+                }
             ],
             "premature_closure_trap": {
                 "benign_mimic": "Migraine",
                 "serious_condition": "Subarachnoid Hemorrhage (SAH)",
-                "differentiator_data_point": "Time to Peak Intensity",
-                "rule": "IF onset is 'Thunderclap' (seconds to peak) THEN escalate immediately, even if history of migraine exists."
+                "key_differentiator": "Time to Peak Intensity",
+                "rule": "IF onset is 'Thunderclap' THEN escalate immediately, even with migraine history."
             }
         },
         {
+            "id": "chest_pain",
             "symptom": "Chest Pain",
             "must_ask_questions": [
                 "Does the pain get worse when you walk, climb stairs, or exert yourself?",
                 "Are you sweaty, pale, or feeling like you might pass out?",
                 "Is the pain reproducible by pressing on a specific spot?",
-                "Does the pain feel like a tearing sensation radiating to your back?"
+                "Does the pain feel like a tearing sensation radiating to your back?",
+                "Does the pain change when you breathe in deeply?",
+                "Do you have a history of blood clots, recent surgery, or long travel?"
             ],
             "red_flags": [
                 "Exertional worsening",
                 "Diaphoresis (cold sweat) or pallor",
-                "Radiation to back (tearing)",
-                "History of heart attack/PE"
+                "Radiation to back (tearing quality)",
+                "History of heart attack/PE/DVT",
+                "Syncope or near-syncope",
+                "Age > 40 with cardiac risk factors",
+                "Pleuritic pain with recent immobility",
+                "Hemoptysis (coughing blood)"
             ],
-            "green_flags_do_not_escalate": [
+            "green_flags": [
                 "Reproducible by palpation",
                 "Positional (musculoskeletal)",
                 "Young (<30) with no risk factors",
-                "No autonomic symptoms (sweat/nausea)"
+                "No autonomic symptoms (sweat/nausea)",
+                "Pain worsens only with certain movements"
+            ],
+            "differential_diagnosis": [
+                {
+                    "condition": "Musculoskeletal Pain",
+                    "urgency": "home_care"
+                },
+                {
+                    "condition": "GERD/Heartburn",
+                    "urgency": "home_care"
+                },
+                {
+                    "condition": "Costochondritis",
+                    "urgency": "home_care"
+                },
+                {
+                    "condition": "Anxiety/Panic Attack",
+                    "urgency": "monitor_followup"
+                },
+                {
+                    "condition": "Angina",
+                    "urgency": "urgent"
+                },
+                {
+                    "condition": "Myocardial Infarction",
+                    "urgency": "emergency"
+                },
+                {
+                    "condition": "Pulmonary Embolism",
+                    "urgency": "emergency"
+                },
+                {
+                    "condition": "Aortic Dissection",
+                    "urgency": "emergency"
+                },
+                {
+                    "condition": "Pericarditis",
+                    "urgency": "urgent"
+                }
             ],
             "premature_closure_trap": {
-                "benign_mimic": "Gastroesophageal Reflux Disease (GERD)",
-                "serious_condition": "Myocardial Infarction (Inferior)",
-                "differentiator_data_point": "Exertional Component",
-                "rule": "IF pain worsens with exertion THEN assume Angina, NOT GERD. (Response to antacids is NOT a reliable differentiator)."
+                "benign_mimic": "GERD",
+                "serious_condition": "MI or Angina",
+                "key_differentiator": "Exertional Component",
+                "rule": "IF pain worsens with exertion THEN assume cardiac, NOT GERD."
             }
         },
         {
+            "id": "abdominal_pain",
             "symptom": "Abdominal Pain",
             "must_ask_questions": [
                 "Where did the pain start, and where is it now?",
                 "Does it hurt more when you move, cough, or go over a bump?",
                 "What came first: the pain or the vomiting?",
-                "Have you seen blood in your stool or vomit?"
+                "Have you seen blood in your stool or vomit?",
+                "When was your last bowel movement?",
+                "For women: Could you be pregnant? When was your last period?"
             ],
             "red_flags": [
-                "Pain migration (Periumbilical -> RLQ)",
+                "Pain migration (Periumbilical -> RLQ suggests Appendicitis)",
                 "Peritoneal signs (pain with movement/cough)",
                 "Pain started BEFORE vomiting",
-                "GI Bleeding (bloody stool/vomit)"
+                "GI Bleeding (bloody/black stool, bloody vomit)",
+                "Rigid/board-like abdomen",
+                "Severe pain out of proportion to exam",
+                "No bowel movements or gas for >24h",
+                "Positive pregnancy test with abdominal pain"
             ],
-            "green_flags_do_not_escalate": [
+            "green_flags": [
                 "Vomiting started BEFORE pain",
                 "Diarrhea dominant",
                 "No pain with movement",
-                "Able to hydrate"
+                "Able to hydrate and tolerate fluids",
+                "Soft abdomen, no guarding"
+            ],
+            "differential_diagnosis": [
+                {
+                    "condition": "Gastroenteritis",
+                    "urgency": "home_care"
+                },
+                {
+                    "condition": "Food Poisoning",
+                    "urgency": "home_care"
+                },
+                {
+                    "condition": "Constipation",
+                    "urgency": "home_care"
+                },
+                {
+                    "condition": "IBS Flare",
+                    "urgency": "monitor_followup"
+                },
+                {
+                    "condition": "Appendicitis",
+                    "urgency": "emergency"
+                },
+                {
+                    "condition": "Cholecystitis",
+                    "urgency": "urgent"
+                },
+                {
+                    "condition": "Pancreatitis",
+                    "urgency": "urgent"
+                },
+                {
+                    "condition": "Bowel Obstruction",
+                    "urgency": "emergency"
+                },
+                {
+                    "condition": "Ectopic Pregnancy",
+                    "urgency": "emergency"
+                },
+                {
+                    "condition": "Kidney Stone",
+                    "urgency": "urgent"
+                }
             ],
             "premature_closure_trap": {
-                "benign_mimic": "Gastroenteritis (Stomach Flu)",
+                "benign_mimic": "Gastroenteritis",
                 "serious_condition": "Appendicitis",
-                "differentiator_data_point": "Sequence of Symptoms (Murphy's Sequence)",
-                "rule": "IF Pain starts BEFORE Vomiting THEN suspect Appendicitis. IF Vomiting starts BEFORE Pain THEN suspect Gastroenteritis."
+                "key_differentiator": "Murphy's Sequence",
+                "rule": "IF Pain starts BEFORE Vomiting THEN suspect Appendicitis."
             }
         },
         {
+            "id": "cough",
             "symptom": "Cough",
             "must_ask_questions": [
                 "Are you short of breath at rest or when speaking?",
                 "Are you coughing up blood?",
+                "Do you have a fever?",
+                "How long have you had the cough?",
                 "Have you fainted or felt extremely lightheaded?",
-                "Is your breathing fast (count breaths for 30s)?"
+                "Have you been immobile recently (long travel, surgery, bed rest)?"
             ],
             "red_flags": [
                 "Dyspnea at rest",
                 "Hemoptysis (coughing blood)",
                 "Syncope/Lightheadedness",
-                "Respiratory Rate > 20 or HR > 100"
+                "Respiratory Rate > 24 or HR > 100",
+                "Cough > 3 weeks with weight loss",
+                "Recent immobility + sudden onset",
+                "Fever > 102°F with productive cough"
             ],
-            "green_flags_do_not_escalate": [
+            "green_flags": [
                 "No dyspnea at rest",
                 "Able to speak in full sentences",
-                "Vital signs stable (self-reported)",
-                "Duration < 3 weeks"
+                "Vital signs stable",
+                "Duration < 3 weeks",
+                "Clear/white phlegm only"
+            ],
+            "differential_diagnosis": [
+                {
+                    "condition": "Common Cold",
+                    "urgency": "home_care"
+                },
+                {
+                    "condition": "Acute Bronchitis",
+                    "urgency": "home_care"
+                },
+                {
+                    "condition": "Post-nasal Drip",
+                    "urgency": "home_care"
+                },
+                {
+                    "condition": "Allergies",
+                    "urgency": "home_care"
+                },
+                {
+                    "condition": "Pneumonia",
+                    "urgency": "urgent"
+                },
+                {
+                    "condition": "Pulmonary Embolism",
+                    "urgency": "emergency"
+                },
+                {
+                    "condition": "Lung Cancer",
+                    "urgency": "schedule_appointment"
+                },
+                {
+                    "condition": "Heart Failure",
+                    "urgency": "urgent"
+                }
             ],
             "premature_closure_trap": {
-                "benign_mimic": "Acute Bronchitis",
-                "serious_condition": "Pneumonia / Pulmonary Embolism",
-                "differentiator_data_point": "Vital Signs (Tachypnea/Tachycardia)",
-                "rule": "IF Resting Heart Rate > 100 OR Respiratory Rate > 20 THEN assume Pneumonia/PE, NOT Bronchitis."
+                "benign_mimic": "Bronchitis",
+                "serious_condition": "Pneumonia or PE",
+                "key_differentiator": "Vital Signs",
+                "rule": "IF HR > 100 OR RR > 24 THEN suspect serious cause."
             }
         },
         {
+            "id": "fatigue",
             "symptom": "Fatigue",
             "must_ask_questions": [
-                "Do you get short of breath when you do things that used to be easy?",
-                "Have you lost weight without trying, or noticed lumps?",
-                "Do you have black/tarry stools or heavy menstrual bleeding?",
-                "Is the fatigue causing you to fall asleep at dangerous times?"
+                "Do you get short of breath when doing activities that used to be easy?",
+                "Have you lost weight without trying?",
+                "Have you noticed any lumps or swollen glands?",
+                "Do you have black/tarry stools or heavy bleeding?",
+                "How is your sleep quality?",
+                "Are you feeling sad, hopeless, or losing interest in things?"
             ],
             "red_flags": [
-                "Exertional dyspnea",
-                "Unintentional weight loss / Lymphadenopathy",
-                "Signs of GI bleed / Severe anemia",
-                "Dangerous hypersomnia"
+                "Exertional dyspnea (new onset)",
+                "Unintentional weight loss > 10lbs",
+                "Lymphadenopathy (swollen glands)",
+                "Signs of GI bleed/Severe anemia",
+                "Night sweats with weight loss",
+                "Dangerous hypersomnia (falling asleep while driving)"
             ],
-            "green_flags_do_not_escalate": [
-                "Chronic/stable for months",
-                "Clear psychosocial stressor",
-                "No B-symptoms (weight loss, fevers)",
-                "Functional ADLs preserved"
+            "green_flags": [
+                "Chronic/stable for months with no new symptoms",
+                "Clear psychosocial stressor (work, family)",
+                "No B-symptoms (weight loss, fevers, night sweats)",
+                "Normal daily activities preserved",
+                "Poor sleep hygiene identified"
+            ],
+            "differential_diagnosis": [
+                {
+                    "condition": "Sleep Deprivation",
+                    "urgency": "home_care"
+                },
+                {
+                    "condition": "Stress/Burnout",
+                    "urgency": "home_care"
+                },
+                {
+                    "condition": "Depression",
+                    "urgency": "schedule_appointment"
+                },
+                {
+                    "condition": "Hypothyroidism",
+                    "urgency": "schedule_appointment"
+                },
+                {
+                    "condition": "Anemia",
+                    "urgency": "schedule_appointment"
+                },
+                {
+                    "condition": "Diabetes",
+                    "urgency": "schedule_appointment"
+                },
+                {
+                    "condition": "Lymphoma/Leukemia",
+                    "urgency": "urgent"
+                },
+                {
+                    "condition": "Heart Failure",
+                    "urgency": "urgent"
+                }
             ],
             "premature_closure_trap": {
                 "benign_mimic": "Depression",
-                "serious_condition": "Organic Disease (Anemia/Cancer/Hypothyroid)",
-                "differentiator_data_point": "Anhedonia vs. Physical Limitation",
-                "rule": "IF patient has desire to act but lacks physical energy THEN suspect Organic. IF patient lacks desire/pleasure (Anhedonia) THEN suspect Depression. IF Pallor present THEN suspect Anemia."
+                "serious_condition": "Organic Disease (Anemia/Cancer)",
+                "key_differentiator": "Anhedonia vs Physical Limitation",
+                "rule": "IF patient wants to act but lacks energy THEN suspect Organic cause."
+            }
+        },
+        {
+            "id": "dizziness",
+            "symptom": "Dizziness / Lightheadedness",
+            "must_ask_questions": [
+                "Does the room spin, or do you feel faint/unsteady?",
+                "Does it happen when you stand up quickly?",
+                "Have you fainted or nearly fainted?",
+                "Do you have any hearing changes or ringing in ears?",
+                "Are you having vision changes or trouble walking?",
+                "Are you taking any new medications?"
+            ],
+            "red_flags": [
+                "Syncope or near-syncope",
+                "Neurological symptoms (weakness, vision loss, slurred speech)",
+                "New onset atrial fibrillation",
+                "Active chest pain with dizziness",
+                "Blood pressure very low (<90 systolic)",
+                "New medication (especially cardiac/BP meds)"
+            ],
+            "green_flags": [
+                "Orthostatic (only when standing quickly)",
+                "History of benign vertigo (BPPV)",
+                "Associated with dehydration/heat",
+                "Resolves with sitting/lying down",
+                "No neurological symptoms"
+            ],
+            "differential_diagnosis": [
+                {
+                    "condition": "Orthostatic Hypotension",
+                    "urgency": "home_care"
+                },
+                {
+                    "condition": "Dehydration",
+                    "urgency": "home_care"
+                },
+                {
+                    "condition": "BPPV (Benign Vertigo)",
+                    "urgency": "home_care"
+                },
+                {
+                    "condition": "Vestibular Neuritis",
+                    "urgency": "monitor_followup"
+                },
+                {
+                    "condition": "Meniere's Disease",
+                    "urgency": "schedule_appointment"
+                },
+                {
+                    "condition": "Arrhythmia",
+                    "urgency": "urgent"
+                },
+                {
+                    "condition": "Stroke/TIA",
+                    "urgency": "emergency"
+                },
+                {
+                    "condition": "Medication Side Effect",
+                    "urgency": "schedule_appointment"
+                }
+            ],
+            "premature_closure_trap": {
+                "benign_mimic": "BPPV",
+                "serious_condition": "Posterior Stroke / Arrhythmia",
+                "key_differentiator": "Neurological Symptoms",
+                "rule": "IF any focal weakness, vision change, or speech issue THEN assume stroke."
+            }
+        },
+        {
+            "id": "shortness_of_breath",
+            "symptom": "Shortness of Breath",
+            "must_ask_questions": [
+                "Did this come on suddenly or gradually?",
+                "Can you speak in full sentences without stopping for breath?",
+                "Are you wheezing or making any abnormal sounds?",
+                "Do you have chest pain or pressure?",
+                "Have you traveled recently or been immobile?",
+                "Do you have a history of asthma, COPD, or heart problems?"
+            ],
+            "red_flags": [
+                "Sudden onset",
+                "Cannot speak in full sentences",
+                "Stridor or severe wheezing",
+                "Cyanosis (blue lips/fingers)",
+                "Tripod positioning",
+                "Altered mental status",
+                "Recent immobility with sudden onset",
+                "Chest pain accompanying SOB"
+            ],
+            "green_flags": [
+                "Gradual onset over days",
+                "Able to speak normally",
+                "Known asthma/COPD with usual symptoms",
+                "Responds to usual inhaler",
+                "Anxiety/panic attack history"
+            ],
+            "differential_diagnosis": [
+                {
+                    "condition": "Anxiety/Hyperventilation",
+                    "urgency": "home_care"
+                },
+                {
+                    "condition": "Asthma Exacerbation",
+                    "urgency": "monitor_followup"
+                },
+                {
+                    "condition": "COPD Exacerbation",
+                    "urgency": "urgent"
+                },
+                {
+                    "condition": "Pneumonia",
+                    "urgency": "urgent"
+                },
+                {
+                    "condition": "Heart Failure",
+                    "urgency": "urgent"
+                },
+                {
+                    "condition": "Pulmonary Embolism",
+                    "urgency": "emergency"
+                },
+                {
+                    "condition": "Anaphylaxis",
+                    "urgency": "emergency"
+                },
+                {
+                    "condition": "Pneumothorax",
+                    "urgency": "emergency"
+                }
+            ],
+            "premature_closure_trap": {
+                "benign_mimic": "Anxiety",
+                "serious_condition": "PE or Anaphylaxis",
+                "key_differentiator": "Onset Pattern and Risk Factors",
+                "rule": "IF sudden onset + immobility history THEN assume PE."
+            }
+        },
+        {
+            "id": "back_pain",
+            "symptom": "Back Pain",
+            "must_ask_questions": [
+                "Do you have numbness or weakness in your legs?",
+                "Are you having trouble controlling your bladder or bowels?",
+                "Did the pain start after trauma or heavy lifting?",
+                "Do you have a fever with the back pain?",
+                "Is the pain worse at night or at rest?",
+                "Have you lost weight recently without trying?"
+            ],
+            "red_flags": [
+                "Saddle anesthesia (numbness in groin)",
+                "Bladder/bowel incontinence",
+                "Progressive motor weakness",
+                "Fever with back pain",
+                "Pain worse at night/rest",
+                "History of cancer",
+                "IV drug use",
+                "Recent trauma with pain"
+            ],
+            "green_flags": [
+                "Mechanical (improves with rest/position)",
+                "No neurological symptoms",
+                "History of similar episodes",
+                "No red flag symptoms",
+                "Related to known activity/strain"
+            ],
+            "differential_diagnosis": [
+                {
+                    "condition": "Muscle Strain",
+                    "urgency": "home_care"
+                },
+                {
+                    "condition": "Degenerative Disc Disease",
+                    "urgency": "home_care"
+                },
+                {
+                    "condition": "Sciatica",
+                    "urgency": "monitor_followup"
+                },
+                {
+                    "condition": "Herniated Disc",
+                    "urgency": "schedule_appointment"
+                },
+                {
+                    "condition": "Cauda Equina Syndrome",
+                    "urgency": "emergency"
+                },
+                {
+                    "condition": "Spinal Infection",
+                    "urgency": "emergency"
+                },
+                {
+                    "condition": "Spinal Tumor",
+                    "urgency": "urgent"
+                },
+                {
+                    "condition": "Kidney Infection",
+                    "urgency": "urgent"
+                }
+            ],
+            "premature_closure_trap": {
+                "benign_mimic": "Muscle Strain",
+                "serious_condition": "Cauda Equina Syndrome",
+                "key_differentiator": "Bladder/Bowel Symptoms",
+                "rule": "IF any bladder/bowel changes THEN emergency eval required."
+            }
+        },
+        {
+            "id": "fever",
+            "symptom": "Fever",
+            "must_ask_questions": [
+                "How high is your temperature?",
+                "How long have you had the fever?",
+                "Do you have a stiff neck or severe headache?",
+                "Do you have a new rash?",
+                "Have you traveled recently or been exposed to sick contacts?",
+                "Are you immunocompromised or on chemotherapy?"
+            ],
+            "red_flags": [
+                "Temperature > 103°F (39.4°C)",
+                "Fever > 7 days",
+                "Stiff neck with fever",
+                "Petechial rash (non-blanching)",
+                "Immunocompromised status",
+                "Altered mental status",
+                "Recent surgery or hospitalization",
+                "Signs of sepsis (rapid HR, low BP)"
+            ],
+            "green_flags": [
+                "Low-grade fever < 101°F",
+                "Duration < 3 days",
+                "Clear viral syndrome (cold symptoms)",
+                "Responding to fever reducers",
+                "Normal mental status",
+                "Adequate hydration maintained"
+            ],
+            "differential_diagnosis": [
+                {
+                    "condition": "Viral Infection",
+                    "urgency": "home_care"
+                },
+                {
+                    "condition": "Flu",
+                    "urgency": "monitor_followup"
+                },
+                {
+                    "condition": "Strep Throat",
+                    "urgency": "schedule_appointment"
+                },
+                {
+                    "condition": "UTI",
+                    "urgency": "schedule_appointment"
+                },
+                {
+                    "condition": "Pneumonia",
+                    "urgency": "urgent"
+                },
+                {
+                    "condition": "Meningitis",
+                    "urgency": "emergency"
+                },
+                {
+                    "condition": "Sepsis",
+                    "urgency": "emergency"
+                }
+            ],
+            "premature_closure_trap": {
+                "benign_mimic": "Viral Syndrome",
+                "serious_condition": "Meningitis/Sepsis",
+                "key_differentiator": "Neck Stiffness + Mental Status",
+                "rule": "IF stiff neck OR confusion with fever THEN emergency."
+            }
+        },
+        {
+            "id": "rash",
+            "symptom": "Rash",
+            "must_ask_questions": [
+                "When did the rash first appear?",
+                "Is it spreading quickly?",
+                "Does it blanch (turn white) when you press on it?",
+                "Do you have a fever with the rash?",
+                "Have you started any new medications recently?",
+                "Are you having trouble breathing or swelling of face/throat?"
+            ],
+            "red_flags": [
+                "Non-blanching (petechial/purpuric)",
+                "Rapidly spreading",
+                "Fever with rash",
+                "Mucosal involvement (mouth, eyes)",
+                "Blistering or skin sloughing",
+                "Facial/throat swelling",
+                "New medication in past 2 weeks"
+            ],
+            "green_flags": [
+                "Blanching rash",
+                "No fever",
+                "Localized/not spreading",
+                "Itchy (suggests allergic)",
+                "History of eczema/contact dermatitis",
+                "No mucosal involvement"
+            ],
+            "differential_diagnosis": [
+                {
+                    "condition": "Contact Dermatitis",
+                    "urgency": "home_care"
+                },
+                {
+                    "condition": "Eczema Flare",
+                    "urgency": "home_care"
+                },
+                {
+                    "condition": "Hives (Urticaria)",
+                    "urgency": "home_care"
+                },
+                {
+                    "condition": "Viral Exanthem",
+                    "urgency": "monitor_followup"
+                },
+                {
+                    "condition": "Drug Reaction",
+                    "urgency": "urgent"
+                },
+                {
+                    "condition": "Stevens-Johnson Syndrome",
+                    "urgency": "emergency"
+                },
+                {
+                    "condition": "Meningococcemia",
+                    "urgency": "emergency"
+                },
+                {
+                    "condition": "Anaphylaxis",
+                    "urgency": "emergency"
+                }
+            ],
+            "premature_closure_trap": {
+                "benign_mimic": "Viral Rash",
+                "serious_condition": "Meningococcemia",
+                "key_differentiator": "Blanching Test",
+                "rule": "IF non-blanching + fever THEN assume sepsis until proven otherwise."
+            }
+        },
+        {
+            "id": "leg_pain",
+            "symptom": "Leg Pain / Swelling",
+            "must_ask_questions": [
+                "Is one leg more swollen than the other?",
+                "Is the affected leg warm or red?",
+                "Have you been immobile recently (travel, surgery, bed rest)?",
+                "Do you have shortness of breath or chest pain?",
+                "Does the pain get worse when you walk (claudication)?",
+                "Do you have any numbness or weakness in the leg?"
+            ],
+            "red_flags": [
+                "Unilateral swelling with warmth/redness",
+                "Recent immobility + leg pain",
+                "Accompanying chest pain or SOB",
+                "Pain at rest + pale/cold leg",
+                "Rapidly progressive weakness",
+                "History of blood clots"
+            ],
+            "green_flags": [
+                "Bilateral swelling (often dependent edema)",
+                "Related to known activity/exercise",
+                "History of similar muscle strain",
+                "No SOB or chest symptoms",
+                "Normal leg temperature and color"
+            ],
+            "differential_diagnosis": [
+                {
+                    "condition": "Muscle Strain",
+                    "urgency": "home_care"
+                },
+                {
+                    "condition": "Cramps",
+                    "urgency": "home_care"
+                },
+                {
+                    "condition": "Dependent Edema",
+                    "urgency": "monitor_followup"
+                },
+                {
+                    "condition": "Peripheral Neuropathy",
+                    "urgency": "schedule_appointment"
+                },
+                {
+                    "condition": "Deep Vein Thrombosis (DVT)",
+                    "urgency": "urgent"
+                },
+                {
+                    "condition": "Peripheral Artery Disease",
+                    "urgency": "urgent"
+                },
+                {
+                    "condition": "Acute Limb Ischemia",
+                    "urgency": "emergency"
+                },
+                {
+                    "condition": "Compartment Syndrome",
+                    "urgency": "emergency"
+                }
+            ],
+            "premature_closure_trap": {
+                "benign_mimic": "Muscle Strain",
+                "serious_condition": "DVT",
+                "key_differentiator": "Unilateral + Risk Factors",
+                "rule": "IF unilateral swelling + immobility history THEN assume DVT."
+            }
+        },
+        {
+            "id": "throat_pain",
+            "symptom": "Sore Throat",
+            "must_ask_questions": [
+                "Are you having trouble swallowing or opening your mouth?",
+                "Is your voice muffled (hot potato voice)?",
+                "Is the pain much worse on one side?",
+                "Do you have a fever?",
+                "Are you drooling or unable to swallow saliva?",
+                "Is there visible swelling in your neck?"
+            ],
+            "red_flags": [
+                "Trismus (can't open mouth)",
+                "Muffled voice",
+                "Drooling/inability to swallow",
+                "Asymmetric tonsillar swelling",
+                "Neck swelling",
+                "Stridor or difficulty breathing"
+            ],
+            "green_flags": [
+                "Mild pain, able to swallow",
+                "No fever or low-grade only",
+                "Symmetric appearance of throat",
+                "No difficulty breathing",
+                "Associated with cold symptoms"
+            ],
+            "differential_diagnosis": [
+                {
+                    "condition": "Viral Pharyngitis",
+                    "urgency": "home_care"
+                },
+                {
+                    "condition": "Strep Throat",
+                    "urgency": "schedule_appointment"
+                },
+                {
+                    "condition": "Mononucleosis",
+                    "urgency": "schedule_appointment"
+                },
+                {
+                    "condition": "Peritonsillar Abscess",
+                    "urgency": "urgent"
+                },
+                {
+                    "condition": "Epiglottitis",
+                    "urgency": "emergency"
+                },
+                {
+                    "condition": "Ludwig's Angina",
+                    "urgency": "emergency"
+                }
+            ],
+            "premature_closure_trap": {
+                "benign_mimic": "Strep Throat",
+                "serious_condition": "Peritonsillar Abscess",
+                "key_differentiator": "Trismus + Unilateral Symptoms",
+                "rule": "IF cannot open mouth OR muffled voice THEN urgent ENT eval."
+            }
+        },
+        {
+            "id": "urinary_symptoms",
+            "symptom": "Urinary Symptoms",
+            "must_ask_questions": [
+                "Do you have pain or burning when you urinate?",
+                "Is there blood in your urine?",
+                "Do you have back or flank pain?",
+                "Do you have a fever?",
+                "For men: Do you have discharge from the penis?",
+                "For women: Could you be pregnant?"
+            ],
+            "red_flags": [
+                "High fever with flank pain",
+                "Visible blood in urine",
+                "Inability to urinate",
+                "Severe pain radiating to groin",
+                "Pregnant with UTI symptoms",
+                "Confusion or altered mental status (elderly)"
+            ],
+            "green_flags": [
+                "Mild dysuria only",
+                "No fever",
+                "No back/flank pain",
+                "Clear urine or mild cloudiness",
+                "History of recurrent simple UTIs"
+            ],
+            "differential_diagnosis": [
+                {
+                    "condition": "Simple UTI",
+                    "urgency": "schedule_appointment"
+                },
+                {
+                    "condition": "Urethritis",
+                    "urgency": "schedule_appointment"
+                },
+                {
+                    "condition": "Interstitial Cystitis",
+                    "urgency": "schedule_appointment"
+                },
+                {
+                    "condition": "Kidney Stone",
+                    "urgency": "urgent"
+                },
+                {
+                    "condition": "Pyelonephritis",
+                    "urgency": "urgent"
+                },
+                {
+                    "condition": "Urinary Retention",
+                    "urgency": "urgent"
+                },
+                {
+                    "condition": "Urosepsis",
+                    "urgency": "emergency"
+                }
+            ],
+            "premature_closure_trap": {
+                "benign_mimic": "Simple UTI",
+                "serious_condition": "Pyelonephritis/Urosepsis",
+                "key_differentiator": "Fever + Flank Pain",
+                "rule": "IF fever with back pain THEN assume kidney infection."
+            }
+        },
+        {
+            "id": "vision_changes",
+            "symptom": "Vision Changes",
+            "must_ask_questions": [
+                "Did the vision change happen suddenly?",
+                "Is it affecting one eye or both?",
+                "Do you see flashing lights or floaters?",
+                "Is there a curtain or shadow covering part of your vision?",
+                "Do you have eye pain or headache?",
+                "Do you have diabetes or high blood pressure?"
+            ],
+            "red_flags": [
+                "Sudden painless vision loss",
+                "New floaters with flashes",
+                "Curtain/shadow over vision",
+                "Eye pain with red eye",
+                "Halos around lights",
+                "Double vision (diplopia)",
+                "Associated with headache or jaw pain"
+            ],
+            "green_flags": [
+                "Gradual change over months",
+                "Both eyes equally affected",
+                "Correctable with glasses",
+                "No pain or redness",
+                "History of needing new prescription"
+            ],
+            "differential_diagnosis": [
+                {
+                    "condition": "Refractive Error",
+                    "urgency": "schedule_appointment"
+                },
+                {
+                    "condition": "Dry Eyes",
+                    "urgency": "home_care"
+                },
+                {
+                    "condition": "Floaters (benign)",
+                    "urgency": "schedule_appointment"
+                },
+                {
+                    "condition": "Retinal Detachment",
+                    "urgency": "emergency"
+                },
+                {
+                    "condition": "Acute Glaucoma",
+                    "urgency": "emergency"
+                },
+                {
+                    "condition": "Central Retinal Artery Occlusion",
+                    "urgency": "emergency"
+                },
+                {
+                    "condition": "Temporal Arteritis",
+                    "urgency": "emergency"
+                },
+                {
+                    "condition": "Optic Neuritis",
+                    "urgency": "urgent"
+                }
+            ],
+            "premature_closure_trap": {
+                "benign_mimic": "Floaters",
+                "serious_condition": "Retinal Detachment",
+                "key_differentiator": "Flashes + New Floaters + Curtain",
+                "rule": "IF new floaters with flashes THEN assume retinal issue."
+            }
+        },
+        {
+            "id": "anxiety_panic",
+            "symptom": "Anxiety / Panic Symptoms",
+            "must_ask_questions": [
+                "Are you having chest pain or racing heart?",
+                "Do you feel short of breath or like you can't get enough air?",
+                "Have you fainted or nearly fainted?",
+                "Have these symptoms ever happened before?",
+                "Did something specific trigger this?",
+                "Do you have any medical conditions like heart problems or thyroid issues?"
+            ],
+            "red_flags": [
+                "First-ever episode (cannot assume anxiety)",
+                "Syncope or near-syncope",
+                "Underlying cardiac history",
+                "Symptoms at rest without clear trigger",
+                "Risk factors for PE/MI",
+                "Concerning vital signs"
+            ],
+            "green_flags": [
+                "History of panic attacks with identical symptoms",
+                "Clear situational trigger",
+                "Symptoms resolve with calming/breathing",
+                "No cardiac risk factors",
+                "Young healthy patient"
+            ],
+            "differential_diagnosis": [
+                {
+                    "condition": "Panic Attack",
+                    "urgency": "home_care"
+                },
+                {
+                    "condition": "Generalized Anxiety",
+                    "urgency": "schedule_appointment"
+                },
+                {
+                    "condition": "Hyperthyroidism",
+                    "urgency": "schedule_appointment"
+                },
+                {
+                    "condition": "Arrhythmia",
+                    "urgency": "urgent"
+                },
+                {
+                    "condition": "Pulmonary Embolism",
+                    "urgency": "emergency"
+                },
+                {
+                    "condition": "Myocardial Infarction",
+                    "urgency": "emergency"
+                }
+            ],
+            "premature_closure_trap": {
+                "benign_mimic": "Panic Attack",
+                "serious_condition": "MI/PE/Arrhythmia",
+                "key_differentiator": "First Episode + Risk Factors",
+                "rule": "IF first episode or cardiac risk factors THEN cannot assume anxiety."
+            }
+        },
+        {
+            "id": "nausea_vomiting",
+            "symptom": "Nausea / Vomiting",
+            "must_ask_questions": [
+                "Is there any blood in your vomit?",
+                "Do you have abdominal pain?",
+                "Did pain start before or after vomiting?",
+                "Do you have a severe headache with vomiting?",
+                "Are you able to keep any fluids down?",
+                "Could you be pregnant?"
+            ],
+            "red_flags": [
+                "Bloody or coffee-ground vomit",
+                "Severe abdominal pain",
+                "Projectile vomiting with headache",
+                "Unable to tolerate any fluids",
+                "Signs of dehydration",
+                "Altered mental status",
+                "Recent head trauma"
+            ],
+            "green_flags": [
+                "Mild nausea only",
+                "Able to tolerate sips of fluid",
+                "Associated with known trigger (food, motion)",
+                "No blood in vomit",
+                "Gradually improving"
+            ],
+            "differential_diagnosis": [
+                {
+                    "condition": "Gastroenteritis",
+                    "urgency": "home_care"
+                },
+                {
+                    "condition": "Food Poisoning",
+                    "urgency": "home_care"
+                },
+                {
+                    "condition": "Motion Sickness",
+                    "urgency": "home_care"
+                },
+                {
+                    "condition": "Pregnancy",
+                    "urgency": "schedule_appointment"
+                },
+                {
+                    "condition": "Gastroparesis",
+                    "urgency": "schedule_appointment"
+                },
+                {
+                    "condition": "Bowel Obstruction",
+                    "urgency": "emergency"
+                },
+                {
+                    "condition": "Increased Intracranial Pressure",
+                    "urgency": "emergency"
+                },
+                {
+                    "condition": "GI Bleed",
+                    "urgency": "emergency"
+                }
+            ],
+            "premature_closure_trap": {
+                "benign_mimic": "Gastroenteritis",
+                "serious_condition": "Bowel Obstruction / ICP",
+                "key_differentiator": "Pain Sequence + Headache",
+                "rule": "IF pain before vomiting OR projectile with headache THEN serious cause."
             }
         }
-    ]
+    ],
+    "meta": {
+        "version": "4.0.0",
+        "last_updated": "2026-01-31",
+        "total_protocols": 16,
+        "urgency_levels": [
+            "home_care",
+            "monitor_followup",
+            "schedule_appointment",
+            "urgent",
+            "emergency"
+        ]
+    }
 }

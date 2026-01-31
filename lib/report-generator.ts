@@ -51,7 +51,16 @@ export function generateMedicalReport(
 
     // Urgency Badge Text
     doc.setFontSize(11);
-    doc.setTextColor(result.severity.level.includes("URGENT") ? 200 : 0, 0, 0);
+    // Color based on urgency level: EMERGENCY/URGENT = red, MONITOR = amber, HOME_CARE = green
+    const isEmergency = result.severity.level.includes("EMERGENCY") || result.severity.level.includes("URGENT");
+    const isMonitor = result.severity.level.includes("MONITOR");
+    if (isEmergency) {
+        doc.setTextColor(200, 0, 0); // Red
+    } else if (isMonitor) {
+        doc.setTextColor(200, 150, 0); // Amber
+    } else {
+        doc.setTextColor(0, 150, 0); // Green
+    }
     doc.text(`Status: ${result.severity.level}`, margin, y);
     y += 6;
 
@@ -88,14 +97,14 @@ export function generateMedicalReport(
         doc.setFont("helvetica", "normal");
         doc.setFontSize(10);
         doc.setTextColor(0, 0, 0);
-        findings.forEach(finding => {
+        findings.slice(0, 6).forEach(finding => {
             doc.text(`• ${finding}`, margin + 5, y);
             y += 5;
         });
         y += 5;
     }
 
-    // --- Section 3: Differential Diagnosis Table ---
+    // --- Section 3: Differential Diagnosis Table (LIMITED TO 4) ---
     if (result.differential_diagnosis && result.differential_diagnosis.length > 0) {
         doc.setFont("helvetica", "bold");
         doc.setFontSize(14);
@@ -106,7 +115,7 @@ export function generateMedicalReport(
         autoTable(doc, {
             startY: y,
             head: [['Condition', 'Likelihood', 'Supporting Features']],
-            body: result.differential_diagnosis.map(d => [d.condition, d.likelihood, d.rationale]),
+            body: result.differential_diagnosis.slice(0, 4).map(d => [d.condition, d.likelihood, d.rationale]),
             theme: 'grid',
             headStyles: { fillColor: [240, 240, 240], textColor: [0, 0, 0], fontStyle: 'bold' },
             styles: { fontSize: 10, cellPadding: 3 },

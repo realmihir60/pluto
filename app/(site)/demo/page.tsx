@@ -94,17 +94,14 @@ export default function DemoPage() {
     getHistory().then(setHistory).catch(console.error);
   }, []);
 
-  // Handle session state - only redirect if EXPLICITLY unauthenticated (not during loading)
+  // Handle session state - LOG for debugging, NO client-side redirect (middleware handles it)
   useEffect(() => {
-    // Only redirect if we're sure the user is not authenticated (status must be "unauthenticated", not "loading")
-    if (status === "unauthenticated") {
-      router.push("/login");
-    }
+    console.log('[DEMO] Session status:', status, 'User:', session?.user?.email);
     // Set consent status once session is loaded
-    else if (status === "authenticated" && session?.user) {
+    if (status === "authenticated" && session?.user) {
       setHasConsented((session.user as any).hasConsented ?? false);
     }
-  }, [status, session, router]);
+  }, [status, session]);
 
   // -- Telemetry: Start Input --
   const handleSymptomsChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -193,20 +190,29 @@ export default function DemoPage() {
 
   const handleConsentSubmit = async () => {
     setIsSavingConsent(true);
+    console.log('[CONSENT] Starting consent submission...');
     try {
-      const res = await fetch('/api/v2/consent', {
+      const res = await fetch('http://localhost:8000/consent', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include'
       });
 
-      if (!res.ok) throw new Error('Consent failed');
+      console.log('[CONSENT] Response status:', res.status);
       const data = await res.json();
+      console.log('[CONSENT] Response data:', data);
+
+      if (!res.ok) throw new Error(data.message || 'Consent failed');
+
       if (data.success) {
+        console.log('[CONSENT] Success! Closing modal...');
         setHasConsented(true)
         setShowConsentModal(false)
+      } else {
+        console.warn('[CONSENT] No success flag in response:', data);
       }
     } catch (err: any) {
+      console.error('[CONSENT] Error:', err);
       alert(`Gateway Error: \n\n${err.message || 'Connection failed'}`);
     } finally {
       setIsSavingConsent(false);
@@ -245,7 +251,7 @@ export default function DemoPage() {
           message: docData.summary || "Document analyzed successfully.",
         };
       } else {
-        const res = await fetch('/api/v2/triage', {
+        const res = await fetch('http://localhost:8000/triage', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ input: symptoms }),
@@ -314,7 +320,7 @@ export default function DemoPage() {
     setIsChatLoading(true);
 
     try {
-      const res = await fetch('/api/v2/chat', {
+      const res = await fetch('http://localhost:8000/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ messages: newHistory }),
@@ -508,7 +514,7 @@ export default function DemoPage() {
                             <Clock className="size-3" />
                             {new Date(record.timestamp).toLocaleString()}
                           </span>
-                          <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${record.triageResult.severity.level.includes('URGENT') ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700'}`}>
+                          <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${record.triageResult.severity.level.includes('EMERGENCY') || record.triageResult.severity.level.includes('URGENT') ? 'bg-red-100 text-red-700' : record.triageResult.severity.level.includes('MONITOR') ? 'bg-amber-100 text-amber-700' : 'bg-green-100 text-green-700'}`}>
                             {record.triageResult.severity.level}
                           </span>
                         </div>
@@ -535,7 +541,7 @@ export default function DemoPage() {
                         <button onClick={() => generateMedicalReport(symptoms, result, crypto.randomUUID(), Date.now())} className="text-xs font-bold bg-secondary hover:bg-secondary/80 px-4 py-2 rounded-lg transition-all flex items-center gap-2">
                           <FileDown className="size-4" /> EXPORT
                         </button>
-                        <span className={`px-3 py-1 rounded-full text-xs font-black tracking-widest ${result.severity.level.includes('URGENT') ? 'bg-red-500 text-white' : 'bg-primary text-white'}`}>
+                        <span className={`px-3 py-1 rounded-full text-xs font-black tracking-widest ${result.severity.level.includes('EMERGENCY') || result.severity.level.includes('URGENT') ? 'bg-red-500 text-white' : result.severity.level.includes('MONITOR') ? 'bg-amber-500 text-white' : 'bg-green-500 text-white'}`}>
                           {result.severity.level}
                         </span>
                       </div>
@@ -553,7 +559,7 @@ export default function DemoPage() {
                         <div className="space-y-3">
                           <h3 className="text-xs font-black text-muted-foreground uppercase tracking-widest">Differential Analysis</h3>
                           <div className="grid gap-3">
-                            {result.differential_diagnosis.map((d, i) => (
+                            {result.differential_diagnosis.slice(0, 4).map((d, i) => (
                               <div key={i} className="p-4 bg-secondary/20 rounded-xl border border-border/50">
                                 <div className="flex justify-between items-start mb-1.5">
                                   <span className="font-bold text-base">{d.condition}</span>

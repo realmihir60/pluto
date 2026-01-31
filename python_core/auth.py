@@ -173,6 +173,7 @@ async def get_current_user(
         return user
 
     except JWTError as e:
+        print(f"DEBUG_AUTH: JWT Verification Failed: {e}")
         if "expired" in str(e).lower():
             raise HTTPException(status_code=401, detail={"code": "TOKEN_EXPIRED", "message": "Session expired. Please log in again."})
         elif "signature" in str(e).lower():

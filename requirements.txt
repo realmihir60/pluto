@@ -8,4 +8,5 @@ python-multipart
 python-jose[cryptography]
 mangum
 python-dotenv
+uvicorn
 # Slim requirements for Vercel Serverless

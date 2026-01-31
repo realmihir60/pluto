@@ -1,8 +1,8 @@
 # Pluto Health: System Overview & Technical Specification
 
 **Role**: Senior Staff Engineer Documentation  
-**Status**: Production-Ready (Vercel Unified)  
-**Architecture**: Vercel Serverless (Next.js Frontend + Python Brain API)
+**Status**: Local Development (Hybrid)  
+**Architecture**: Local Hybrid (Next.js :3000 + Python FastAPI :8000)
 
 ---
 

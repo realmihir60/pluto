@@ -18,8 +18,8 @@ class RateLimiter:
         self.requests: Dict[str, List[float]] = defaultdict(list)
         
         # Limits (requests per hour)
-        self.AUTHENTICATED_LIMIT = 50  # Logged-in users: 50/hour
-        self.ANONYMOUS_LIMIT = 10      # Anonymous users: 10/hour
+        self.AUTHENTICATED_LIMIT = 100  # Logged-in users: 100/hour
+        self.ANONYMOUS_LIMIT = 10       # Anonymous users: 10/hour (production)
         self.WINDOW = 3600              # 1 hour in seconds
         
         # Cleanup interval (remove old data)

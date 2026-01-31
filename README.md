@@ -1,223 +1,193 @@
 # Pluto Health 🏥
 
-> **Intelligence-Led Clinical Triage Engine with Secure Memory** - Professional-grade symptom analysis and clinical decision support.
+> **Neuro-Symbolic Clinical Triage Engine with Safety-Critical Override System** - Professional-grade symptom analysis and clinical decision support utility.
 
 [![Next.js](https://img.shields.io/badge/Next.js-15.0-black)](https://nextjs.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.128-green)](https://fastapi.tiangolo.com/)
-[![SQLModel](https://img.shields.io/badge/SQLModel-0.0.31-blue)](https://sqlmodel.tiangolo.com/)
+[![Clinical Engine](https://img.shields.io/badge/Engine-v4.1.0-blue)](./python_core/clinical_reasoning_engine.py)
 [![License](https://img.shields.io/badge/license-MIT-green)](./LICENSE)
-[![Status](https://img.shields.io/badge/status-Production_Ready-brightgreen)](https://github.com/realmihir60/pluto)
+[![Status](https://img.shields.io/badge/status-Launch_Ready-brightgreen)](https://github.com/realmihir60/pluto)
 
 ## 🌟 Overview
 
-**Pluto Health is Production Ready** ✅ - A friendly, doctor-like clinical triage system that transforms alarming technical medical responses into reassuring, methodical assessments.
+Pluto Health is a **safety-first clinical decision support system** designed to bridge the gap between alarming medical jargon and reassuring, methodical clinical assessment. It utilizes a unique **Neuro-Symbolic** approach: combining deterministic clinical protocols (Symbolic) with the natural language nuance of advanced LLMs (Neural).
 
-Built with a **defensive architecture** featuring:
-- **Doctor-Like AI Prompts**: Simple language, assessment tables, conservative approach
-- **Multi-Layer Safety**: Rule Engine → ML Ready → LLM with ensemble validation  
-- **Rate Limiting**: ✅ ACTIVE - 50 requests/hour (authenticated), 10/hour (anonymous)
-- **In-House Monitoring**: ✅ ACTIVE - Error tracking, performance metrics, audit trails
-- **Error Handling**: ✅ ACTIVE - User-friendly messages for all failure modes
-- **PII Protection**: Sanitization before AI processing, encrypted storage
+### Core Pillars
+- **Doctor-Like AI**: Reassuring, patient-centric language that avoids jargon while maintaining clinical authority.
+- **Safety-Critical Overrides**: Hard rules for high-risk populations (infants, elderly, TIA patterns) that bypass normal logic.
+- **Defensive Architecture**: Multi-layer validation (Safety Overrides → Rule Engine → LLM) that always biases towards safety.
+- **Privacy by Design**: Automated PII scrubbing and de-identification before any clinical data hits the inference layer.
 
 ---
 
-## 🚀 Tech Stack
+## 🚀 What's New in v4.1.0 (Launch Release)
 
-### Core Technologies
-- **Frontend**: Next.js 15 (App Router, Server Actions)
-- **Clinical Engine**: Python FastAPI (Deterministic Logic, PII Scrubbing, Audit Snapshots)
-- **Database**: PostgreSQL (Prisma & SQLModel Integration)
-- **Authentication**: Auth.js (NextAuth v5) + Unified Python Bridge
-- **Intelligence Layer**:
-  - Groq Llama 3.3 70B (Doctor-like reasoning with simple language)
-  - Whisper API (Voice transcription)
-- **Design System**: Framer Motion, Tailwind CSS (Glassmorphism), Lucide React
+### 🛡️ Safety Override System
+The Clinical Reasoning Engine now includes **6 hard safety rules** that trigger BEFORE symptom matching:
 
----
+| Rule | Trigger Pattern | Result |
+|------|-----------------|--------|
+| **TIA Detection** | Resolved neuro symptoms ("fine now") | 🚨 EMERGENCY |
+| **Infant Safety** | <1 year + feeding/behavior change | ⚠️ URGENT |
+| **Elderly Protection** | 65+ + cognitive change | ⚠️ URGENT |
+| **Cardiac Alert** | Orthopnea + age >55 | ⚠️ URGENT |
+| **DVT Risk** | Flight/immobility + leg symptoms | ⚠️ URGENT |
+| **Metabolic Alert** | Sweating + tremor in adult | ⚠️ URGENT |
 
-## 🏗️ Architecture
-
-Pluto uses a **Vercel Unified** model with defensive depth:
-
-### Core Layers
-1.  **Frontend (React/Next.js)**: Premium clinical interface with glassmorphism design
-2.  **Clinical Brain (Python Serverless)**: Hardened clinical logic running as Vercel Python Functions in `/api/*.py`
-3.  **Unified Auth**: Shared PostgreSQL session between JS and Python
-
-### Safety Features (All Active ✅)
-- **Rate Limiting**: In-memory rate limiter prevents abuse (50/1h authenticated, 10/1h anonymous)
-- **Error Handling**: Graceful LLM fallback, user-friendly error messages for LLM/DB/timeout failures
-- **Logging**: Structured JSON logs (errors, performance, triage events) → `/logs/*.jsonl`
-- **Monitoring**: In-house metrics dashboard (no external dependencies)
-- **PII Scrubbing**: Sanitization layer before AI processing
-
-### Clinical Intelligence
-- **Rule Engine**: Deterministic crisis keyword detection and pattern matching
-- **ML-Ready**: Architecture supports future ML safety layer (see `ml_safety_layer_plan.md`)
-- **LLM (Groq Llama 3.3 70B)**: Doctor-like prompts with simple language and assessment tables
-- **Ensemble**: Conservative upward bias when signals disagree
+### 📊 Validation Results
+- **87.5% pass rate** on 24 stress test edge cases
+- **100% emergency detection** (MI, Stroke, SAH, Meningitis, Cauda Equina)
+- **100% deceptive-critical detection** (DVT, Thunderclap, Cardiac mimic)
+- **0 under-triage** of dangerous conditions
 
 ---
 
-## 📦 Installation
+## 🏗️ Architecture: The Local Hybrid Model
 
-### Prerequisites
-- Node.js 20+
-- Python 3.10+
-- PostgreSQL Database
-- Groq API Key
+Pluto operates in a **Hybrid Local Environment** to ensure zero-latency response times and maximum data sovereignty.
 
-### Setup
+### System Stack
+1. **Frontend (Port 3000)**: Next.js 15 (React 19) with premium glassmorphism UI
+2. **Clinical Brain (Port 8000)**: Python FastAPI with 3-stage reasoning engine
+3. **Unified Auth Bridge**: Shared Auth.js session between JS and Python
+4. **Data Layer**: PostgreSQL (Supabase) via Prisma + SQLModel
 
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/realmihir60/pluto.git
-   cd pluto
-   ```
+```mermaid
+graph TD
+    A[Next.js Client :3000] -->|POST /api/triage| B[FastAPI Backend :8000]
+    B -->|Stage 0| C[🛡️ Safety Overrides]
+    C -->|Stage 1| D[Protocol Classifier]
+    D -->|Stage 2| E[Criteria Matrix]
+    E -->|Stage 3| F[Urgency Computer]
+    F -->|Enrich| G[Groq Llama 3.3 70B]
+    G -->|JSON Response| H[Next.js Client]
+```
 
-2. **Install Frontend Dependencies**
-   ```bash
-   npm install
-   npx prisma generate
-   npx prisma db push
-   ```
+---
 
-3. **Setup Python Backend**
-   ```bash
-   # Create virtual environment
-   python3 -m venv venv
-   
-   # Activate virtual environment
-   source venv/bin/activate  # On macOS/Linux
-   # OR
-   venv\\Scripts\\activate     # On Windows
-   
-   # Install Python dependencies
-   pip install -r requirements.txt
-   pip install uvicorn python-dotenv
-   ```
+## ⚡ Quick Start (Local Setup)
 
-4. **Environment Variables**
-   
-   Copy the example file and fill in your actual values:
-   ```bash
-   cp .env.example .env
-   ```
-   
-   Then edit `.env` with your credentials:
-   ```env
-   GROQ_API_KEY=your_groq_api_key_here
-   DATABASE_URL="postgresql://user:password@host:port/database?pgbouncer=true"
-   DIRECT_URL="postgresql://user:password@host:port/database"
-   AUTH_SECRET="your_secret_key_here"  # Generate with: openssl rand -base64 32
-   NEXT_PUBLIC_API_URL=http://localhost:8000
-   GMAIL_USER=your_email@gmail.com
-   GMAIL_APP_PASSWORD=your_gmail_app_password
-   ```
-   
-   **⚠️ Security Note:** Never commit `.env` to git. The `.env.example` file is for reference only.
+### 1. Prerequisites
+- **Node.js**: 20.x or higher
+- **Python**: 3.10 or higher
+- **PostgreSQL**: Local instance or Supabase
+- **Groq API Key**: Obtain from [Groq Cloud](https://console.groq.com/)
 
-5. **Run Development Servers**
-   
-   You need to run **two separate terminals**:
-   
-   **Terminal 1 - Frontend (Next.js):**
-   ```bash
-   npm run dev
-   ```
-   
-   **Terminal 2 - Backend (FastAPI):**
-   ```bash
-   source venv/bin/activate
-   python3 main_api.py
-   ```
-   
-   The app will be available at `http://localhost:3001` (or `3000` if available)
+### 2. Installation
+```bash
+# Clone the repository
+git clone https://github.com/realmihir60/pluto.git
+cd pluto
+
+# Install Node dependencies
+npm install
+npx prisma generate
+
+# Install Python dependencies
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+```
+
+### 3. Environment Configuration
+Create a `.env` file in the root directory:
+```env
+# API Keys
+GROQ_API_KEY=gsk_...
+
+# Database (Supabase recommended)
+DATABASE_URL="postgresql://..."
+
+# Auth (NextAuth v5)
+AUTH_SECRET="your_shared_secret"
+AUTH_URL="http://localhost:3000"
+
+# Infrastructure
+NEXT_PUBLIC_API_URL="http://localhost:8000"
+```
+
+### 4. Running the Dev Environment
+
+**Terminal 1 (Backend):**
+```bash
+./run_local_backend.sh
+```
+
+**Terminal 2 (Frontend):**
+```bash
+npm run dev
+```
+
+---
+
+## 🛡️ Security & Safety Protocol
+
+### Multi-Layer Safety Gate
+1. **Safety Overrides**: Hard rules for high-risk populations (infants, elderly, TIA) - CANNOT be bypassed
+2. **PII Sanitization**: Every input is scrubbed for name, email, phone before processing
+3. **Protocol Matching**: 20+ clinical protocols with 200+ keywords
+4. **Criteria Matrix**: 90+ red flags, 40+ green flags tracked per symptom
+5. **Conservative Bias**: System errs on side of caution (over-triage preferred vs under-triage)
+6. **Rate Limiting**: 50 req/hr (auth), 10 req/hr (anon)
+
+---
+
+## 📊 Clinical Reasoning Engine v4.1.0 - Validation
+
+The engine has been stress-tested against **54 clinical scenarios** (30 real-world + 24 edge cases).
+
+### Test Statistics
+| Metric | Result |
+|--------|--------|
+| **Stress Test Pass Rate** | 87.5% (21/24) |
+| **Emergency Detection** | 5/5 (100%) |
+| **Deceptive Critical Cases** | 4/4 (100%) |
+| **High-Risk Population Safety** | 6/6 (100%) |
+| **Under-Triage Rate** | 0% |
+
+### Urgency Distribution (30 Cases)
+| Level | Count | % |
+|-------|-------|---|
+| 🚨 EMERGENCY | 5 | 16.7% |
+| ⚠️ URGENT | 12 | 40.0% |
+| 🔍 MONITOR | 11 | 36.7% |
+| 🏠 HOME CARE | 2 | 6.7% |
+
+📋 Full test results: [python_core/test.md](./python_core/test.md)
 
 ---
 
 ## 🔧 Troubleshooting
 
-### Common Issues
-
-**Port 8000 already in use:**
-```bash
-# Kill existing process on port 8000
-lsof -ti:8000 | xargs kill -9
-```
-
-**Database connection errors:**
-- Ensure your `DATABASE_URL` credentials are correct
-- Check that PostgreSQL is running
-- Verify the database exists and is accessible
-
-**Missing Python modules:**
-```bash
-source venv/bin/activate
-pip install -r requirements.txt
-pip install uvicorn python-dotenv
-```
-
-**Prisma Client errors:**
-```bash
-npx prisma generate
-npx prisma db push
-```
+- **401 Unauthorized**: Clear browser cookies. JWS requires fresh session after config changes.
+- **Port 8000 Conflict**: Run `lsof -ti:8000 | xargs kill -9` to clear stale processes.
+- **Rate Limited**: Wait 1 hour or increase limits in `python_core/rate_limiter.py`.
 
 ---
 
 ## 📅 Roadmap
 
-### ✅ Completed (v3.0.0)
-- [x] Core Triage Engine with Rule-Based Logic
-- [x] Python Backend Migration (FastAPI on Vercel)
-- [x] Clinical Audit Trail & Logic Snapshots
-- [x] Adversarial PII Scrubbing
-- [x] User Authentication & Consent Gate (NextAuth v5)
-- [x] Premium UI Refinement & Full-Screen Experience
-- [x] Performance Tuning & Mobile Optimization
-- [x] Clinical Guardrails & Protocols (Anti-Hallucination)
-- [x] **Phase 1: Doctor-Like Triage System** 🆕
-  - Simple language ("dizzy" not "vertigo")
-  - Assessment tables (what we know vs need to check)
-  - Conservative approach (asks questions before diagnosing)
-- [x] **Beta Production Hardening** 🆕
-  - Rate limiting (abuse prevention)
-  - In-house monitoring & logging
-  - Graceful error handling
+### ✅ v4.1.0 (Current - Launch Ready)
+- [x] Clinical Reasoning Engine v4.0 with 3-stage protocol matching
+- [x] Safety Override System for high-risk populations
+- [x] Criteria Matrix with red/green flag tracking
+- [x] 54 clinical scenarios validated (87.5% pass rate)
+- [x] Legal defensibility: 0% under-triage
 
-### 🚧 In Progress  
-- [ ] Demo feedback buttons ("Was this helpful?")
-- [ ] Admin metrics dashboard
-- [ ] ML Safety Layer (data collection phase)
-
-### 🔮 Future
-- [ ] Telemedicine Integration
-- [ ] Multi-language Support
-- [ ] Mobile Apps (iOS/Android)
+### 🔜 v4.2.0 (Next)
+- [ ] Voice Triage via Whisper API
+- [ ] Clinical Focus Notes extraction
+- [ ] Enterprise Audit logging
 
 ---
 
 ## ⚠️ Disclaimer
 
-**Pluto Health is in Public Beta.** This tool is for **educational and preliminary triage purposes only**. It is **NOT** a substitute for professional medical advice. Always seek the advice of qualified health providers for medical concerns.
-
-**For emergencies, call 911 immediately.**
-
----
-
-## 📚 Documentation
-
-- [Integration Guide](./INTEGRATION_GUIDE.md) - Rate limiting and monitoring setup
-- [Beta Readiness Audit](./beta_readiness_audit.md) - Pre-launch checklist
-- [ML Safety Layer Plan](./ml_safety_layer_plan.md) - Future ML integration
-- [Phase 1 Walkthrough](./phase1_implementation_walkthrough.md) - Doctor-like prompts
+**Pluto Health is for educational purposes only.** It provides preliminary clinical triage and is **NOT** a substitute for professional medical advice, diagnosis, or treatment. In the event of a medical emergency, call emergency services (e.g., 911) immediately.
 
 ---
 
 ## 📄 License
+MIT License. Built for the future of decentralized clinical intelligence.
 
-MIT License. Built with ❤️ for better healthcare accessibility.
-
-**Status:** Public Beta v3.0.0 | Last Updated: January 28, 2026
+**Status:** Launch Ready | Engine: v4.1.0 | Last Updated: Jan 2026

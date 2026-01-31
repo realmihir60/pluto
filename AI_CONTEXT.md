@@ -10,11 +10,11 @@ Pluto is not an LLM wrapper. It is a **Neuro-Symbolic Hybrid**.
 ---
 
 ## 2. INFRASTRUCTURE & DEPLOYMENT STATE
-### Pivot Rationale: Standalone -> Vercel Serverless
-- **Initial State**: Standalone FastAPI + Gunicorn server in `/backend`.
-- **Current State**: Unified Vercel Python Functions in `/api/*.py`.
-- **Reason**: Railway/Render free tiers either have "Network Restrictions" (blocking database/Google Maps access) or "Time Limits" (30-day trials). Vercel is chosen for **permanent, unified, zero-cost production**.
-- **Constraint**: Vercel Python runtime has a **10-second timeout**. Clinical reasoning flows must be optimized to return in < 8s.
+### Pivot Rationale: Vercel -> Local Hybrid
+- **Initial State**: Vercel Serverless Functions.
+- **Current State**: Local FastAPI (`localhost:8000`) + Next.js (`localhost:3000`).
+- **Reason**: Vercel's Python runtime restrictions (routing, path stripping, dependency handling) proved too unstable for complex hybrid apps.
+- **Constraint**: You must run `./run_local_backend.sh` locally. No cloud timeouts :)
 
 ---
 
