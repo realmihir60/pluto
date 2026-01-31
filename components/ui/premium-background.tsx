@@ -39,7 +39,7 @@ export function PremiumBackground() {
             />
 
             {/* Fine Noise Texture */}
-            <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.1] mix-blend-overlay" />
+            <div className="absolute inset-0 bg-[url('/noise.svg')] opacity-[0.1] mix-blend-overlay" />
 
             {/* Grid pattern with gradient fade */}
             <div className="absolute inset-0 bg-[linear-gradient(to_right,var(--border)_1px,transparent_1px),linear-gradient(to_bottom,var(--border)_1px,transparent_1px)] bg-[size:64px_64px] [mask-image:radial-gradient(ellipse_80%_80%_at_50%_50%,#000_60%,transparent_100%)] opacity-[0.05]" />

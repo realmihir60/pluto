@@ -31,7 +31,7 @@ export function TrustSection() {
     return (
         <section className="py-40 bg-secondary/10 relative overflow-hidden">
             {/* Background Grain */}
-            <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.03] pointer-events-none" />
+            <div className="absolute inset-0 bg-[url('/noise.svg')] opacity-[0.03] pointer-events-none" />
 
             <div className="max-w-7xl mx-auto px-6 relative">
                 <div className="text-center mb-24">
