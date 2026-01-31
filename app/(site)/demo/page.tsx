@@ -130,7 +130,7 @@ export default function DemoPage() {
               </div>
             );
           }
-          return <p key={i} className="leading-relaxed">{formatBold(line)}</p>;
+          return <div key={i} className="leading-relaxed">{formatBold(line)}</div>;
         })}
       </div>
     );
